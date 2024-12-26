@@ -7,6 +7,16 @@ set(executable boop)
 
 set(sources
 	src/main.cpp
+
+	src/Texture.hpp
+
+	src/render/Renderable.hpp
+	src/render/Renderer.hpp
+	src/render/Renderer.cpp
+	src/render/RendererBackend.hpp
+
+	src/render/gl/GLRendererBackend.hpp
+	src/render/gl/GLRendererBackend.cpp
 )
 
 if(WIN32 AND (CMAKE_BUILD_TYPE STREQUAL "Release" OR CMAKE_BUILD_TYPE STREQUAL "RelWithDebInfo"))

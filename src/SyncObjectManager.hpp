@@ -2,7 +2,7 @@
 
 #include <atomic>
 
-#include "Darktimes.hpp"
+#include <win/Win.hpp>
 
 enum class SyncObjectState
 {
@@ -15,7 +15,7 @@ enum class SyncObjectState
 // private -- don't use directly
 template <typename T> struct SyncObject : T
 {
-	NO_COPY_MOVE(SyncObject);
+	WIN_NO_COPY_MOVE(SyncObject);
 
 	SyncObject()
 		: state(SyncObjectState::empty)
@@ -27,7 +27,7 @@ template <typename T> struct SyncObject : T
 // good for multi-reader / single-writer
 template <typename T, int slots = 2> class SyncObjectManager
 {
-	NO_COPY_MOVE(SyncObjectManager);
+	WIN_NO_COPY_MOVE(SyncObjectManager);
 
 	static_assert(slots > 0, "slots must be greater than 0");
 

@@ -3,7 +3,6 @@
 #include <type_traits>
 
 #include <win/Event.hpp>
-#include <win/Stream.hpp>
 
 namespace win
 {

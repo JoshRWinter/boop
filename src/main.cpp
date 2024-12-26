@@ -2,8 +2,12 @@
 #include <win/AssetRoll.hpp>
 #include <win/gl/GL.hpp>
 
+#include "render/Renderer.hpp"
+
 int main()
 {
+	win::AssetRoll roll("boop.roll");
+
 	// display setup
 	win::DisplayOptions display_options;
 #ifndef NDEBUG
@@ -29,12 +33,13 @@ int main()
 
 	win::load_gl_functions();
 
+	Renderer renderer(roll);
+
 	while (!quit)
 	{
 		display.process();
 
-		glClear(GL_COLOR_BUFFER_BIT);
-
+		renderer.render({});
 		display.swap();
 	}
 
