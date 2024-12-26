@@ -25,7 +25,7 @@ template <typename T> struct SyncObject : T
 };
 
 // good for multi-reader / single-writer
-template <typename T, int slots = 2> class SyncObjectManager
+template <typename T, int slots> class SyncObjectManager
 {
 	WIN_NO_COPY_MOVE(SyncObjectManager);
 

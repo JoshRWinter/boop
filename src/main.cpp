@@ -3,6 +3,7 @@
 #include <win/gl/GL.hpp>
 
 #include "render/Renderer.hpp"
+#include "sim/Simulation.hpp"
 
 int main()
 {
@@ -26,20 +27,28 @@ int main()
 	display_options.gl_minor = 3;
 
 	win::Display display(display_options);
-	display.vsync(true);
+	display.vsync(false);
 
 	bool quit = false;
 	display.register_button_handler([&quit](win::Button button, bool press) { if (button == win::Button::esc && press) quit = true; });
 
 	win::load_gl_functions();
 
-	Renderer renderer(roll, win::Area<float>(-8.0f, 8.0f, -4.5, 4.5f));
+	win::Area<float> area(-8.0f, 8.0f, -4.5f, 4.5f);
+	Renderer renderer(roll, area);
+	Simulation sim(area);
 
 	while (!quit)
 	{
 		display.process();
 
-		renderer.render({ Renderable(Texture::ball, 0.0f, 0.0f, 1.0f, 1.0f, win::Color<float>(1.0f, 0.0f, 0.0f, 1.0f) )});
+		auto renderables = sim.get_renderables();
+		if (renderables != NULL)
+		{
+			renderer.render(*renderables);
+			sim.release_renderables(renderables);
+		}
+
 		display.swap();
 	}
 

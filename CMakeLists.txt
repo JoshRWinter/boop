@@ -10,6 +10,11 @@ set(sources
 
 	src/Texture.hpp
 
+	src/sim/Simulation.hpp
+	src/sim/Simulation.cpp
+	src/sim/Game.hpp
+	src/sim/Game.cpp
+
 	src/render/Renderable.hpp
 	src/render/Renderer.hpp
 	src/render/Renderer.cpp
