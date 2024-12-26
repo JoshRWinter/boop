@@ -33,13 +33,13 @@ int main()
 
 	win::load_gl_functions();
 
-	Renderer renderer(roll);
+	Renderer renderer(roll, win::Area<float>(-8.0f, 8.0f, -4.5, 4.5f));
 
 	while (!quit)
 	{
 		display.process();
 
-		renderer.render({});
+		renderer.render({ Renderable(Texture::ball, 0.0f, 0.0f, 1.0f, 1.0f, win::Color<float>(1.0f, 0.0f, 0.0f, 1.0f) )});
 		display.swap();
 	}
 

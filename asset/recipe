@@ -1,0 +1,10 @@
+shader/gl/common.vert
+shader/gl/common.frag
+
+svg2tga {
+    texture/ball.svg 50 50 exclude
+}
+
+atlas {
+    texture/atlas.txt texture/atlas
+}
