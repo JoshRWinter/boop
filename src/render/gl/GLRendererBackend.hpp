@@ -25,6 +25,7 @@ private:
 	win::GLAtlas atlas;
 	win::GLProgram program;
 	int uniform_transform;
+	int uniform_color;
 
 	win::GLVertexArray vao;
 	win::GLBuffer vbo_pos;

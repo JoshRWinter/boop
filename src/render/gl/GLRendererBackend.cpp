@@ -20,13 +20,15 @@ GLRendererBackend::GLRendererBackend(win::AssetRoll &roll, const win::Area<float
 	: atlas(roll["texture/atlas"], win::GLAtlas::Mode::linear)
 	, program(win::load_gl_shaders(roll["shader/gl/common.vert"], roll["shader/gl/common.frag"]))
 {
-	glClearColor(0.1f, 0.1f, 0.12f, 1.0f);
+	glEnable(GL_FRAMEBUFFER_SRGB);
+	glClearColor(0.01f, 0.01f, 0.012f, 1.0f);
 	glEnable(GL_BLEND);
-	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+	glBlendFunc(GL_ONE, GL_ONE_MINUS_SRC_ALPHA);
 
 	glUseProgram(program.get());
 	projection = glm::ortho(area.left, area.right, area.bottom, area.top);
 	uniform_transform = get_uniform(program, "transform");
+	uniform_color = get_uniform(program, "color");
 
 	glBindVertexArray(vao.get());
 
@@ -65,6 +67,7 @@ void GLRendererBackend::render(const std::vector<Renderable> &renderables)
 
 		const auto transform = projection * translate * scale;
 		glUniformMatrix4fv(uniform_transform, 1, GL_FALSE, glm::value_ptr(transform));
+		glUniform4f(uniform_color, renderable.color.red, renderable.color.green, renderable.color.blue, 1.0f);
 
 		glDrawArrays(GL_TRIANGLES, 0, 6);
 	}

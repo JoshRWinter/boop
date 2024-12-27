@@ -8,5 +8,8 @@ uniform sampler2D tex;
 
 void main()
 {
-    frag = texture(tex, ftexcoord);
+    vec4 t = texture(tex, ftexcoord);
+    vec4 straight = vec4(t.rgb / t.a, t.a);
+    vec4 combined = straight * color;
+    frag = vec4(combined.rgb * combined.a, combined.a);
 }
