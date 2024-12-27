@@ -8,6 +8,8 @@ Game::Game(const win::Area<float> &area)
 
 void Game::tick(std::vector<Renderable> &renderables)
 {
+	const float oldx = ball.x, oldy = ball.y;
+
 	ball.x += ball.xv;
 	ball.y += ball.yv;
 
@@ -32,7 +34,7 @@ void Game::tick(std::vector<Renderable> &renderables)
 		ball.yv = -ball.yv;
 	}
 
-	renderables.emplace_back(Texture::ball, ball.x, ball.y, Ball::width, Ball::height, win::Color<float>(1, 0, 1, 1));
+	renderables.emplace_back(Texture::ball, ball.x, ball.y, oldx, oldy, Ball::width, Ball::height, win::Color<float>(1, 0, 1, 1));
 }
 
 void Game::reset()

@@ -9,8 +9,8 @@
 
 struct Ball
 {
-	static constexpr float width = 1.0f;
-	static constexpr float height = 1.0f;
+	static constexpr float width = 0.3f;
+	static constexpr float height = 0.3f;
 
 	float x, y;
 	float xv, yv;
@@ -21,7 +21,7 @@ class Game
 	WIN_NO_COPY_MOVE(Game);
 
 public:
-	Game(const win::Area<float> &area);
+	explicit Game(const win::Area<float> &area);
 
 	void tick(std::vector<Renderable> &renderables);
 

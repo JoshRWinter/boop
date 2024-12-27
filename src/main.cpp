@@ -27,27 +27,38 @@ int main()
 	display_options.gl_minor = 3;
 
 	win::Display display(display_options);
-	display.vsync(false);
+	display.vsync(true);
 
 	bool quit = false;
 	display.register_button_handler([&quit](win::Button button, bool press) { if (button == win::Button::esc && press) quit = true; });
 
 	win::load_gl_functions();
 
-	win::Area<float> area(-8.0f, 8.0f, -4.5f, 4.5f);
-	Renderer renderer(roll, area);
+	const win::Area<float> area(-8.0f, 8.0f, -4.5f, 4.5f);
 	Simulation sim(area);
+	Renderer renderer(roll, area);
+
+	RenderableCollection *renderables = NULL;
+	auto lasttime = std::chrono::high_resolution_clock::now();
 
 	while (!quit)
 	{
 		display.process();
 
-		auto renderables = sim.get_renderables();
-		if (renderables != NULL)
+		auto new_renderables = sim.get_renderables();
+		if (new_renderables != NULL)
 		{
-			renderer.render(*renderables);
-			sim.release_renderables(renderables);
+			if (renderables != NULL)
+			{
+				lasttime = renderables->time;
+				sim.release_renderables(renderables);
+			}
+
+			renderables = new_renderables;
 		}
+
+		if (renderables != NULL)
+			renderer.render(renderables->renderables, lasttime, renderables->time);
 
 		display.swap();
 	}

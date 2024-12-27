@@ -15,12 +15,12 @@ Simulation::~Simulation()
 	simthread.join();
 }
 
-std::vector<Renderable> *Simulation::get_renderables()
+RenderableCollection *Simulation::get_renderables()
 {
 	return som.reader_acquire();
 }
 
-void Simulation::release_renderables(std::vector<Renderable> *renderables)
+void Simulation::release_renderables(RenderableCollection *renderables)
 {
 	som.reader_release(renderables);
 }
@@ -31,12 +31,13 @@ void Simulation::sim(win::Area<float> area)
 
 	while (!quit.load())
 	{
-		std::vector<Renderable> *renderables = NULL;
+		RenderableCollection *renderables = NULL;
 		while (renderables == NULL)
 			renderables = som.writer_acquire();
 
-		renderables->clear();
-		game.tick(*renderables);
+		renderables->renderables.clear();
+		game.tick(renderables->renderables);
+		renderables->time = std::chrono::high_resolution_clock::now();
 
 		som.writer_release(renderables);
 
@@ -46,5 +47,5 @@ void Simulation::sim(win::Area<float> area)
 
 void Simulation::sleep()
 {
-	std::this_thread::sleep_for(std::chrono::duration<float, std::milli>(16.666));
+	std::this_thread::sleep_for(std::chrono::duration<float, std::milli>(16.66666));
 }

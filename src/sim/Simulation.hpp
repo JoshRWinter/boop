@@ -15,17 +15,17 @@ class Simulation
 	WIN_NO_COPY_MOVE(Simulation);
 
 public:
-	Simulation(const win::Area<float> &area);
+	explicit Simulation(const win::Area<float> &area);
 	~Simulation();
 
-	std::vector<Renderable> *get_renderables();
-	void release_renderables(std::vector<Renderable> *renderables);
+	RenderableCollection *get_renderables();
+	void release_renderables(RenderableCollection *renderables);
 
 private:
 	void sim(win::Area<float> area);
 	void sleep();
 
-	SyncObjectManager<std::vector<Renderable>, 3> som;
+	SyncObjectManager<RenderableCollection, 3> som;
 
 	std::atomic<bool> quit;
 	std::thread simthread;
