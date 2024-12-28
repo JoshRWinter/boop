@@ -28,15 +28,27 @@ int main()
 
 	win::Display display(display_options);
 	display.vsync(true);
-
-	bool quit = false;
-	display.register_button_handler([&quit](win::Button button, bool press) { if (button == win::Button::esc && press) quit = true; });
+	display.cursor(false);
 
 	win::load_gl_functions();
 
 	const win::Area<float> area(-8.0f, 8.0f, -4.5f, 4.5f);
 	Simulation sim(area);
 	Renderer renderer(roll, area);
+
+	bool quit = false;
+	display.register_button_handler([&quit](win::Button button, bool press)
+	{
+		if (button == win::Button::esc && press) quit = true;
+	});
+
+	const int display_height = display.height();
+	display.register_mouse_handler([&sim, &area, display_height](int, int y)
+	{
+		Input input;
+		input.y = -(((y / (float)display_height) * (area.top - area.bottom)) - area.top);
+		sim.set_input(input);
+	});
 
 	RenderableCollection *renderables = NULL;
 	auto lasttime = std::chrono::high_resolution_clock::now();

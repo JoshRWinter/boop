@@ -9,6 +9,7 @@
 
 #include "../SyncObjectManager.hpp"
 #include "../render/Renderable.hpp"
+#include "../Input.hpp"
 
 class Simulation
 {
@@ -20,12 +21,14 @@ public:
 
 	RenderableCollection *get_renderables();
 	void release_renderables(RenderableCollection *renderables);
+	void set_input(Input input);
 
 private:
 	void sim(win::Area<float> area);
 	void sleep();
 
-	SyncObjectManager<RenderableCollection, 3> som;
+	SyncObjectManager<RenderableCollection, 3> som_renderables;
+	SyncObjectManager<Input, 3> som_input;
 
 	std::atomic<bool> quit;
 	std::thread simthread;

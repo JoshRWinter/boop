@@ -17,29 +17,48 @@ Simulation::~Simulation()
 
 RenderableCollection *Simulation::get_renderables()
 {
-	return som.reader_acquire();
+	return som_renderables.reader_acquire();
 }
 
 void Simulation::release_renderables(RenderableCollection *renderables)
 {
-	som.reader_release(renderables);
+	som_renderables.reader_release(renderables);
+}
+
+void Simulation::set_input(Input input)
+{
+	Input *obj = NULL;
+	do { obj = som_input.writer_acquire(); } while (obj == NULL);
+
+	*obj = input;
+
+	som_input.writer_release(obj);
 }
 
 void Simulation::sim(win::Area<float> area)
 {
 	Game game(area);
 
+	Input input;
+
 	while (!quit.load())
 	{
 		RenderableCollection *renderables = NULL;
 		while (renderables == NULL)
-			renderables = som.writer_acquire();
+			renderables = som_renderables.writer_acquire();
+
+		Input *latest_input;
+		if ((latest_input = som_input.reader_acquire()) != NULL)
+		{
+			input = *latest_input;
+			som_input.reader_release(latest_input);
+		}
 
 		renderables->renderables.clear();
-		game.tick(renderables->renderables);
+		game.tick(renderables->renderables, input);
 		renderables->time = std::chrono::high_resolution_clock::now();
 
-		som.writer_release(renderables);
+		som_renderables.writer_release(renderables);
 
 		sleep();
 	}
@@ -47,5 +66,5 @@ void Simulation::sim(win::Area<float> area)
 
 void Simulation::sleep()
 {
-	std::this_thread::sleep_for(std::chrono::duration<float, std::milli>(16.66666));
+	std::this_thread::sleep_for(std::chrono::duration<float, std::milli>(16.666));
 }

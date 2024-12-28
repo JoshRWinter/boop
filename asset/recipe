@@ -3,6 +3,7 @@ shader/gl/common.frag
 
 svg2tga {
     texture/ball.svg 50 50 exclude
+    texture/paddle.svg 50 50 exclude
 }
 
 atlas {

@@ -9,6 +9,7 @@ set(sources
 	src/main.cpp
 
 	src/Texture.hpp
+	src/Input.hpp
 
 	src/sim/Simulation.hpp
 	src/sim/Simulation.cpp

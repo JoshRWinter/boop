@@ -69,7 +69,7 @@ void GLRendererBackend::render(const std::vector<Renderable> &renderables)
 		glUniformMatrix4fv(uniform_transform, 1, GL_FALSE, glm::value_ptr(transform));
 		glUniform4f(uniform_color, renderable.color.red, renderable.color.green, renderable.color.blue, 1.0f);
 
-		glDrawArrays(GL_TRIANGLES, 0, 6);
+		glDrawArrays(GL_TRIANGLES, (int)renderable.texture * 6, 6);
 	}
 }
 

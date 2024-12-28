@@ -1,2 +1,3 @@
-$padding 0
+$padding 2
 ball.tga:0:0:50:50
+paddle.tga:0:52:50:50
