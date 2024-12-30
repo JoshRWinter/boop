@@ -16,7 +16,7 @@ class Simulation
 	WIN_NO_COPY_MOVE(Simulation);
 
 public:
-	explicit Simulation(const win::Area<float> &area);
+	Simulation(const win::Area<float> &area, bool runbot);
 	~Simulation();
 
 	RenderableCollection *get_renderables();
@@ -24,12 +24,13 @@ public:
 	void set_input(Input input);
 
 private:
-	void sim(win::Area<float> area);
+	void sim(win::Area<float> area, bool runbot);
 	void sleep();
 
 	SyncObjectManager<RenderableCollection, 3> som_renderables;
 	SyncObjectManager<Input, 3> som_input;
 
+	bool bot;
 	std::atomic<bool> quit;
 	std::thread simthread;
 };

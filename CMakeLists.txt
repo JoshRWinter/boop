@@ -8,6 +8,9 @@ set(executable boop)
 set(sources
 	src/main.cpp
 
+	src/NetworkMatch.hpp
+	src/NetworkMatch.cpp
+
 	src/UdpClient.hpp
 	src/UdpClient.cpp
 	src/UdpServer.hpp

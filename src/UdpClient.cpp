@@ -65,9 +65,31 @@ UdpClient::UdpClient(const std::string &address, unsigned short port)
 #endif
 }
 
+UdpClient::UdpClient(UdpClient &&rhs) noexcept
+{
+	sock = rhs.sock;
+	ai = rhs.ai;
+
+	rhs.sock = -1;
+	rhs.ai = NULL;
+}
+
 UdpClient::~UdpClient()
 {
 	this->close();
+}
+
+UdpClient &UdpClient::operator=(UdpClient &&rhs) noexcept
+{
+	close();
+
+	sock = rhs.sock;
+	ai = rhs.ai;
+
+	rhs.sock = -1;
+	rhs.ai = NULL;
+
+	return *this;
 }
 
 UdpClient::operator bool() const

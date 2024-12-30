@@ -37,9 +37,25 @@ UdpServer::UdpServer(unsigned short port)
 	bind(port);
 }
 
+UdpServer::UdpServer(UdpServer &&rhs)
+{
+	sock = rhs.sock;
+	rhs.sock = -1;
+}
+
 UdpServer::~UdpServer()
 {
 	this->close();
+}
+
+UdpServer &UdpServer::operator=(UdpServer &&rhs) noexcept
+{
+	close();
+
+	sock = rhs.sock;
+	rhs.sock = -1;
+
+	return *this;
 }
 
 UdpServer::operator bool() const

@@ -19,14 +19,6 @@
 
 namespace win {
 
-#ifdef _WIN32
-	constexpr int WOULDBLOCK = WSAEWOULDBLOCK;
-	constexpr int CONNRESET = WSAECONNRESET;
-#else
-	constexpr int WOULDBLOCK = EWOULDBLOCK;
-	constexpr int CONNRESET = ECONNRESET;
-#endif
-
 struct UdpId
 {
 	WIN_NO_COPY_MOVE(UdpId);
@@ -45,12 +37,23 @@ struct UdpId
 
 class UdpServer
 {
-	WIN_NO_COPY_MOVE(UdpServer);
+	WIN_NO_COPY(UdpServer);
+
+#ifdef WINPLAT_WINDOWS
+	static constexpr int WOULDBLOCK = WSAEWOULDBLOCK;
+	static constexpr int CONNRESET = WSAECONNRESET;
+#else
+	static constexpr int WOULDBLOCK = EWOULDBLOCK;
+	static constexpr int CONNRESET = ECONNRESET;
+#endif
 
 public:
 	UdpServer();
 	explicit UdpServer(unsigned short port);
+	UdpServer(UdpServer &&rhs) noexcept;
 	~UdpServer();
+
+	UdpServer &operator=(UdpServer &&rhs) noexcept;
 
 	operator bool() const;
 	void close();

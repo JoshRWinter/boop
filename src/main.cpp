@@ -33,7 +33,7 @@ int main()
 	win::load_gl_functions();
 
 	const win::Area<float> area(-8.0f, 8.0f, -4.5f, 4.5f);
-	Simulation sim(area);
+	Simulation sim(area, false);
 	Renderer renderer(roll, area);
 
 	bool quit = false;

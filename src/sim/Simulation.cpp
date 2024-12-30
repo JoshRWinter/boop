@@ -3,10 +3,11 @@
 #include "Simulation.hpp"
 #include "Game.hpp"
 
-Simulation::Simulation(const win::Area<float> &area)
-	: quit(false)
+Simulation::Simulation(const win::Area<float> &area, bool runbot)
+	: bot(runbot)
+	, quit(false)
 {
-	simthread = std::thread([&](){ sim(area); });
+	simthread = std::thread([area, runbot, this](){ sim(area, runbot); });
 }
 
 Simulation::~Simulation()
@@ -35,9 +36,16 @@ void Simulation::set_input(Input input)
 	som_input.writer_release(obj);
 }
 
-void Simulation::sim(win::Area<float> area)
+void Simulation::sim(win::Area<float> area, bool runbot)
 {
-	Game game(area);
+	std::unique_ptr<Simulation> botsim;
+
+	if (!runbot)
+	{
+		botsim.reset(new Simulation(area, true));
+	}
+
+	Game game(area, !runbot, runbot);
 
 	Input input;
 

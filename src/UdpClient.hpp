@@ -19,22 +19,26 @@
 
 namespace win {
 
-#ifdef _WIN32
-	constexpr int WOULDBLOCK = WSAEWOULDBLOCK;
-	constexpr int CONNRESET = WSAECONNRESET;
-#else
-	constexpr int WOULDBLOCK = EWOULDBLOCK;
-	constexpr int CONNRESET = ECONNRESET;
-#endif
 
 class UdpClient
 {
-	WIN_NO_COPY_MOVE(UdpClient);
+	WIN_NO_COPY(UdpClient);
+
+#ifdef WINPLAT_WINDOWS
+	static constexpr int WOULDBLOCK = WSAEWOULDBLOCK;
+	static constexpr int CONNRESET = WSAECONNRESET;
+#else
+	static constexpr int WOULDBLOCK = EWOULDBLOCK;
+	static constexpr int CONNRESET = ECONNRESET;
+#endif
 
 public:
 	UdpClient();
 	UdpClient(const std::string &address, unsigned short port);
+	UdpClient(UdpClient &&rhs) noexcept;
 	~UdpClient();
+
+	UdpClient &operator=(UdpClient &&rhs) noexcept;
 
 	operator bool() const;
 	void close();
