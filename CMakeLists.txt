@@ -8,6 +8,13 @@ set(executable boop)
 set(sources
 	src/main.cpp
 
+	src/UdpClient.hpp
+	src/UdpClient.cpp
+	src/UdpServer.hpp
+	src/UdpServer.cpp
+	src/WsaSingleton.hpp
+	src/WsaSingleton.cpp
+
 	src/Texture.hpp
 	src/Input.hpp
 
