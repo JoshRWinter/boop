@@ -7,7 +7,7 @@
 
 #include "../render/Renderable.hpp"
 #include "../Input.hpp"
-#include "../NetworkMatch.hpp"
+#include "NetworkMatch.hpp"
 
 struct Ball
 {

@@ -8,9 +8,6 @@ set(executable boop)
 set(sources
 	src/main.cpp
 
-	src/NetworkMatch.hpp
-	src/NetworkMatch.cpp
-
 	src/Texture.hpp
 	src/Input.hpp
 
@@ -18,6 +15,8 @@ set(sources
 	src/sim/Simulation.cpp
 	src/sim/Game.hpp
 	src/sim/Game.cpp
+	src/sim/NetworkMatch.hpp
+	src/sim/NetworkMatch.cpp
 
 	src/render/Renderable.hpp
 	src/render/Renderer.hpp
