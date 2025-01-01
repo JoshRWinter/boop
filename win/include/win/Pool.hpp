@@ -211,13 +211,16 @@ private:
 
 	constexpr impl::PoolPartition<T, initial_capacity> *get_first_partition()
 	{
-		return use_heap_storage() ? first_partition_heap_ptr.get() : &first_partition_storage;
+		if constexpr (use_heap_storage())
+			return first_partition_heap_ptr.get();
+		else
+			return &first_partition_storage;
 	}
 
 	int count;
 	std::vector<std::aligned_storage_t<sizeof(impl::PoolNode<T>), alignof(impl::PoolNode<T>)>*> freelist;
 	[[no_unique_address]] std::conditional_t<use_heap_storage(), std::unique_ptr<impl::PoolPartition<T, initial_capacity>>, Empty> first_partition_heap_ptr;
-	[[no_unique_address]] std::conditional_t<use_heap_storage(), impl::PoolPartition<T, initial_capacity>, Empty> first_partition_storage;
+	[[no_unique_address]] std::conditional_t<!use_heap_storage(), impl::PoolPartition<T, initial_capacity>, Empty> first_partition_storage;
 	impl::PoolNode<T> *head;
 	impl::PoolNode<T> *tail;
 };
