@@ -1,5 +1,7 @@
 #include <win/Win.hpp>
 
+#include <cstring>
+
 #ifdef WINPLAT_LINUX
 #include <sys/ioctl.h>
 #include <unistd.h>
