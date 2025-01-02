@@ -2,11 +2,15 @@
 
 #include <win/Win.hpp>
 
+#ifdef WINPLAT_WINDOWS
+#include <winsock2.h>
+#endif
+
 namespace win
 {
 
 #ifdef WINPLAT_WINDOWS
-static struct WinWsaInit
+struct WinWsaInit
 {
 	WinWsaInit()
 	{

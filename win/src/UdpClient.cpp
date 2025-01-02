@@ -8,8 +8,8 @@
 #include <Ws2tcpip.h>
 #endif
 
-#include "WsaSingleton.hpp"
-#include "UdpClient.hpp"
+#include <win/WsaSingleton.hpp>
+#include <win/UdpClient.hpp>
 
 namespace win
 {
@@ -48,7 +48,7 @@ UdpClient::UdpClient(const std::string &address, unsigned short port)
 	sprintf(port_string,"%hu",port);
 
 	// resolve hostname
-	if (getaddrinfo(address.c_str(), port_string, &hints, &ai) != 0)
+	if (getaddrinfo(address.c_str(), port_string, (const addrinfo*)&hints, &ai) != 0)
 		return;
 
 	// create the socket
@@ -103,7 +103,7 @@ void UdpClient::send(const void *buffer, unsigned len)
 		bug("UdpClient closed");
 
 	// no such thing as a partial send for udp with sendto
-	const ssize_t result = sendto(sock, buffer, len, 0, ai->ai_addr, ai->ai_addrlen);
+	const ssize_t result = sendto(sock, (const char*)buffer, len, 0, ai->ai_addr, ai->ai_addrlen);
 	if ((unsigned)result != len && get_errno() != WOULDBLOCK)
 		this->close();
 }
@@ -113,12 +113,8 @@ int UdpClient::recv(void *buffer, unsigned len)
 	if (sock == -1)
 		bug("UdpClient closed");
 
-	// ignored
-	sockaddr_storage src_addr;
-	socklen_t src_len = sizeof(sockaddr_storage);
-
 	// no such thing as a partial send for udp with sendto
-	const ssize_t result = recvfrom(sock, buffer, len, 0, (sockaddr*)&src_addr,&src_len);
+	const ssize_t result = recvfrom(sock, (char*)buffer, len, 0, NULL, NULL);
 	if (result == -1)
 	{
 		const auto eno = get_errno();

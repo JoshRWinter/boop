@@ -4,8 +4,8 @@
 
 #include <win/Win.hpp>
 
-#include "UdpServer.hpp"
-#include "UdpClient.hpp"
+#include <win/UdpServer.hpp>
+#include <win/UdpClient.hpp>
 
 class NetworkMatch
 {
@@ -29,5 +29,5 @@ private:
 	win::UdpClient client;
 	win::UdpId guestid;
 
-	bool data_available;
+	bool client_sent;
 };

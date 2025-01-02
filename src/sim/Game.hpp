@@ -39,7 +39,7 @@ class Game
 	};
 
 public:
-	explicit Game(const win::Area<float> &area, bool is_host, bool runbot);
+	explicit Game(const win::Area<float> &area, bool ishost, bool runbot);
 
 	void tick(std::vector<Renderable> &renderables, const Input &input);
 

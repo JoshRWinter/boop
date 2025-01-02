@@ -1,7 +1,7 @@
 #include "NetworkMatch.hpp"
 
 NetworkMatch::NetworkMatch(bool host, const std::string &connect_to_ip)
-	: data_available(false)
+	: client_sent(false)
 {
 	if (host)
 		server = win::UdpServer(PORT);
@@ -55,6 +55,9 @@ bool NetworkMatch::guest_get_data(float &host_paddle_y, float &ball_x, float &ba
 	if (!client)
 		win::bug("Guest: can't use client socket!");
 
+	if (!client_sent)
+		return false;
+
 	unsigned char payload[14];
 	unsigned char receiving[14];
 
@@ -96,4 +99,5 @@ void NetworkMatch::guest_send_data(float guest_paddle_y)
 		win::bug("Guest: can't use client socket!");
 
 	client.send(&guest_paddle_y, sizeof(guest_paddle_y));
+	client_sent = true;
 }

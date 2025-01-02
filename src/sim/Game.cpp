@@ -113,7 +113,7 @@ Renderable Game::process_player_paddle(const Input &input)
 Renderable Game::process_opponent_paddle()
 {
 	auto &paddle = ishost ? guest : host;
-	const auto &y = ishost ? networkdata.guest_paddle_y : networkdata.host_paddle_y;
+	const auto y = ishost ? networkdata.guest_paddle_y : networkdata.host_paddle_y;
 
 	const float oldy = paddle.y;
 	paddle.y = y;

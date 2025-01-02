@@ -4,13 +4,10 @@
 
 #undef distance
 #include <string>
-#include <cstring>
-#ifdef _WIN32
+#ifdef WINPLAT_WINDOWS
 #undef _WIN32_WINNT
 #define _WIN32_WINNT 0x0600
 #include <winsock2.h>
-#include <ws2tcpip.h>
-#include <sys/types.h>
 #define ssize_t SSIZE_T
 #else
 #include <netinet/in.h>

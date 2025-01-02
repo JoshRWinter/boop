@@ -8,8 +8,8 @@
 #include <Ws2tcpip.h>
 #endif
 
-#include "WsaSingleton.hpp"
-#include "UdpServer.hpp"
+#include <win/WsaSingleton.hpp>
+#include <win/UdpServer.hpp>
 
 namespace win
 {
@@ -37,7 +37,7 @@ UdpServer::UdpServer(unsigned short port)
 	bind(port);
 }
 
-UdpServer::UdpServer(UdpServer &&rhs)
+UdpServer::UdpServer(UdpServer &&rhs) noexcept
 {
 	sock = rhs.sock;
 	rhs.sock = -1;
@@ -87,7 +87,7 @@ void UdpServer::send(const void *buffer, int len, const UdpId &id)
 		bug("UdpId not initialized");
 
 	// no such thing as partial sends for sendto with udp
-	const int result = sendto(sock, buffer, len, 0, (sockaddr*)&id.storage, id.len);
+	const int result = sendto(sock, (const char*)buffer, len, 0, (sockaddr*)&id.storage, id.len);
 	if (result != len && get_errno() != WOULDBLOCK)
 	{
 		this->close();
@@ -102,7 +102,7 @@ int UdpServer::recv(void *buffer, int len, UdpId &id)
 		bug("UdpServer closed");
 
 	// no partial receives
-	const int result = recvfrom(sock, buffer, len, 0, (sockaddr*)&id.storage, &id.len);
+	const int result = recvfrom(sock, (char*)buffer, len, 0, (sockaddr*)&id.storage, &id.len);
 	if(result == -1)
 	{
 		const auto eno = get_errno();

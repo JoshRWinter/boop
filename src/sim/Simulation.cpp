@@ -74,5 +74,12 @@ void Simulation::sim(win::Area<float> area, bool runbot)
 
 void Simulation::sleep()
 {
-	std::this_thread::sleep_for(std::chrono::duration<float, std::milli>(16.666));
+	const auto start = std::chrono::high_resolution_clock::now();
+
+	while (std::chrono::duration<float, std::milli>(std::chrono::high_resolution_clock::now() - start).count() < 16.666f)
+	{
+#ifndef WINPLAT_WINDOWS
+		std::this_thread::sleep_for(std::chrono::duration<float, std::milli>(16.666));
+#endif
+	}
 }
