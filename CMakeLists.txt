@@ -25,6 +25,8 @@ set(sources
 
 	src/render/gl/GLRendererBackend.hpp
 	src/render/gl/GLRendererBackend.cpp
+	src/render/gl/GLCommonRenderer.hpp
+	src/render/gl/GLCommonRenderer.cpp
 )
 
 if(WIN32 AND (CMAKE_BUILD_TYPE STREQUAL "Release" OR CMAKE_BUILD_TYPE STREQUAL "RelWithDebInfo"))

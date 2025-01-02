@@ -1,13 +1,9 @@
 #pragma once
 
-#include <glm/glm.hpp>
-
-#include <win/AssetRoll.hpp>
-#include <win/gl/GL.hpp>
-#include <win/gl/GLAtlas.hpp>
-#include <win/Utility.hpp>
+#include <vector>
 
 #include "../RendererBackend.hpp"
+#include "GLCommonRenderer.hpp"
 
 class GLRendererBackend : public RendererBackend
 {
@@ -15,19 +11,20 @@ public:
 	explicit GLRendererBackend(win::AssetRoll &roll, const win::Area<float> &area);
 	~GLRendererBackend() override = default;
 
-	void render(const std::vector<Renderable> &renderables) override;
+	void render(const std::vector<Renderable> &renderables, const std::vector<MenuRenderable> &menu_renderables) override;
 
 private:
-	static void generate_vertex_data(const win::Atlas &atlas, std::vector<float> &posdata, std::vector<unsigned short> &texcoord);
+	struct LayerBucket
+	{
+		std::vector<const Renderable*> renderables;
+		std::vector<const MenuRenderable*> menu_renderables;
+		void clear()
+		{
+			renderables.clear();
+			menu_renderables.clear();
+		}
+	};
 
-	glm::mat4 projection;
-
-	win::GLAtlas atlas;
-	win::GLProgram program;
-	int uniform_transform;
-	int uniform_color;
-
-	win::GLVertexArray vao;
-	win::GLBuffer vbo_pos;
-	win::GLBuffer vbo_texcoord;
+	std::vector<LayerBucket> buckets;
+	GLCommonRenderer common_renderer;
 };

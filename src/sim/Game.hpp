@@ -41,12 +41,12 @@ class Game
 public:
 	explicit Game(const win::Area<float> &area, bool ishost, bool runbot);
 
-	void tick(std::vector<Renderable> &renderables, const Input &input);
+	void tick(Renderables &renderables, const Input &input);
 
 private:
-	Renderable process_ball();
-	Renderable process_player_paddle(const Input &input);
-	Renderable process_opponent_paddle();
+	LerpedRenderable process_ball();
+	LerpedRenderable process_player_paddle(const Input &input);
+	LerpedRenderable process_opponent_paddle();
 	void reset();
 	bool collide(const Ball &ball, const Paddle &paddle);
 	float get_ball_yv(const Ball &ball, const Paddle &paddle);

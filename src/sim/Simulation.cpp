@@ -16,12 +16,12 @@ Simulation::~Simulation()
 	simthread.join();
 }
 
-RenderableCollection *Simulation::get_renderables()
+Renderables *Simulation::get_renderables()
 {
 	return som_renderables.reader_acquire();
 }
 
-void Simulation::release_renderables(RenderableCollection *renderables)
+void Simulation::release_renderables(Renderables *renderables)
 {
 	som_renderables.reader_release(renderables);
 }
@@ -51,9 +51,10 @@ void Simulation::sim(win::Area<float> area, bool runbot)
 
 	while (!quit.load())
 	{
-		RenderableCollection *renderables = NULL;
+		Renderables *renderables = NULL;
 		while (renderables == NULL)
 			renderables = som_renderables.writer_acquire();
+		renderables->clear();
 
 		Input *latest_input;
 		if ((latest_input = som_input.reader_acquire()) != NULL)
@@ -62,8 +63,7 @@ void Simulation::sim(win::Area<float> area, bool runbot)
 			som_input.reader_release(latest_input);
 		}
 
-		renderables->renderables.clear();
-		game.tick(renderables->renderables, input);
+		game.tick(*renderables, input);
 		renderables->time = std::chrono::high_resolution_clock::now();
 
 		som_renderables.writer_release(renderables);
@@ -79,7 +79,7 @@ void Simulation::sleep()
 	while (std::chrono::duration<float, std::milli>(std::chrono::high_resolution_clock::now() - start).count() < 16.666f)
 	{
 #ifndef WINPLAT_WINDOWS
-		std::this_thread::sleep_for(std::chrono::duration<float, std::milli>(16.666));
+		std::this_thread::sleep_for(std::chrono::duration<float, std::micro>(1));
 #endif
 	}
 }

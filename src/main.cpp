@@ -50,8 +50,9 @@ int main()
 		sim.set_input(input);
 	});
 
-	RenderableCollection *renderables = NULL;
-	auto lasttime = std::chrono::high_resolution_clock::now();
+	Renderables *renderables = NULL;
+	while ((renderables = sim.get_renderables()) == NULL) ;
+	auto lasttime = renderables->time;
 
 	while (!quit)
 	{
@@ -60,17 +61,12 @@ int main()
 		auto new_renderables = sim.get_renderables();
 		if (new_renderables != NULL)
 		{
-			if (renderables != NULL)
-			{
-				lasttime = renderables->time;
-				sim.release_renderables(renderables);
-			}
-
+			lasttime = renderables->time;
+			sim.release_renderables(renderables);
 			renderables = new_renderables;
 		}
 
-		if (renderables != NULL)
-			renderer.render(renderables->renderables, lasttime, renderables->time);
+		renderer.render(*renderables, lasttime);
 
 		display.swap();
 	}

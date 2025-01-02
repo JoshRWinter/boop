@@ -19,15 +19,15 @@ public:
 	Simulation(const win::Area<float> &area, bool runbot);
 	~Simulation();
 
-	RenderableCollection *get_renderables();
-	void release_renderables(RenderableCollection *renderables);
+	Renderables *get_renderables();
+	void release_renderables(Renderables *renderables);
 	void set_input(Input input);
 
 private:
 	void sim(win::Area<float> area, bool runbot);
 	void sleep();
 
-	SyncObjectManager<RenderableCollection, 3> som_renderables;
+	SyncObjectManager<Renderables, 3> som_renderables;
 	SyncObjectManager<Input, 3> som_input;
 
 	bool bot;

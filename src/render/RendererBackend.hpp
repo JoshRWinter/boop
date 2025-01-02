@@ -14,5 +14,5 @@ public:
 	RendererBackend() = default;
 	virtual ~RendererBackend() = default;
 
-	virtual void render(const std::vector<Renderable> &renderables) = 0;
+	virtual void render(const std::vector<Renderable> &renderables, const std::vector<MenuRenderable> &menu_renderables) = 0;
 };

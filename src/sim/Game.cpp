@@ -12,16 +12,16 @@ Game::Game(const win::Area<float> &area, bool ishost, bool runbot)
 	reset();
 }
 
-void Game::tick(std::vector<Renderable> &renderables, const Input &input)
+void Game::tick(Renderables &renderables, const Input &input)
 {
 	if (ishost)
 		match.host_get_data(networkdata.guest_paddle_y);
 	else
 		match.guest_get_data(networkdata.host_paddle_y, networkdata.ball_x, networkdata.ball_y, networkdata.host_score, networkdata.guest_score);
 
-	renderables.push_back(process_ball());
-	renderables.emplace_back(process_player_paddle(input));
-	renderables.emplace_back(process_opponent_paddle());
+	renderables.lerped_renderables.push_back(process_ball());
+	renderables.lerped_renderables.emplace_back(process_player_paddle(input));
+	renderables.lerped_renderables.emplace_back(process_opponent_paddle());
 
 	if (ishost)
 		match.host_send_data(networkdata.host_paddle_y, ball.x, ball.y, 0, 0);
@@ -29,7 +29,7 @@ void Game::tick(std::vector<Renderable> &renderables, const Input &input)
 		match.guest_send_data(networkdata.guest_paddle_y);
 }
 
-Renderable Game::process_ball()
+LerpedRenderable Game::process_ball()
 {
 	const float oldx = ball.x;
 	const float oldy = ball.y;
@@ -87,16 +87,16 @@ Renderable Game::process_ball()
 		networkdata.ball_y = ball.y;
 	}
 
-	return Renderable(Texture::ball, ball.x, ball.y, oldx, oldy, Ball::width, Ball::height, win::Color<float>(1, 0, 0, 1));
+	return LerpedRenderable(0, Texture::ball, ball.x, ball.y, oldx, oldy, Ball::width, Ball::height, win::Color<float>(1, 0, 0, 1));
 }
 
-Renderable Game::process_player_paddle(const Input &input)
+LerpedRenderable Game::process_player_paddle(const Input &input)
 {
 	if (runbot)
 	{
 		guest.y = (ball.y - (Paddle::height / 2.0f)) + (Ball::height / 2.0f);
 		networkdata.guest_paddle_y = guest.y;
-		return Renderable(Texture::paddle, 0, 0, 0, 0, 0, 0, win::Color<float>(0, 0, 0, 0)); // this isn't going to go anywhere anyway
+		return LerpedRenderable(0, Texture::paddle, 0, 0, 0, 0, 0, 0, win::Color<float>(0, 0, 0, 0)); // this isn't going to go anywhere anyway
 	}
 	else
 	{
@@ -106,18 +106,18 @@ Renderable Game::process_player_paddle(const Input &input)
 		const float oldy = paddle.y;
 		paddle.y = input.y - (Paddle::height / 2.0f);
 		networky = paddle.y;
-		return Renderable(Texture::paddle, paddle.x, paddle.y, paddle.x, oldy, Paddle::width, Paddle::height, win::Color<float>(1, 1, 1, 1));
+		return LerpedRenderable(0, Texture::paddle, paddle.x, paddle.y, paddle.x, oldy, Paddle::width, Paddle::height, win::Color<float>(1, 1, 1, 1));
 	}
 }
 
-Renderable Game::process_opponent_paddle()
+LerpedRenderable Game::process_opponent_paddle()
 {
 	auto &paddle = ishost ? guest : host;
 	const auto y = ishost ? networkdata.guest_paddle_y : networkdata.host_paddle_y;
 
 	const float oldy = paddle.y;
 	paddle.y = y;
-	return Renderable(Texture::paddle, paddle.x, paddle.y, paddle.x, oldy, Paddle::width, Paddle::height, win::Color<float>(1, 1, 1, 1));
+	return LerpedRenderable(0, Texture::paddle, paddle.x, paddle.y, paddle.x, oldy, Paddle::width, Paddle::height, win::Color<float>(1, 1, 1, 1));
 }
 
 void Game::reset()
