@@ -76,10 +76,7 @@ void Simulation::sleep()
 {
 	const auto start = std::chrono::high_resolution_clock::now();
 
-	while (std::chrono::duration<float, std::milli>(std::chrono::high_resolution_clock::now() - start).count() < 16.666f)
-	{
-#ifndef WINPLAT_WINDOWS
-		std::this_thread::sleep_for(std::chrono::duration<float, std::micro>(1));
-#endif
-	}
+	std::this_thread::sleep_for(std::chrono::milliseconds(12));
+
+	while (std::chrono::duration<float, std::milli>(std::chrono::high_resolution_clock::now() - start).count() < 16.666f);
 }
