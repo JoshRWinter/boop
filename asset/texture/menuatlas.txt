@@ -1,0 +1,2 @@
+$padding 2
+button.tga:0:0:10:10

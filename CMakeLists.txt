@@ -15,6 +15,8 @@ set(sources
 	src/sim/Simulation.cpp
 	src/sim/Game.hpp
 	src/sim/Game.cpp
+	src/sim/menu/MainMenu.hpp
+	src/sim/menu/MainMenu.cpp
 	src/sim/NetworkMatch.hpp
 	src/sim/NetworkMatch.cpp
 
@@ -27,6 +29,8 @@ set(sources
 	src/render/gl/GLRendererBackend.cpp
 	src/render/gl/GLCommonRenderer.hpp
 	src/render/gl/GLCommonRenderer.cpp
+	src/render/gl/GLMenuRenderer.hpp
+	src/render/gl/GLMenuRenderer.cpp
 )
 
 if(WIN32 AND (CMAKE_BUILD_TYPE STREQUAL "Release" OR CMAKE_BUILD_TYPE STREQUAL "RelWithDebInfo"))

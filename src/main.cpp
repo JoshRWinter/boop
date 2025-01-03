@@ -28,26 +28,42 @@ int main()
 
 	win::Display display(display_options);
 	display.vsync(true);
-	display.cursor(false);
+	//display.cursor(false);
 
 	win::load_gl_functions();
 
+	const win::Dimensions<int> screenres(display.width(), display.height());
 	const win::Area<float> area(-8.0f, 8.0f, -4.5f, 4.5f);
+
 	Simulation sim(area, false);
-	Renderer renderer(roll, area);
+	Renderer renderer(roll, screenres, area);
 
 	bool quit = false;
-	display.register_button_handler([&quit](win::Button button, bool press)
+	Input input;
+	bool input_available = false;
+
+	display.register_button_handler([&quit, &input, &input_available](win::Button button, bool press)
 	{
-		if (button == win::Button::esc && press) quit = true;
+		switch (button)
+		{
+			case win::Button::esc:
+				quit = true;
+				input_available = true;
+				break;
+			case win::Button::mouse_left:
+				input.click = press;
+				input_available = true;
+				break;
+
+			default: break;
+		}
 	});
 
-	const int display_height = display.height();
-	display.register_mouse_handler([&sim, &area, display_height](int, int y)
+	display.register_mouse_handler([&input, &input_available, &area, &screenres](int x, int y)
 	{
-		Input input;
-		input.y = -(((y / (float)display_height) * (area.top - area.bottom)) - area.top);
-		sim.set_input(input);
+		input.x = ((x / (float)screenres.width) * (area.right - area.left)) + area.left;
+		input.y = -(((y / (float)screenres.height) * (area.top - area.bottom)) + area.bottom);
+		input_available = true;
 	});
 
 	Renderables *renderables = NULL;
@@ -57,6 +73,12 @@ int main()
 	while (!quit)
 	{
 		display.process();
+
+		if (input_available)
+		{
+			input_available = false;
+			sim.set_input(input);
+		}
 
 		auto new_renderables = sim.get_renderables();
 		if (new_renderables != NULL)

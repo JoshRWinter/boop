@@ -8,6 +8,7 @@
 #include "../render/Renderable.hpp"
 #include "../Input.hpp"
 #include "NetworkMatch.hpp"
+#include "menu/MainMenu.hpp"
 
 struct Ball
 {
@@ -27,6 +28,12 @@ struct Paddle
 	float x, y;
 };
 
+enum class MenuState
+{
+	main,
+	none
+};
+
 class Game
 {
 	WIN_NO_COPY_MOVE(Game);
@@ -41,15 +48,19 @@ class Game
 public:
 	explicit Game(const win::Area<float> &area, bool ishost, bool runbot);
 
-	void tick(Renderables &renderables, const Input &input);
+	void play(Renderables &renderables, const Input &input);
 
 private:
+	void tick(Renderables &renderables, const Input &input);
 	LerpedRenderable process_ball();
 	LerpedRenderable process_player_paddle(const Input &input);
 	LerpedRenderable process_opponent_paddle();
 	void reset();
 	bool collide(const Ball &ball, const Paddle &paddle);
 	float get_ball_yv(const Ball &ball, const Paddle &paddle);
+
+	MenuState menustate;
+	MainMenu main_menu;
 
 	bool ishost;
 	bool runbot;

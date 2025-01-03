@@ -1,8 +1,8 @@
 #include "Renderer.hpp"
 #include "gl/GLRendererBackend.hpp"
 
-Renderer::Renderer(win::AssetRoll &roll, const win::Area<float> &area)
-	: backend(new GLRendererBackend(roll, area))
+Renderer::Renderer(win::AssetRoll &roll, const win::Dimensions<int> &screenres, const win::Area<float> &area)
+	: backend(new GLRendererBackend(roll, screenres, area))
 {}
 
 void Renderer::render(const Renderables &renderables, std::chrono::high_resolution_clock::time_point last)
@@ -17,7 +17,7 @@ void Renderer::render(const Renderables &renderables, std::chrono::high_resoluti
 	for (const auto &r : renderables.lerped_renderables)
 		lerped.emplace_back(r.layer, r.texture, lerp(r.oldx, r.x, t), lerp(r.oldy, r.y, t), r.w, r.h, r.color);
 
-	backend->render(lerped, renderables.menu_renderables);
+	backend->render(lerped, renderables.menu_renderables, renderables.text_renderables);
 }
 
 float Renderer::lerp(float a, float b, float t)

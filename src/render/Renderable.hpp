@@ -29,12 +29,52 @@ struct LerpedRenderable : Renderable
 	float oldx, oldy;
 };
 
+struct TextRenderable
+{
+	enum class Type { smol, yuge };
+
+	TextRenderable(int layer, float x, float y, bool centered, Type texttype, const win::Color<float> &color, const char *text)
+		: layer(layer)
+		, x(x)
+		, y(y)
+		, centered(centered)
+		, texttype(texttype)
+		, color(color)
+	{
+		int i;
+		for (i = 0; i < sizeof(this->text) - 1; ++i)
+		{
+			if (text[i] == 0) break;
+			this->text[i] = text[i];
+		}
+		this->text[i] = 0;
+	}
+
+	int layer;
+	float x, y;
+	bool centered;
+	Type texttype;
+	win::Color<float> color;
+	char text[50];
+};
+
 struct MenuRenderable
 {
-	MenuRenderable(Texture texture, float x, float y, float w, float h, const win::Color<float> &color, const char *text, const win::Color<float> &textcolor);
+	MenuRenderable(int layer, MenuTexture texture, float x, float y, float w, float h, const win::Color<float> &color)
+		: layer(layer)
+		, texture(texture)
+		, x(x)
+		, y(y)
+		, w(w)
+		, h(h)
+		, color(color)
+	{}
 
-	const char *text;
-	win::Color<float> textcolor;
+	int layer;
+	MenuTexture texture;
+	float x, y;
+	float w, h;
+	win::Color<float> color;
 };
 
 struct Renderables
@@ -44,11 +84,13 @@ struct Renderables
 		renderables.clear();
 		lerped_renderables.clear();
 		menu_renderables.clear();
+		text_renderables.clear();
 	}
 
 	std::vector<Renderable> renderables;
 	std::vector<LerpedRenderable> lerped_renderables;
 	std::vector<MenuRenderable> menu_renderables;
+	std::vector<TextRenderable> text_renderables;
 
 	std::chrono::high_resolution_clock::time_point time;
 };

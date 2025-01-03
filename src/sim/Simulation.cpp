@@ -63,7 +63,7 @@ void Simulation::sim(win::Area<float> area, bool runbot)
 			som_input.reader_release(latest_input);
 		}
 
-		game.tick(*renderables, input);
+		game.play(*renderables, input);
 		renderables->time = std::chrono::high_resolution_clock::now();
 
 		som_renderables.writer_release(renderables);

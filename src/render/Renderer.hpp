@@ -10,7 +10,7 @@
 class Renderer
 {
 public:
-	Renderer(win::AssetRoll &roll, const win::Area<float> &area);
+	Renderer(win::AssetRoll &roll, const win::Dimensions<int> &screen_area, const win::Area<float> &area);
 
 	void render(const Renderables &renderables, std::chrono::high_resolution_clock::time_point last);
 

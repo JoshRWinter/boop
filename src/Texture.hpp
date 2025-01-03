@@ -5,3 +5,8 @@ enum class Texture
 	ball,
 	paddle
 };
+
+enum class MenuTexture
+{
+	button
+};

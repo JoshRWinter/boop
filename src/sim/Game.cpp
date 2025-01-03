@@ -1,7 +1,8 @@
 #include "Game.hpp"
 
 Game::Game(const win::Area<float> &area, bool ishost, bool runbot)
-	: ishost(ishost)
+	: menustate(MenuState::main)
+	, ishost(ishost)
 	, runbot(runbot)
 	, area(area)
 	, match(!runbot, runbot ? "::1" : "")
@@ -12,8 +13,18 @@ Game::Game(const win::Area<float> &area, bool ishost, bool runbot)
 	reset();
 }
 
+void Game::play(Renderables &renderables, const Input &input)
+{
+	if (menustate == MenuState::main)
+		main_menu.show(renderables, input);
+	else
+		tick(renderables, input);
+}
+
 void Game::tick(Renderables &renderables, const Input &input)
 {
+	return;
+
 	if (ishost)
 		match.host_get_data(networkdata.guest_paddle_y);
 	else
