@@ -1,31 +1,29 @@
 #include "Game.hpp"
 
-Game::Game(const win::Area<float> &area, bool ishost, bool runbot)
-	: menustate(MenuState::main)
-	, ishost(ishost)
+Game::Game(const win::Area<float> &area, bool runbot)
+	: menustate(runbot ? MenuState::none : MenuState::main)
 	, runbot(runbot)
 	, area(area)
-	, match(!runbot, runbot ? "::1" : "")
 {
-	if (ishost && runbot)
-		win::bug("This makes no sense.");
-
 	reset();
+
+	if (runbot)
+	{
+		while (!match.join("::1")) ;
+	}
 }
 
 void Game::play(Renderables &renderables, const Input &input)
 {
 	if (menustate == MenuState::main)
-		main_menu.show(renderables, input);
+		main_menu.show(renderables, input, match);
 	else
 		tick(renderables, input);
 }
 
 void Game::tick(Renderables &renderables, const Input &input)
 {
-	return;
-
-	if (ishost)
+	if (match.hosting())
 		match.host_get_data(networkdata.guest_paddle_y);
 	else
 		match.guest_get_data(networkdata.host_paddle_y, networkdata.ball_x, networkdata.ball_y, networkdata.host_score, networkdata.guest_score);
@@ -34,7 +32,7 @@ void Game::tick(Renderables &renderables, const Input &input)
 	renderables.lerped_renderables.emplace_back(process_player_paddle(input));
 	renderables.lerped_renderables.emplace_back(process_opponent_paddle());
 
-	if (ishost)
+	if (match.hosting())
 		match.host_send_data(networkdata.host_paddle_y, ball.x, ball.y, 0, 0);
 	else
 		match.guest_send_data(networkdata.guest_paddle_y);
@@ -45,7 +43,7 @@ LerpedRenderable Game::process_ball()
 	const float oldx = ball.x;
 	const float oldy = ball.y;
 
-	if (ishost)
+	if (match.hosting())
 	{
 		ball.x += ball.xv;
 		ball.y += ball.yv;
@@ -92,7 +90,7 @@ LerpedRenderable Game::process_ball()
 		ball.y = networkdata.ball_y;
 	}
 
-	if (ishost)
+	if (match.hosting())
 	{
 		networkdata.ball_x = ball.x;
 		networkdata.ball_y = ball.y;
@@ -111,8 +109,8 @@ LerpedRenderable Game::process_player_paddle(const Input &input)
 	}
 	else
 	{
-		auto &paddle = ishost ? host : guest;
-		auto &networky = ishost ? networkdata.host_paddle_y : networkdata.guest_paddle_y;
+		auto &paddle = match.hosting() ? host : guest;
+		auto &networky = match.hosting() ? networkdata.host_paddle_y : networkdata.guest_paddle_y;
 
 		const float oldy = paddle.y;
 		paddle.y = input.y - (Paddle::height / 2.0f);
@@ -123,8 +121,8 @@ LerpedRenderable Game::process_player_paddle(const Input &input)
 
 LerpedRenderable Game::process_opponent_paddle()
 {
-	auto &paddle = ishost ? guest : host;
-	const auto y = ishost ? networkdata.guest_paddle_y : networkdata.host_paddle_y;
+	auto &paddle = match.hosting() ? guest : host;
+	const auto y = match.hosting() ? networkdata.guest_paddle_y : networkdata.host_paddle_y;
 
 	const float oldy = paddle.y;
 	paddle.y = y;

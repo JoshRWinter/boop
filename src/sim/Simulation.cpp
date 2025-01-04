@@ -38,14 +38,7 @@ void Simulation::set_input(Input input)
 
 void Simulation::sim(win::Area<float> area, bool runbot)
 {
-	std::unique_ptr<Simulation> botsim;
-
-	if (!runbot)
-	{
-		botsim.reset(new Simulation(area, true));
-	}
-
-	Game game(area, !runbot, runbot);
+	Game game(area, runbot);
 
 	Input input;
 

@@ -1,13 +1,54 @@
 #include "NetworkMatch.hpp"
 
-NetworkMatch::NetworkMatch(bool host, const std::string &connect_to_ip)
-	: client_sent(false)
+NetworkMatch::NetworkMatch()
 {
-	if (host)
-		server = win::UdpServer(PORT);
-	else
-		client = win::UdpClient(connect_to_ip, PORT);
+	reset();
 }
+
+void NetworkMatch::reset()
+{
+	server = win::UdpServer();
+	client = win::UdpClient();
+	guestid.reset();
+	is_host = false;
+	client_sent = false;
+}
+
+bool NetworkMatch::host()
+{
+	is_host = true;
+
+	if (!server)
+	{
+		server = win::UdpServer(PORT);
+		if (!server)
+			return false;
+	}
+
+	float dummy;
+	return host_get_data(dummy);
+}
+
+bool NetworkMatch::join(const char *ip)
+{
+	is_host = false;
+
+	if (!client)
+		client = win::UdpClient(ip, PORT);
+
+	float dummy = 0.0f;
+	guest_send_data(dummy);
+
+	float dummy1, dummy2, dummy3;
+	int dummy4, dummy5;
+	return guest_get_data(dummy1, dummy2, dummy3, dummy4, dummy5);
+}
+
+bool NetworkMatch::hosting() const
+{
+	return is_host;
+}
+
 
 bool NetworkMatch::host_get_data(float &guest_paddle_y)
 {

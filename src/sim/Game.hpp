@@ -46,7 +46,7 @@ class Game
 	};
 
 public:
-	explicit Game(const win::Area<float> &area, bool ishost, bool runbot);
+	explicit Game(const win::Area<float> &area, bool runbot);
 
 	void play(Renderables &renderables, const Input &input);
 
@@ -62,7 +62,6 @@ private:
 	MenuState menustate;
 	MainMenu main_menu;
 
-	bool ishost;
 	bool runbot;
 	Ball ball;
 	Paddle host;

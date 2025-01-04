@@ -6,6 +6,7 @@
 
 #include "../../render/Renderable.hpp"
 #include "../../Input.hpp"
+#include "../NetworkMatch.hpp"
 
 struct Button
 {
@@ -17,15 +18,19 @@ struct Button
 	bool click;
 };
 
-struct MainMenuResult
+enum class MainMenuResult
 {
-	enum class Result
-	{
-		play, join, quit
-	};
+	none,
+	play,
+	quit
+};
 
-	Result result;
-	std::string ip;
+enum class MainMenuState
+{
+	main,
+	host,
+	join,
+	joining
 };
 
 class MainMenu
@@ -35,6 +40,8 @@ class MainMenu
 	static constexpr float button_width = 3.0f;
 	static constexpr float button_height = 0.8f;
 
+	inline static auto textcolor = win::Color<float>(0.8f, 0.6f, 0.6f, 1.0f);
+
 	inline static auto color = win::Color<float>(0.8f, 0.4f, 0.4f, 1.0f);
 	inline static auto hover = win::Color<float>(0.6f, 0.2f, 0.2f, 1.0f);
 	inline static auto clicked = win::Color<float>(0.4f, 0.1f, 0.1f, 1.0f);
@@ -42,13 +49,20 @@ class MainMenu
 public:
 	MainMenu();
 
-	void show(Renderables &renderables, const Input &input);
+	MainMenuResult show(Renderables &renderables, const Input &input, NetworkMatch &match);
 
 private:
+	MainMenuResult show_main(Renderables &renderables, const Input &input, NetworkMatch &match);
+	MainMenuResult show_host(Renderables &renderables, const Input &input, NetworkMatch &match);
+	MainMenuResult show_join(Renderables &renderables, const Input &input, NetworkMatch &match);
+	MainMenuResult show_joining(Renderables &renderables, const Input &input, NetworkMatch &match);
+
 	static MenuRenderable map_renderable(const Button &button, float x, float y);
 	static TextRenderable map_text(const Button &button);
 	static bool mouseover(const Button &button, float x, float y);
 	static bool button_clicked(const Button &button, bool click, float x, float y);
 
-	Button host, join, quit;
+	MainMenuState state;
+	Button host, join, quit, back;
+	std::string ip_input = "::1";
 };

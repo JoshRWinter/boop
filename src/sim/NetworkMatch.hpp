@@ -14,7 +14,12 @@ class NetworkMatch
 public:
 	static constexpr int PORT = 28857;
 
-	NetworkMatch(bool host, const std::string &connect_to_ip);
+	NetworkMatch();
+
+	void reset();
+	bool host();
+	bool join(const char *ip);
+	bool hosting() const;
 
 	// called by host
 	bool host_get_data(float &guest_paddle_y);
@@ -29,5 +34,6 @@ private:
 	win::UdpClient client;
 	win::UdpId guestid;
 
+	bool is_host;
 	bool client_sent;
 };
