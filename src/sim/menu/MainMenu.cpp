@@ -62,10 +62,13 @@ MainMenuResult MainMenu::show_main(Renderables &renderables, const Input &input,
 
 MainMenuResult MainMenu::show_host(Renderables &renderables, const Input &input, NetworkMatch &match)
 {
+	bool try_host = true;
 	if (button_clicked(back, input.click, input.x, input.y))
 	{
 		back.click = false;
 		state = MainMenuState::main;
+		match.reset();
+		try_host = false;
 	}
 
 	back.click = mouseover(back, input.x, input.y) && input.click;
@@ -74,6 +77,9 @@ MainMenuResult MainMenu::show_host(Renderables &renderables, const Input &input,
 	renderables.text_renderables.emplace_back(map_text(back));
 
 	renderables.text_renderables.emplace_back(0, 0.0f, 2.0f, true, TextRenderable::Type::smol, textcolor, "Hosting on port 28857");
+
+	if (try_host && match.host())
+		return MainMenuResult::play;
 
 	return MainMenuResult::none;
 }
@@ -108,10 +114,13 @@ MainMenuResult MainMenu::show_join(Renderables &renderables, const Input &input,
 
 MainMenuResult MainMenu::show_joining(Renderables &renderables, const Input &input, NetworkMatch &match)
 {
+	bool try_join = true;
 	if (button_clicked(back, input.click, input.x, input.y))
 	{
 		back.click = false;
 		state = MainMenuState::main;
+		match.reset();
+		try_join = false;
 	}
 
 	back.click = mouseover(back, input.x, input.y) && input.click;
@@ -120,6 +129,9 @@ MainMenuResult MainMenu::show_joining(Renderables &renderables, const Input &inp
 	renderables.text_renderables.emplace_back(map_text(back));
 
 	renderables.text_renderables.emplace_back(0, 0.0f, 2.0f, true, TextRenderable::Type::smol, textcolor, "Joining...");
+
+	if (try_join && match.join(ip_input.c_str()))
+		return MainMenuResult::play;
 
 	return MainMenuResult::none;
 }

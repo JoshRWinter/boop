@@ -16,7 +16,11 @@ Game::Game(const win::Area<float> &area, bool runbot)
 void Game::play(Renderables &renderables, const Input &input)
 {
 	if (menustate == MenuState::main)
-		main_menu.show(renderables, input, match);
+	{
+		const auto result = main_menu.show(renderables, input, match);
+		if (result == MainMenuResult::play)
+			menustate = MenuState::none;
+	}
 	else
 		tick(renderables, input);
 }

@@ -10,13 +10,16 @@ void NetworkMatch::reset()
 	server = win::UdpServer();
 	client = win::UdpClient();
 	guestid.reset();
-	is_host = false;
+	state = MatchState::disconnected;
 	client_sent = false;
 }
 
 bool NetworkMatch::host()
 {
-	is_host = true;
+	if (state != MatchState::disconnected && state != MatchState::listening)
+		win::bug("Trying to listen but in state " + std::to_string((int)state) + " instead");
+
+	state = MatchState::listening;
 
 	if (!server)
 	{
@@ -26,12 +29,21 @@ bool NetworkMatch::host()
 	}
 
 	float dummy;
-	return host_get_data(dummy);
+	if (host_get_data(dummy))
+	{
+		state = MatchState::hosting;
+		return true;
+	}
+
+	return false;
 }
 
 bool NetworkMatch::join(const char *ip)
 {
-	is_host = false;
+	if (state != MatchState::disconnected && state != MatchState::joining)
+		win::bug("Trying to join but in state " + std::to_string((int)state) + " instead");
+
+	state = MatchState::joining;
 
 	if (!client)
 		client = win::UdpClient(ip, PORT);
@@ -41,17 +53,26 @@ bool NetworkMatch::join(const char *ip)
 
 	float dummy1, dummy2, dummy3;
 	int dummy4, dummy5;
-	return guest_get_data(dummy1, dummy2, dummy3, dummy4, dummy5);
+	if (guest_get_data(dummy1, dummy2, dummy3, dummy4, dummy5))
+	{
+		state = MatchState::joined;
+		return true;
+	}
+
+	return false;
 }
 
 bool NetworkMatch::hosting() const
 {
-	return is_host;
+	return state == MatchState::hosting;
 }
 
 
 bool NetworkMatch::host_get_data(float &guest_paddle_y)
 {
+	if (state != MatchState::hosting && state != MatchState::listening)
+		win::bug("Trying to host but in state " + std::to_string((int)state) + " instead");
+
 	if (!server)
 		win::bug("Host: can't use server socket!");
 
@@ -71,6 +92,9 @@ bool NetworkMatch::host_get_data(float &guest_paddle_y)
 
 void NetworkMatch::host_send_data(float host_paddle_y, float ball_x, float ball_y, int host_score, int guest_score)
 {
+	if (state != MatchState::hosting && state != MatchState::listening)
+		win::bug("Trying to host but in state " + std::to_string((int)state) + " instead");
+
 	if (!guestid.initialized)
 		return; // don't know who to send it to yet
 
@@ -93,6 +117,9 @@ void NetworkMatch::host_send_data(float host_paddle_y, float ball_x, float ball_
 
 bool NetworkMatch::guest_get_data(float &host_paddle_y, float &ball_x, float &ball_y, int &host_score, int &guest_score)
 {
+	if (state != MatchState::joined && state != MatchState::joining)
+		win::bug("Trying to be joined but in state " + std::to_string((int)state) + " instead");
+
 	if (!client)
 		win::bug("Guest: can't use client socket!");
 
@@ -136,6 +163,9 @@ bool NetworkMatch::guest_get_data(float &host_paddle_y, float &ball_x, float &ba
 
 void NetworkMatch::guest_send_data(float guest_paddle_y)
 {
+	if (state != MatchState::joined && state != MatchState::joining)
+		win::bug("Trying to be joined but in state " + std::to_string((int)state) + " instead");
+
 	if (!client)
 		win::bug("Guest: can't use client socket!");
 

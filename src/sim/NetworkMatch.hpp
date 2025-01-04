@@ -11,6 +11,15 @@ class NetworkMatch
 {
 	WIN_NO_COPY_MOVE(NetworkMatch);
 
+	enum class MatchState
+	{
+		disconnected,
+		listening,
+		hosting,
+		joining,
+		joined
+	};
+
 public:
 	static constexpr int PORT = 28857;
 
@@ -34,6 +43,6 @@ private:
 	win::UdpClient client;
 	win::UdpId guestid;
 
-	bool is_host;
+	MatchState state;
 	bool client_sent;
 };
