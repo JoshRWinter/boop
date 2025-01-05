@@ -5,7 +5,11 @@
 #include "render/Renderer.hpp"
 #include "sim/Simulation.hpp"
 
-int main()
+#if defined WINPLAT_WINDOWS && NDEBUG
+int WinMain(HINSTANCE hinstance, HINSTANCE prev, PSTR cmd, int show)
+#else
+int main(int argc, char **argv)
+#endif
 {
 	win::AssetRoll roll("boop.roll");
 
@@ -19,9 +23,9 @@ int main()
 	display_options.debug = false;
 #else
 	display_options.caption = "Darktimes";
-	display_options.fullscreen = true;
-	display_options.width = 1;
-	display_options.height = 1;
+	display_options.fullscreen = false;
+	display_options.width = 1600;
+	display_options.height = 900;
 #endif
 	display_options.gl_major = 3;
 	display_options.gl_minor = 3;

@@ -2,6 +2,8 @@
 
 #ifdef WIN_USE_OPENGL
 
+using namespace win::gl;
+
 namespace win
 {
 
