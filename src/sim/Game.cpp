@@ -36,8 +36,14 @@ void Game::tick(Renderables &renderables, const Input &input)
 	renderables.lerped_renderables.emplace_back(process_player_paddle(input));
 	renderables.lerped_renderables.emplace_back(process_opponent_paddle());
 
+	char scoretext[10];
+	snprintf(scoretext, sizeof(scoretext), "%d", networkdata.guest_score);
+	renderables.text_renderables.emplace_back(0, -4.0f, 3.0f, true, TextRenderable::Type::smol, win::Color<float>(0.6f, 0.6f, 0.6f, 1.0f), scoretext);
+	snprintf(scoretext, sizeof(scoretext), "%d", networkdata.host_score);
+	renderables.text_renderables.emplace_back(0, 4.0f, 3.0f, true, TextRenderable::Type::smol, win::Color<float>(0.6f, 0.6f, 0.6f, 1.0f), scoretext);
+
 	if (match.hosting())
-		match.host_send_data(networkdata.host_paddle_y, ball.x, ball.y, 0, 0);
+		match.host_send_data(networkdata.host_paddle_y, ball.x, ball.y, networkdata.host_score, networkdata.guest_score);
 	else
 		match.guest_send_data(networkdata.guest_paddle_y);
 }
@@ -67,15 +73,21 @@ LerpedRenderable Game::process_ball()
 		}
 
 		// check for collision with area boundaries
-		if ((ball.x + Ball::width) - Ball::squishiness > area.right)
+		if (ball.x > area.right * 5.0f)
 		{
-			ball.x = (area.right - Ball::width) + Ball::squishiness;
-			ball.xv = -ball.xv;
+			ball.x = -Ball::width / 2.0f;
+			ball.y = -Ball::height / 2.0f;
+			ball.xv = ball.xv = -0.35f;
+			ball.yv = 0.0f;
+			++networkdata.guest_score;
 		}
-		else if (ball.x + Ball::squishiness < area.left)
+		else if (ball.x < area.left * 5.0f)
 		{
-			ball.x = area.left - Ball::squishiness;
-			ball.xv = -ball.xv;
+			ball.x = -Ball::width / 2.0f;
+			ball.y = -Ball::height / 2.0f;
+			ball.xv = 0.35f;
+			ball.yv = 0.0f;
+			++networkdata.host_score;
 		}
 		if ((ball.y + Ball::height) - Ball::squishiness > area.top)
 		{
@@ -138,7 +150,7 @@ void Game::reset()
 	ball.x = 0.0f;
 	ball.y = 0.0f;
 	ball.xv = 0.35f;
-	ball.yv = 0.15f;
+	ball.yv = 0.0f;
 
 	host.x = (area.right - Paddle::width) - 0.5f;
 	host.y = 0.0f;
