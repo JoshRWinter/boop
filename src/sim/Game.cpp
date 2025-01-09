@@ -4,6 +4,7 @@ Game::Game(const win::Area<float> &area, bool runbot)
 	: menustate(runbot ? MenuState::none : MenuState::main)
 	, runbot(runbot)
 	, area(area)
+	, match(area)
 {
 	reset();
 

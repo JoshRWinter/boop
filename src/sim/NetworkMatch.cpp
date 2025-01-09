@@ -1,6 +1,7 @@
 #include "NetworkMatch.hpp"
 
-NetworkMatch::NetworkMatch()
+NetworkMatch::NetworkMatch(const win::Area<float> &area)
+	: area(area)
 {
 	reset();
 }
@@ -12,6 +13,18 @@ void NetworkMatch::reset()
 	guestid.reset();
 	state = MatchState::disconnected;
 	client_sent = false;
+
+	if (botsim)
+		botsim.reset();
+}
+
+void NetworkMatch::start_bot()
+{
+    if (state != MatchState::disconnected && state != MatchState::listening)
+    	win::bug("Trying to start bot but in state " + std::to_string((int)state) + " instead");
+
+	botsim.reset(new Simulation(area, true));
+	state = MatchState::listening;
 }
 
 bool NetworkMatch::host()

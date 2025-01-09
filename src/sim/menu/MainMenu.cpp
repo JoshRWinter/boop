@@ -2,10 +2,11 @@
 
 MainMenu::MainMenu()
 	: state(MainMenuState::main)
-	, host(-button_width / 2.0f, -1.0f, button_width, button_height, "Host")
-	, join(-button_width / 2.0f, -2.0f, button_width, button_height, "Join")
-	, quit(-button_width / 2.0f, -3.0f, button_width, button_height, "Quit")
-	, back(-button_width / 2.0f, -3.0f, button_width, button_height, "Back")
+	, computer(-button_width / 2.0f, -0.5f, button_width, button_height, "Computer")
+	, host(-button_width / 2.0f, -1.5f, button_width, button_height, "Host")
+	, join(-button_width / 2.0f, -2.5f, button_width, button_height, "Join")
+	, quit(-button_width / 2.0f, -3.5f, button_width, button_height, "Quit")
+	, back(-button_width / 2.0f, -3.5f, button_width, button_height, "Back")
 {}
 
 MainMenuResult MainMenu::show(Renderables &renderables, const Input &input, NetworkMatch &match)
@@ -27,7 +28,13 @@ MainMenuResult MainMenu::show(Renderables &renderables, const Input &input, Netw
 
 MainMenuResult MainMenu::show_main(Renderables &renderables, const Input &input, NetworkMatch &match)
 {
-	if (button_clicked(host, input.click, input.x, input.y))
+	if (button_clicked(computer, input.click, input.x, input.y))
+	{
+		computer.click = false;
+		match.start_bot();
+		state = MainMenuState::host;
+	}
+	else if (button_clicked(host, input.click, input.x, input.y))
 	{
 		host.click = false;
 		state = MainMenuState::host;
@@ -43,14 +50,17 @@ MainMenuResult MainMenu::show_main(Renderables &renderables, const Input &input,
 		return MainMenuResult::quit;
 	}
 
+	computer.click = mouseover(computer, input.x, input.y) && input.click;
 	host.click = mouseover(host, input.x, input.y) && input.click;
 	join.click = mouseover(join, input.x, input.y) && input.click;
 	quit.click = mouseover(quit, input.x, input.y) && input.click;
 
+	renderables.menu_renderables.emplace_back(map_renderable(computer, input.x, input.y));
 	renderables.menu_renderables.emplace_back(map_renderable(host, input.x, input.y));
 	renderables.menu_renderables.emplace_back(map_renderable(join, input.x, input.y));
 	renderables.menu_renderables.emplace_back(map_renderable(quit, input.x, input.y));
 
+	renderables.text_renderables.emplace_back(map_text(computer));
 	renderables.text_renderables.emplace_back(map_text(host));
 	renderables.text_renderables.emplace_back(map_text(join));
 	renderables.text_renderables.emplace_back(map_text(quit));

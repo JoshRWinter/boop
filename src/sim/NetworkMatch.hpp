@@ -1,11 +1,14 @@
 #pragma once
 
 #include <string>
+#include <memory>
 
 #include <win/Win.hpp>
-
+#include <win/Utility.hpp>
 #include <win/UdpServer.hpp>
 #include <win/UdpClient.hpp>
+
+#include "Simulation.hpp"
 
 class NetworkMatch
 {
@@ -23,9 +26,10 @@ class NetworkMatch
 public:
 	static constexpr int PORT = 28857;
 
-	NetworkMatch();
+	NetworkMatch(const win::Area<float> &area);
 
 	void reset();
+	void start_bot();
 	bool host();
 	bool join(const char *ip);
 	bool hosting() const;
@@ -39,6 +43,9 @@ public:
 	void guest_send_data(float guest_paddle_y);
 
 private:
+	win::Area<float> area;
+	std::unique_ptr<Simulation> botsim;
+
 	win::UdpServer server;
 	win::UdpClient client;
 	win::UdpId guestid;

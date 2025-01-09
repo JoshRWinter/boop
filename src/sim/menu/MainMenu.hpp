@@ -63,6 +63,6 @@ private:
 	static bool button_clicked(const Button &button, bool click, float x, float y);
 
 	MainMenuState state;
-	Button host, join, quit, back;
+	Button computer, host, join, quit, back;
 	std::string ip_input = "::1";
 };
