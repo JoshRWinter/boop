@@ -77,9 +77,7 @@ void GLMenuRenderer::draw(const std::vector<const MenuRenderable*> &menu_rendera
 		text_renderer.draw(*f, r->text, r->x, r->y, r->color, r->centered);
 	}
 
-	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 	text_renderer.flush();
-	glBlendFunc(GL_ONE, GL_ONE_MINUS_SRC_ALPHA);
 
 	win::gl_check_error();
 }
