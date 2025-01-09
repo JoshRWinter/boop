@@ -50,6 +50,9 @@ private:
 	win::UdpClient client;
 	win::UdpId guestid;
 
+	int host_counter;
+	int guest_counter;
+
 	MatchState state;
 	bool client_sent;
 };
