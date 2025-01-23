@@ -50,12 +50,15 @@ public:
 	MainMenu();
 
 	MainMenuResult show(Renderables &renderables, const Input &input, const std::vector<char> &text, NetworkMatch &match);
+	void reset(NetworkMatch::ErrorReason reason);
 
 private:
 	MainMenuResult show_main(Renderables &renderables, const Input &input, const std::vector<char> &text, NetworkMatch &match);
 	MainMenuResult show_host(Renderables &renderables, const Input &input, const std::vector<char> &text, NetworkMatch &match);
 	MainMenuResult show_join(Renderables &renderables, const Input &input, const std::vector<char> &text, NetworkMatch &match);
 	MainMenuResult show_joining(Renderables &renderables, const Input &input, const std::vector<char> &text, NetworkMatch &match);
+
+	void set_error_text(NetworkMatch::ErrorReason reason);
 
 	static MenuRenderable map_renderable(const Button &button, float x, float y);
 	static TextRenderable map_text(const Button &button);
@@ -64,5 +67,6 @@ private:
 
 	MainMenuState state;
 	Button computer, host, join, quit, back;
-	std::string ip_input = "";
+	std::string ip_input;
+	std::string errormsg;
 };

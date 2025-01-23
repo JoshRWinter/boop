@@ -33,6 +33,15 @@ void Game::tick(Renderables &renderables, const Input &input)
 	else
 		match.guest_get_data(networkdata.host_paddle_y, networkdata.ball_x, networkdata.ball_y, networkdata.host_score, networkdata.guest_score);
 
+	const auto reason = match.errored();
+	if (reason != NetworkMatch::ErrorReason::none)
+	{
+		match.reset();
+		main_menu.reset(reason);
+        menustate = MenuState::main;
+		return;
+	}
+
 	renderables.lerped_renderables.push_back(process_ball());
 	renderables.lerped_renderables.emplace_back(process_player_paddle(input));
 	renderables.lerped_renderables.emplace_back(process_opponent_paddle());
@@ -47,6 +56,14 @@ void Game::tick(Renderables &renderables, const Input &input)
 		match.host_send_data(networkdata.host_paddle_y, ball.x, ball.y, networkdata.host_score, networkdata.guest_score);
 	else
 		match.guest_send_data(networkdata.guest_paddle_y);
+
+	const auto reason2 = match.errored();
+	if (reason2 != NetworkMatch::ErrorReason::none)
+	{
+		match.reset();
+		main_menu.reset(reason2);
+        menustate = MenuState::main;
+	}
 }
 
 LerpedRenderable Game::process_ball()

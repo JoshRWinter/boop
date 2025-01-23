@@ -20,11 +20,22 @@ class NetworkMatch
 		listening,
 		hosting,
 		joining,
-		joined
+		joined,
+		errored
 	};
 
 public:
+	enum class ErrorReason
+	{
+		none,
+		lost_connection,
+		bad_address,
+		unknown,
+		cant_listen
+	};
+
 	static constexpr int PORT = 28857;
+	static constexpr int DISCONNECT_SECONDS = 10;
 
 	NetworkMatch(const win::Area<float> &area);
 
@@ -33,6 +44,7 @@ public:
 	bool host();
 	bool join(const char *ip);
 	bool hosting() const;
+	ErrorReason errored() const;
 
 	// called by host
 	bool host_get_data(float &guest_paddle_y);
@@ -54,5 +66,7 @@ private:
 	int guest_counter;
 
 	MatchState state;
+	ErrorReason error;
 	bool client_sent;
+	std::chrono::time_point<std::chrono::steady_clock> last_receive_time;
 };

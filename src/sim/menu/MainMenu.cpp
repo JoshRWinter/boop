@@ -26,6 +26,13 @@ MainMenuResult MainMenu::show(Renderables &renderables, const Input &input, cons
 	}
 }
 
+void MainMenu::reset(NetworkMatch::ErrorReason reason)
+{
+    set_error_text(reason);
+	state = MainMenuState::main;
+	ip_input = "";
+}
+
 MainMenuResult MainMenu::show_main(Renderables &renderables, const Input &input, const std::vector<char> &text, NetworkMatch &match)
 {
 	if (button_clicked(computer, input.click, input.x, input.y))
@@ -67,6 +74,9 @@ MainMenuResult MainMenu::show_main(Renderables &renderables, const Input &input,
 
 	renderables.text_renderables.emplace_back(0, 0.0f, 2.0f, true, TextRenderable::Type::yuge, win::Color(1.0f, 0.0f, 0.0f, 1.0f), "boop");
 
+	if (errormsg.length() > 0)
+		renderables.text_renderables.emplace_back(0, 0.0f, 1.0f, true, TextRenderable::Type::smol, win::Color<float>(0.8f, 0.1f, 0.1f, 1.0f), errormsg.c_str());
+
 	return MainMenuResult::none;
 }
 
@@ -90,6 +100,15 @@ MainMenuResult MainMenu::show_host(Renderables &renderables, const Input &input,
 
 	if (try_host && match.host())
 		return MainMenuResult::play;
+	else
+	{
+		const auto reason = match.errored();
+		if (reason != NetworkMatch::ErrorReason::none)
+		{
+			state = MainMenuState::main;
+			set_error_text(reason);
+		}
+	}
 
 	return MainMenuResult::none;
 }
@@ -153,8 +172,40 @@ MainMenuResult MainMenu::show_joining(Renderables &renderables, const Input &inp
 
 	if (try_join && match.join(ip_input.c_str()))
 		return MainMenuResult::play;
+	else
+	{
+		const auto reason = match.errored();
+		if (reason != NetworkMatch::ErrorReason::none)
+		{
+			state = MainMenuState::main;
+            set_error_text(reason);
+
+			ip_input = "";
+			match.reset();
+		}
+	}
 
 	return MainMenuResult::none;
+}
+
+void MainMenu::set_error_text(NetworkMatch::ErrorReason reason)
+{
+	switch (reason)
+	{
+		case NetworkMatch::ErrorReason::bad_address:
+			errormsg = "Bad address: '" + ip_input + "'";
+			break;
+		case NetworkMatch::ErrorReason::cant_listen:
+			errormsg = "Can't listen on port " + std::to_string(NetworkMatch::PORT);
+			break;
+		case NetworkMatch::ErrorReason::lost_connection:
+			errormsg = "Connection was lost.";
+			break;
+		case NetworkMatch::ErrorReason::unknown:
+			errormsg = "Unknown network error";
+			break;
+		default: break;
+	}
 }
 
 MenuRenderable MainMenu::map_renderable(const Button &button, float x, float y)

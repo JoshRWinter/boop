@@ -12,7 +12,9 @@ void NetworkMatch::reset()
 	client = win::UdpClient();
 	guestid.reset();
 	state = MatchState::disconnected;
+	error = ErrorReason::none;
 	client_sent = false;
+	last_receive_time = std::chrono::steady_clock::now();
 
 	host_counter = 0;
 	guest_counter = 0;
@@ -41,8 +43,15 @@ bool NetworkMatch::host()
 	{
 		server = win::UdpServer(PORT);
 		if (!server)
+		{
+			error = ErrorReason::cant_listen;
+			state = MatchState::errored;
 			return false;
+		}
 	}
+
+	// fake the last receive time
+	last_receive_time = std::chrono::steady_clock::now();
 
 	float dummy;
 	if (host_get_data(dummy))
@@ -62,7 +71,19 @@ bool NetworkMatch::join(const char *ip)
 	state = MatchState::joining;
 
 	if (!client)
+	{
 		client = win::UdpClient(ip, PORT);
+
+		// fake the last receive time
+		last_receive_time = std::chrono::steady_clock::now();
+	}
+
+	if (!client)
+	{
+		state = MatchState::errored;
+		error = ErrorReason::bad_address;
+		return false;
+	}
 
 	float dummy = 0.0f;
 	guest_send_data(dummy);
@@ -83,6 +104,10 @@ bool NetworkMatch::hosting() const
 	return state == MatchState::hosting;
 }
 
+NetworkMatch::ErrorReason NetworkMatch::errored() const
+{
+	return state == MatchState::errored ? error : ErrorReason::none;
+}
 
 bool NetworkMatch::host_get_data(float &guest_paddle_y)
 {
@@ -90,7 +115,18 @@ bool NetworkMatch::host_get_data(float &guest_paddle_y)
 		win::bug("Trying to host but in state " + std::to_string((int)state) + " instead");
 
 	if (!server)
-		win::bug("Host: can't use server socket!");
+	{
+		state = MatchState::errored;
+		error = ErrorReason::unknown;
+		return false;
+	}
+
+	if (std::chrono::duration<float>(std::chrono::steady_clock::now() - last_receive_time).count() > DISCONNECT_SECONDS)
+	{
+		state = MatchState::errored;
+		error = ErrorReason::lost_connection;
+		return false;
+	}
 
 	unsigned char payload[8];
 	unsigned char receiving[8];
@@ -111,6 +147,7 @@ bool NetworkMatch::host_get_data(float &guest_paddle_y)
 		return false;
 
 	memcpy(&guest_paddle_y, payload + 4, sizeof(guest_paddle_y));
+	last_receive_time = std::chrono::steady_clock::now();
 
 	return true;
 }
@@ -124,7 +161,11 @@ void NetworkMatch::host_send_data(float host_paddle_y, float ball_x, float ball_
 		return; // don't know who to send it to yet
 
 	if (!server)
-		win::bug("Host: can't use server socket!");
+	{
+		state = MatchState::errored;
+		error = ErrorReason::unknown;
+		return;
+	}
 
 	unsigned char payload[18];
 	unsigned char c;
@@ -148,10 +189,21 @@ bool NetworkMatch::guest_get_data(float &host_paddle_y, float &ball_x, float &ba
 		win::bug("Trying to be joined but in state " + std::to_string((int)state) + " instead");
 
 	if (!client)
-		win::bug("Guest: can't use client socket!");
+	{
+		state = MatchState::errored;
+		error = ErrorReason::unknown;
+		return false;
+	}
 
 	if (!client_sent)
 		return false;
+
+	if (std::chrono::duration<float>(std::chrono::steady_clock::now() - last_receive_time).count() > DISCONNECT_SECONDS)
+	{
+		state = MatchState::errored;
+		error = ErrorReason::lost_connection;
+		return false;
+	}
 
 	unsigned char payload[18];
 	unsigned char receiving[18];
@@ -191,6 +243,8 @@ bool NetworkMatch::guest_get_data(float &host_paddle_y, float &ball_x, float &ba
 	memcpy(&c, payload + 17, sizeof(c));
 	guest_score = c;
 
+	last_receive_time = std::chrono::steady_clock::now();
+
 	return true;
 }
 
@@ -200,8 +254,11 @@ void NetworkMatch::guest_send_data(float guest_paddle_y)
 		win::bug("Trying to be joined but in state " + std::to_string((int)state) + " instead");
 
 	if (!client)
-		win::bug("Guest: can't use client socket!");
-
+	{
+		state = MatchState::errored;
+		error = ErrorReason::unknown;
+		return;
+	}
 
 	unsigned char payload[8];
 

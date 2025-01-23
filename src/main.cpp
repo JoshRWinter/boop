@@ -54,7 +54,8 @@ int main(int argc, char **argv)
 		switch (button)
 		{
 			case win::Button::esc:
-				quit = true;
+				if (press)
+					quit = true;
 				break;
 			case win::Button::mouse_left:
 				input.click = press;
