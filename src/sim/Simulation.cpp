@@ -26,7 +26,7 @@ void Simulation::release_renderables(Renderables *renderables)
 	som_renderables.reader_release(renderables);
 }
 
-void Simulation::set_input(Input input)
+void Simulation::set_input(const Input &input)
 {
 	Input *obj = NULL;
 	do { obj = som_input.writer_acquire(); } while (obj == NULL);
@@ -36,19 +36,29 @@ void Simulation::set_input(Input input)
 	som_input.writer_release(obj);
 }
 
+void Simulation::set_text_input(const std::vector<char> &text)
+{
+	int written = 0;
+    while (written != text.size())
+    	written += textinput.write(text.data() + written, text.size() - written);
+}
+
 void Simulation::sim(win::Area<float> area, bool runbot)
 {
 	Game game(area, runbot);
 
 	Input input;
+	std::vector<char> text;
 
 	while (!quit.load())
 	{
+		// prepare a place for renderables to go
 		Renderables *renderables = NULL;
 		while (renderables == NULL)
 			renderables = som_renderables.writer_acquire();
 		renderables->clear();
 
+		// gather mouse input
 		Input *latest_input;
 		if ((latest_input = som_input.reader_acquire()) != NULL)
 		{
@@ -56,7 +66,16 @@ void Simulation::sim(win::Area<float> area, bool runbot)
 			som_input.reader_release(latest_input);
 		}
 
-		game.play(*renderables, input);
+		// gather text input
+		{
+			char storage[20];
+			const int read = textinput.read(storage, sizeof(storage));
+			text.clear();
+			for (int i = 0; i < read; ++i)
+				text.push_back(storage[i]);
+		}
+
+		game.play(*renderables, input, input.click, text);
 		renderables->time = std::chrono::high_resolution_clock::now();
 
 		som_renderables.writer_release(renderables);

@@ -6,6 +6,7 @@
 
 #include <win/Win.hpp>
 #include <win/Utility.hpp>
+#include <win/ConcurrentRingBuffer.hpp>
 
 #include "../SyncObjectManager.hpp"
 #include "../render/Renderable.hpp"
@@ -21,7 +22,8 @@ public:
 
 	Renderables *get_renderables();
 	void release_renderables(Renderables *renderables);
-	void set_input(Input input);
+	void set_input(const Input &input);
+	void set_text_input(const std::vector<char> &text);
 
 private:
 	void sim(win::Area<float> area, bool runbot);
@@ -29,6 +31,8 @@ private:
 
 	SyncObjectManager<Renderables, 3> som_renderables;
 	SyncObjectManager<Input, 3> som_input;
+
+	win::ConcurrentRingBuffer<char, 20> textinput;
 
 	bool bot;
 	std::atomic<bool> quit;

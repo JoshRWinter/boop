@@ -48,7 +48,7 @@ class Game
 public:
 	explicit Game(const win::Area<float> &area, bool runbot);
 
-	void play(Renderables &renderables, const Input &input);
+	void play(Renderables &renderables, const Input &input, bool click, const std::vector<char> &text);
 
 private:
 	void tick(Renderables &renderables, const Input &input);

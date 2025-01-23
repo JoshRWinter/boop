@@ -42,24 +42,42 @@ int main(int argc, char **argv)
 	Simulation sim(area, false);
 	Renderer renderer(roll, screenres, area);
 
-	bool quit = false;
 	Input input;
 	bool input_available = false;
 
-	display.register_button_handler([&quit, &input, &input_available](win::Button button, bool press)
+	std::vector<char> text_buffer;
+	bool text_available = false;
+
+	bool quit = false;
+	display.register_button_handler([&quit, &input_available, &input, &text_buffer, &text_available](win::Button button, bool press)
 	{
 		switch (button)
 		{
 			case win::Button::esc:
 				quit = true;
-				input_available = true;
 				break;
 			case win::Button::mouse_left:
 				input.click = press;
 				input_available = true;
 				break;
+			case win::Button::backspace:
+				if (press)
+				{
+					text_buffer.push_back('\b');
+					text_available = true;
+				}
+				break;
 
 			default: break;
+		}
+	});
+
+	display.register_character_handler([&text_buffer, &text_available](int c)
+	{
+		if (c >= ' ' && c <= '~')
+		{
+			text_buffer.push_back(c);
+			text_available = true;
 		}
 	});
 
@@ -82,6 +100,13 @@ int main(int argc, char **argv)
 		{
 			input_available = false;
 			sim.set_input(input);
+		}
+
+		if (text_available)
+		{
+			text_available = false;
+			sim.set_text_input(text_buffer);
+			text_buffer.clear();
 		}
 
 		auto new_renderables = sim.get_renderables();

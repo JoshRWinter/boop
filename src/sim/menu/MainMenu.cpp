@@ -9,24 +9,24 @@ MainMenu::MainMenu()
 	, back(-button_width / 2.0f, -3.5f, button_width, button_height, "Back")
 {}
 
-MainMenuResult MainMenu::show(Renderables &renderables, const Input &input, NetworkMatch &match)
+MainMenuResult MainMenu::show(Renderables &renderables, const Input &input, const std::vector<char> &text, NetworkMatch &match)
 {
 	switch (state)
 	{
 		case MainMenuState::main:
-			return show_main(renderables, input, match);
+			return show_main(renderables, input, text, match);
 		case MainMenuState::host:
-			return show_host(renderables, input, match);
+			return show_host(renderables, input, text, match);
 		case MainMenuState::join:
-			return show_join(renderables, input, match);
+			return show_join(renderables, input, text, match);
 		case MainMenuState::joining:
-			return show_joining(renderables, input, match);
+			return show_joining(renderables, input, text, match);
 
 		default: win::bug("wut");
 	}
 }
 
-MainMenuResult MainMenu::show_main(Renderables &renderables, const Input &input, NetworkMatch &match)
+MainMenuResult MainMenu::show_main(Renderables &renderables, const Input &input, const std::vector<char> &text, NetworkMatch &match)
 {
 	if (button_clicked(computer, input.click, input.x, input.y))
 	{
@@ -70,7 +70,7 @@ MainMenuResult MainMenu::show_main(Renderables &renderables, const Input &input,
 	return MainMenuResult::none;
 }
 
-MainMenuResult MainMenu::show_host(Renderables &renderables, const Input &input, NetworkMatch &match)
+MainMenuResult MainMenu::show_host(Renderables &renderables, const Input &input, const std::vector<char> &text, NetworkMatch &match)
 {
 	bool try_host = true;
 	if (button_clicked(back, input.click, input.x, input.y))
@@ -94,8 +94,19 @@ MainMenuResult MainMenu::show_host(Renderables &renderables, const Input &input,
 	return MainMenuResult::none;
 }
 
-MainMenuResult MainMenu::show_join(Renderables &renderables, const Input &input, NetworkMatch &match)
+MainMenuResult MainMenu::show_join(Renderables &renderables, const Input &input, const std::vector<char> &text, NetworkMatch &match)
 {
+	for (auto c : text)
+	{
+		if (c == '\b')
+		{
+			if (!ip_input.empty())
+				ip_input.pop_back();
+		}
+		else
+			ip_input.push_back(c);
+	}
+
 	if (button_clicked(back, input.click, input.x, input.y))
 	{
 		back.click = false;
@@ -122,7 +133,7 @@ MainMenuResult MainMenu::show_join(Renderables &renderables, const Input &input,
 	return MainMenuResult::none;
 }
 
-MainMenuResult MainMenu::show_joining(Renderables &renderables, const Input &input, NetworkMatch &match)
+MainMenuResult MainMenu::show_joining(Renderables &renderables, const Input &input, const std::vector<char> &text, NetworkMatch &match)
 {
 	bool try_join = true;
 	if (button_clicked(back, input.click, input.x, input.y))

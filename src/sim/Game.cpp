@@ -14,11 +14,11 @@ Game::Game(const win::Area<float> &area, bool runbot)
 	}
 }
 
-void Game::play(Renderables &renderables, const Input &input)
+void Game::play(Renderables &renderables, const Input &input, bool click, const std::vector<char> &text)
 {
 	if (menustate == MenuState::main)
 	{
-		const auto result = main_menu.show(renderables, input, match);
+		const auto result = main_menu.show(renderables, input, text, match);
 		if (result == MainMenuResult::play)
 			menustate = MenuState::none;
 	}
