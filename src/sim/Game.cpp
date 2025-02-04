@@ -1,7 +1,8 @@
 #include "Game.hpp"
+#include "menu/Menu.hpp"
 
 Game::Game(const win::Area<float> &area, bool runbot)
-	: menustate(runbot ? MenuState::none : MenuState::main)
+	: showmenu(true)
 	, runbot(runbot)
 	, area(area)
 	, match(area)
@@ -14,16 +15,32 @@ Game::Game(const win::Area<float> &area, bool runbot)
 	}
 }
 
-void Game::play(Renderables &renderables, const Input &input, bool click, const std::vector<char> &text)
+void Game::play(SimulationHost &host)
 {
-	if (menustate == MenuState::main)
+	std::vector<char> textinput(20);
+	textinput.clear();
+
+	while (!host.quit())
 	{
-		const auto result = main_menu.show(renderables, input, text, match);
-		if (result == MainMenuResult::play)
-			menustate = MenuState::none;
-	}
-	else
+		if (showmenu && !runbot)
+		{
+			showmenu = false;
+			Menu::menu_main(host, match, "");
+
+			if (host.quit())
+				return;
+		}
+
+		auto &renderables = host.get_renderables();
+		const auto input = host.get_input();
+		host.get_text_input(textinput);
+
 		tick(renderables, input);
+
+		host.release_renderables(renderables);
+
+		host.sleep();
+	}
 }
 
 void Game::tick(Renderables &renderables, const Input &input)
@@ -37,8 +54,7 @@ void Game::tick(Renderables &renderables, const Input &input)
 	if (reason != NetworkMatch::ErrorReason::none)
 	{
 		match.reset();
-		main_menu.reset(reason);
-        menustate = MenuState::main;
+		showmenu = true;
 		return;
 	}
 
@@ -61,8 +77,7 @@ void Game::tick(Renderables &renderables, const Input &input)
 	if (reason2 != NetworkMatch::ErrorReason::none)
 	{
 		match.reset();
-		main_menu.reset(reason2);
-        menustate = MenuState::main;
+		showmenu = true;
 	}
 }
 

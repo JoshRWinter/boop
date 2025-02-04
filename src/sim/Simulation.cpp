@@ -45,43 +45,9 @@ void Simulation::set_text_input(const std::vector<char> &text)
 
 void Simulation::sim(win::Area<float> area, bool runbot)
 {
+	SimulationHost host(quit, som_renderables, som_input, textinput);
 	Game game(area, runbot);
-
-	Input input;
-	std::vector<char> text;
-
-	while (!quit.load())
-	{
-		// prepare a place for renderables to go
-		Renderables *renderables = NULL;
-		while (renderables == NULL)
-			renderables = som_renderables.writer_acquire();
-		renderables->clear();
-
-		// gather mouse input
-		Input *latest_input;
-		if ((latest_input = som_input.reader_acquire()) != NULL)
-		{
-			input = *latest_input;
-			som_input.reader_release(latest_input);
-		}
-
-		// gather text input
-		{
-			char storage[20];
-			const int read = textinput.read(storage, sizeof(storage));
-			text.clear();
-			for (int i = 0; i < read; ++i)
-				text.push_back(storage[i]);
-		}
-
-		game.play(*renderables, input, input.click, text);
-		renderables->time = std::chrono::high_resolution_clock::now();
-
-		som_renderables.writer_release(renderables);
-
-		sleep();
-	}
+	game.play(host);
 }
 
 void Simulation::sleep()

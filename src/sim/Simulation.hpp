@@ -11,6 +11,7 @@
 #include "../SyncObjectManager.hpp"
 #include "../render/Renderable.hpp"
 #include "../Input.hpp"
+#include "SimulationHost.hpp"
 
 class Simulation
 {
@@ -31,7 +32,6 @@ private:
 
 	SyncObjectManager<Renderables, 3> som_renderables;
 	SyncObjectManager<Input, 3> som_input;
-
 	win::ConcurrentRingBuffer<char, 20> textinput;
 
 	bool bot;

@@ -11,12 +11,16 @@ set(sources
 	src/Texture.hpp
 	src/Input.hpp
 
+	src/sim/menu/Menu.hpp
+	src/sim/menu/Menu.cpp
+
 	src/sim/Simulation.hpp
 	src/sim/Simulation.cpp
+	src/sim/SimulationHost.hpp
+	src/sim/SimulationHost.cpp
+
 	src/sim/Game.hpp
 	src/sim/Game.cpp
-	src/sim/menu/MainMenu.hpp
-	src/sim/menu/MainMenu.cpp
 	src/sim/NetworkMatch.hpp
 	src/sim/NetworkMatch.cpp
 

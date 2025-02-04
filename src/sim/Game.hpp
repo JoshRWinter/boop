@@ -1,14 +1,12 @@
 #pragma once
 
-#include <vector>
-
 #include <win/Win.hpp>
 #include <win/Utility.hpp>
 
 #include "../render/Renderable.hpp"
 #include "../Input.hpp"
 #include "NetworkMatch.hpp"
-#include "menu/MainMenu.hpp"
+#include "SimulationHost.hpp"
 
 struct Ball
 {
@@ -28,12 +26,6 @@ struct Paddle
 	float x, y;
 };
 
-enum class MenuState
-{
-	main,
-	none
-};
-
 class Game
 {
 	WIN_NO_COPY_MOVE(Game);
@@ -46,9 +38,9 @@ class Game
 	};
 
 public:
-	explicit Game(const win::Area<float> &area, bool runbot);
+	Game(const win::Area<float> &area, bool runbot);
 
-	void play(Renderables &renderables, const Input &input, bool click, const std::vector<char> &text);
+	void play(SimulationHost &host);
 
 private:
 	void tick(Renderables &renderables, const Input &input);
@@ -59,9 +51,7 @@ private:
 	bool collide(const Ball &ball, const Paddle &paddle);
 	float get_ball_yv(const Ball &ball, const Paddle &paddle);
 
-	MenuState menustate;
-	MainMenu main_menu;
-
+	bool showmenu;
 	bool runbot;
 	Ball ball;
 	Paddle host;
