@@ -5,6 +5,7 @@
 #include "../RendererBackend.hpp"
 #include "GLCommonRenderer.hpp"
 #include "GLMenuRenderer.hpp"
+#include "GLPostProcessingRenderer.hpp"
 
 class GLRendererBackend : public RendererBackend
 {
@@ -35,4 +36,8 @@ private:
 
 	GLCommonRenderer common_renderer;
 	GLMenuRenderer menu_renderer;
+	GLPostProcessingRenderer post_renderer;
+
+	win::GLFramebuffer fb;
+	win::GLTexture fb_main, fb_history;
 };

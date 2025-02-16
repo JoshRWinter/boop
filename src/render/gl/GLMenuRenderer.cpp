@@ -2,7 +2,7 @@
 #include <glm/gtc/type_ptr.hpp>
 
 #include "GLMenuRenderer.hpp"
-#include "GL.hpp"
+#include "GLConstants.hpp"
 
 using namespace win::gl;
 
@@ -21,12 +21,12 @@ GLMenuRenderer::GLMenuRenderer(win::AssetRoll &roll, win::GLTextRenderer &text_r
 	, menufont_small(menufont_small)
 	, menufont_big(menufont_big)
 	, program(win::load_gl_shaders(roll["shader/gl/menu.vert"], roll["shader/gl/menu.frag"]))
-	, atlas(roll["texture/menuatlas"], win::GLAtlas::Mode::linear, MENU_ATLAS_TEXTURE_UNIT)
+	, atlas(roll["texture/menuatlas"], win::GLAtlas::Mode::linear, GLConstants::MENU_ATLAS_TEXTURE_UNIT)
 {
 	glUseProgram(program.get());
 	uniform_transform = get_uniform(program, "transform");
 	uniform_color = get_uniform(program, "color");
-	glUniform1i(get_uniform(program, "tex"), MENU_ATLAS_TEXTURE_UNIT - GL_TEXTURE0);
+	glUniform1i(get_uniform(program, "tex"), GLConstants::MENU_ATLAS_TEXTURE_UNIT - GL_TEXTURE0);
 
 	glBindVertexArray(vao.get());
 

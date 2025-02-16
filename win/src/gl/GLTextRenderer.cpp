@@ -42,7 +42,7 @@ static const char *vertexshader =
 , *fragmentshader =
 "#version 440 core\n"
 
-"out vec4 pixel;\n"
+"layout (location = 0) out vec4 pixel;\n"
 "in vec3 ftexcoord;\n"
 
 "uniform sampler2DArray tex;\n"
