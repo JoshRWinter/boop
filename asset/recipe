@@ -2,6 +2,10 @@ shader/gl/common.vert
 shader/gl/common.frag
 shader/gl/menu.vert
 shader/gl/menu.frag
+shader/gl/post.vert
+shader/gl/post.frag
+shader/gl/histfade.vert
+shader/gl/histfade.frag
 
 svg2tga {
     texture/ball.svg 50 50 exclude

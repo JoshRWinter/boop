@@ -5,7 +5,7 @@
 #include <win/gl/GL.hpp>
 
 #include "GLCommonRenderer.hpp"
-#include "GL.hpp"
+#include "GLConstants.hpp"
 
 using namespace win::gl;
 
@@ -20,13 +20,13 @@ static GLint get_uniform(win::GLProgram &program, const char *name)
 
 GLCommonRenderer::GLCommonRenderer(win::AssetRoll &roll, const glm::mat4 &projection)
 	: projection(projection)
-	, atlas(roll["texture/atlas"], win::GLAtlas::Mode::linear, ATLAS_TEXTURE_UNIT)
+	, atlas(roll["texture/atlas"], win::GLAtlas::Mode::linear, GLConstants::ATLAS_TEXTURE_UNIT)
 	, program(win::load_gl_shaders(roll["shader/gl/common.vert"], roll["shader/gl/common.frag"]))
 {
 	glUseProgram(program.get());
 	uniform_transform = get_uniform(program, "transform");
 	uniform_color = get_uniform(program, "color");
-	glUniform1i(get_uniform(program, "tex"), ATLAS_TEXTURE_UNIT - GL_TEXTURE0);
+	glUniform1i(get_uniform(program, "tex"), GLConstants::ATLAS_TEXTURE_UNIT - GL_TEXTURE0);
 
 	glBindVertexArray(vao.get());
 

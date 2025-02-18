@@ -29,10 +29,13 @@ set(sources
 	src/render/Renderer.cpp
 	src/render/RendererBackend.hpp
 
+	src/render/gl/GLConstants.hpp
 	src/render/gl/GLRendererBackend.hpp
 	src/render/gl/GLRendererBackend.cpp
 	src/render/gl/GLCommonRenderer.hpp
 	src/render/gl/GLCommonRenderer.cpp
+	src/render/gl/GLPostProcessingRenderer.hpp
+	src/render/gl/GLPostProcessingRenderer.cpp
 	src/render/gl/GLMenuRenderer.hpp
 	src/render/gl/GLMenuRenderer.cpp
 )

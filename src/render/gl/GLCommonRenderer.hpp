@@ -21,6 +21,10 @@ public:
 private:
 	static void generate_vertex_data(const win::Atlas &atlas, std::vector<float> &posdata, std::vector<unsigned short> &texcoord);
 
+	win::GLFramebuffer render;
+	win::GLTexture render_att1;
+	win::GLTexture render_att2;
+
 	glm::mat4 projection;
 
 	win::GLAtlas atlas;
