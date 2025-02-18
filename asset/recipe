@@ -6,6 +6,8 @@ shader/gl/post.vert
 shader/gl/post.frag
 shader/gl/histfade.vert
 shader/gl/histfade.frag
+shader/gl/blur.vert
+shader/gl/blur.frag
 
 svg2tga {
     texture/ball.svg 50 50 exclude

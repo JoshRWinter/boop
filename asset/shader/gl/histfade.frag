@@ -4,5 +4,5 @@ layout (location = 1) out vec4 frag;
 
 void main()
 {
-    frag = vec4(0.0, 0.0, 0.0, 0.4);
+    frag = vec4(0.0, 0.0, 0.0, 0.2);
 }
