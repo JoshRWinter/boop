@@ -7,6 +7,7 @@ uniform bool horizontal;
 layout (location = 1) out vec4 frag;
 
 float weights[] = float[](0.215429, 0.186202, 0.120233, 0.057999, 0.020902, 0.005627);
+//float weights[] = float[](1.0, 0.0001);
 
 void main()
 {

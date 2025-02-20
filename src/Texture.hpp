@@ -3,6 +3,7 @@
 enum class Texture
 {
 	ball,
+	balltail,
 	paddle
 };
 

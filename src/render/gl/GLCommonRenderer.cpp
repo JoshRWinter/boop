@@ -59,10 +59,11 @@ void GLCommonRenderer::draw(const std::vector<const Renderable*> &renderables)
 	{
 		const auto translate = glm::translate(ident, glm::vec3(renderable->x + (renderable->w / 2.0f), renderable->y + (renderable->h / 2.0f), 0.0f));
 		const auto scale = glm::scale(ident, glm::vec3(renderable->w, renderable->h, 1.0f));
+		const auto rotate = glm::rotate(ident, renderable->rot, glm::vec3(0.0f, 0.0f, 1.0f));
 
-		const auto transform = projection * translate * scale;
+		const auto transform = projection * translate * rotate * scale;
 		glUniformMatrix4fv(uniform_transform, 1, GL_FALSE, glm::value_ptr(transform));
-		glUniform4f(uniform_color, renderable->color.red, renderable->color.green, renderable->color.blue, 1.0f);
+		glUniform4f(uniform_color, renderable->color.red, renderable->color.green, renderable->color.blue, renderable->color.alpha);
 
 		glDrawArrays(GL_TRIANGLES, (int)renderable->texture * 6, 6);
 	}

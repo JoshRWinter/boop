@@ -13,9 +13,14 @@ struct Ball
 	static constexpr float width = 0.3f;
 	static constexpr float height = 0.3f;
 	static constexpr float squishiness = width * 0.3f;
+	static constexpr float tail_height = width;
 
 	float x, y;
 	float xv, yv;
+
+	float tail_x, tail_y;
+	float tail_width;
+	float tail_rot;
 };
 
 struct Paddle
@@ -44,7 +49,7 @@ public:
 
 private:
 	void tick(Renderables &renderables, const Input &input);
-	LerpedRenderable process_ball();
+	void process_ball(std::vector<LerpedRenderable> &renderables);
 	LerpedRenderable process_player_paddle(const Input &input);
 	LerpedRenderable process_opponent_paddle();
 	void reset();
