@@ -74,7 +74,7 @@ void SimulationHost::sleep()
 		{
 			// don't sleep this close to the deadline
 		}
-	} while (consumed < 16.666f);
+	} while (consumed < 160.666f);
 
 	last_wake = std::chrono::high_resolution_clock::now();
 }

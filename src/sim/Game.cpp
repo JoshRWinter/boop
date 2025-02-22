@@ -162,26 +162,26 @@ void Game::process_ball(std::vector<LerpedRenderable> &renderables)
 	const float angle = std::atan2f(ball.yv, ball.xv) - M_PI;
 
 	ball.tail_rot = angle;
-	const float ball_travel_dist = std::sqrtf(std::powf(ball.x - (ball.x - ball.xv), 2) + std::powf(ball.y - (ball.y - ball.yv), 2));
-	ball.tail_width = ball_travel_dist;
+	ball.tail_width = 0.6f;
+	ball.tail_x = ((ball.x + (Ball::width / 2.0f)) - (ball.xv * 1.0f)) - (ball.tail_width / 2.0f);
+	ball.tail_y = ((ball.y + (Ball::height / 2.0f)) - (ball.yv * 1.0f)) - (Ball::tail_height / 2.0f);
 
-	ball.tail_x = ((ball.x + (Ball::width / 2.0f)) - (ball.xv * 0.75)) - (ball.tail_width / 2.0f);
-	ball.tail_y = ((ball.y + (Ball::height / 2.0f)) - (ball.yv * 0.75)) - (Ball::tail_height / 2.0f);
-
-	// don't let it clip through the the paddles
+	// don't let it poke through the the paddles
 	if (ball.tail_x < guest.x + Paddle::width && ball.xv > 0.0f)
 	{
-		const float tmp = ball.tail_x;
 		ball.tail_x = (guest.x + Paddle::width);
-		ball.tail_width = ball.tail_width - (ball.tail_x - tmp);
+		ball.tail_width = ball.x - (guest.x + Paddle::width);
 	}
-	else if (ball.tail_x + ball.tail_width > host.x && ball.xv < 0.0f)
+	/*
+	if (ball.tail_x + ball.tail_width > host.x && ball.xv < 0.0f)
 	{
-		ball.tail_width = host.x - ball.tail_x;
+		fprintf(stderr, "host bounce\n");
+		tail_width = 0.0f;//ball.tail_width = host.x - ball.tail_x;
 	}
+	*/
 
 	// emit renderables
-	renderables.emplace_back(0, Texture::balltail, ball.tail_x, ball.tail_y, bounce ? ball.tail_x : old_ball_tail_x, bounce ? ball.tail_y : old_ball_tail_y, ball.tail_width, Ball::tail_height, old_ball_tail_width, Ball::height, ball.tail_rot, bounce ? ball.tail_rot : old_ball_tail_rot, win::Color<float>(1, 0, 0, 1));
+	renderables.emplace_back(0, Texture::balltail, ball.tail_x, ball.tail_y, bounce ? ball.tail_x : old_ball_tail_x, bounce ? ball.tail_y : old_ball_tail_y, ball.tail_width, Ball::tail_height, bounce ? ball.tail_width : old_ball_tail_width, Ball::height, ball.tail_rot, bounce ? ball.tail_rot : old_ball_tail_rot, win::Color<float>(1, 0, 0, 1));
 	renderables.emplace_back(0, Texture::ball, ball.x, ball.y, oldx, oldy, Ball::width, Ball::height, Ball::width, Ball::height, 0.0f, 0.0f, win::Color<float>(1, 0, 0, 1));
 }
 
@@ -201,7 +201,7 @@ LerpedRenderable Game::process_player_paddle(const Input &input)
 		const float oldy = paddle.y;
 		paddle.y = input.y - (Paddle::height / 2.0f);
 		networky = paddle.y;
-		return LerpedRenderable(0, Texture::paddle, paddle.x, paddle.y, paddle.x, oldy, Paddle::width, Paddle::height, Paddle::width, Paddle::height, 0.0f, 0.0f, win::Color<float>(1, 1, 1, 1.0));
+		return LerpedRenderable(0, Texture::paddle, paddle.x, paddle.y, paddle.x, oldy, Paddle::width, Paddle::height, Paddle::width, Paddle::height, 0.0f, 0.0f, win::Color<float>(1, 1, 1, 0.2));
 	}
 }
 
@@ -212,7 +212,7 @@ LerpedRenderable Game::process_opponent_paddle()
 
 	const float oldy = paddle.y;
 	paddle.y = y;
-	return LerpedRenderable(0, Texture::paddle, paddle.x, paddle.y, paddle.x, oldy, Paddle::width, Paddle::height, Paddle::width, Paddle::height, 0.0f, 0.0f, win::Color<float>(1, 1, 1, 1.0));
+	return LerpedRenderable(0, Texture::paddle, paddle.x, paddle.y, paddle.x, oldy, Paddle::width, Paddle::height, Paddle::width, Paddle::height, 0.0f, 0.0f, win::Color<float>(1, 1, 1, 0.2));
 }
 
 void Game::reset()
