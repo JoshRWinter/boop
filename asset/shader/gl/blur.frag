@@ -6,8 +6,7 @@ uniform sampler2D tex;
 uniform bool horizontal;
 layout (location = 1) out vec4 frag;
 
-float weights[] = float[](0.269286, 0.214425, 0.108259, 0.034656, 0.007034);
-//float weights[] = float[](1.0, 0.0001);
+float weights[] = float[](0.538572, 0.216517, 0.014068);
 
 void main()
 {

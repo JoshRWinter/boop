@@ -13,14 +13,15 @@ struct Ball
 	static constexpr float width = 0.3f;
 	static constexpr float height = 0.3f;
 	static constexpr float squishiness = width * 0.3f;
-	static constexpr float tail_height = width;
 
 	float x, y;
 	float xv, yv;
+};
 
-	float tail_x, tail_y;
-	float tail_width;
-	float tail_rot;
+struct BallTailItem
+{
+	static constexpr int tails = 6;
+	float x, oldx, y, oldy;
 };
 
 struct Paddle
@@ -52,6 +53,7 @@ private:
 	void process_ball(std::vector<LerpedRenderable> &renderables);
 	LerpedRenderable process_player_paddle(const Input &input);
 	LerpedRenderable process_opponent_paddle();
+	void reset_serve(bool towards_host);
 	void reset();
 	bool collide(const Ball &ball, const Paddle &paddle);
 	float get_ball_yv(const Ball &ball, const Paddle &paddle);
@@ -59,9 +61,12 @@ private:
 	bool showmenu;
 	bool runbot;
 	Ball ball;
+	BallTailItem tails[BallTailItem::tails];
 	Paddle host;
 	Paddle guest;
 	win::Area<float> area;
 	NetworkMatch match;
 	NetworkData networkdata;
+
+	std::vector<win::Pair<float>> bounces;
 };
