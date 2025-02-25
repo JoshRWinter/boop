@@ -9,27 +9,26 @@
 
 struct Renderable
 {
-	Renderable(int layer, Texture texture, float x, float y, float w, float h, float rot, const win::Color<float> &color)
-		: layer(layer), texture(texture), x(x), y(y), w(w), h(h), rot(rot), color(color) {}
+	Renderable(int layer, Texture texture, float x, float y, float w, float h, const win::Color<float> &color)
+		: layer(layer), texture(texture), x(x), y(y), w(w), h(h), color(color) {}
 
 	int layer;
 	Texture texture;
-	float x, y, w, h, rot;
+	float x, y, w, h;
 	win::Color<float> color;
 };
 
 struct LerpedRenderable : Renderable
 {
-	LerpedRenderable(int layer, Texture texture, float x, float y, float old_x, float old_y, float w, float h, float old_w, float old_h, float rot, float old_rot, const win::Color<float> &color)
-		: Renderable(layer, texture, x, y, w, h, rot, color)
+	LerpedRenderable(int layer, Texture texture, float x, float y, float old_x, float old_y, float w, float h, float old_w, float old_h, const win::Color<float> &color)
+		: Renderable(layer, texture, x, y, w, h, color)
 		, old_x(old_x)
 		, old_y(old_y)
 		, old_width(old_w)
 		, old_height(old_h)
-		, old_rot(old_rot)
 	{}
 
-	float old_x, old_y, old_width, old_height, old_rot;
+	float old_x, old_y, old_width, old_height;
 };
 
 struct TextRenderable
