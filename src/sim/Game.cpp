@@ -60,7 +60,7 @@ void Game::tick(Renderables &renderables, const Input &input)
 		return;
 	}
 
-	process_ball(renderables.lerped_renderables);
+	process_ball(renderables.lerped_renderables, renderables.light_renderables);
 	renderables.lerped_renderables.emplace_back(process_player_paddle(input));
 	renderables.lerped_renderables.emplace_back(process_opponent_paddle());
 
@@ -83,7 +83,7 @@ void Game::tick(Renderables &renderables, const Input &input)
 	}
 }
 
-void Game::process_ball(std::vector<LerpedRenderable> &renderables)
+void Game::process_ball(std::vector<LerpedRenderable> &renderables, std::vector<LerpedLightRenderable> &light_renderables)
 {
 	const float oldx = ball.x;
 	const float oldy = ball.y;
@@ -194,6 +194,7 @@ void Game::process_ball(std::vector<LerpedRenderable> &renderables)
 
 	// emit renderables
 	renderables.emplace_back(0, Texture::ball, ball.x, ball.y, oldx, oldy, Ball::width, Ball::height, Ball::width, Ball::height, win::Color<float>(1, 0, 0, 1));
+	light_renderables.emplace_back(ball.x + (Ball::width / 2.0f), ball.y + (Ball::height / 2.0f), oldx + (Ball::width / 2.0f), oldy + (Ball::height / 2.0f), win::Color<float>(1, 1, 0, 1), 10000);
 }
 
 LerpedRenderable Game::process_player_paddle(const Input &input)

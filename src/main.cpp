@@ -27,8 +27,8 @@ int main(int argc, char **argv)
 	display_options.width = 1600;
 	display_options.height = 900;
 #endif
-	display_options.gl_major = 3;
-	display_options.gl_minor = 3;
+	display_options.gl_major = 4;
+	display_options.gl_minor = 4;
 
 	win::Display display(display_options);
 	display.vsync(true);

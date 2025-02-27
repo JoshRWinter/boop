@@ -7,6 +7,29 @@
 
 #include "../Texture.hpp"
 
+struct LightRenderable
+{
+	LightRenderable(float x, float y, const win::Color<float> &color, float power)
+		: x(x)
+		, y(y)
+		, color(color)
+		, power(power) {}
+
+	float x, y;
+	win::Color<float> color;
+	float power;
+};
+
+struct LerpedLightRenderable : LightRenderable
+{
+	LerpedLightRenderable(float x, float y, float old_x, float old_y ,const win::Color<float> &color, float power)
+		: LightRenderable(x, y, color, power)
+		, old_x(old_x)
+		, old_y(old_y) {}
+
+	float old_x, old_y;
+};
+
 struct Renderable
 {
 	Renderable(int layer, Texture texture, float x, float y, float w, float h, const win::Color<float> &color)
@@ -85,12 +108,14 @@ struct Renderables
 	{
 		renderables.clear();
 		lerped_renderables.clear();
+		light_renderables.clear();
 		menu_renderables.clear();
 		text_renderables.clear();
 	}
 
 	std::vector<Renderable> renderables;
 	std::vector<LerpedRenderable> lerped_renderables;
+	std::vector<LerpedLightRenderable> light_renderables;
 	std::vector<MenuRenderable> menu_renderables;
 	std::vector<TextRenderable> text_renderables;
 

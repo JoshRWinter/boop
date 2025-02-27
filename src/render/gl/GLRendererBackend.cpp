@@ -18,8 +18,21 @@ GLRendererBackend::GLRendererBackend(win::AssetRoll &roll, const win::Dimensions
 	, menufont_big(screenres, area, 1.0f, win::Stream(new win::FileReadStream("/usr/share/fonts/noto/NotoSansMono-Regular.ttf")))
 	, common_renderer(roll, glm::ortho(area.left, area.right, area.bottom, area.top))
 	, menu_renderer(roll, text_renderer, menufont_small, menufont_big, glm::ortho(area.left, area.right, area.bottom, area.top))
-	, post_renderer(roll, screenres)
+	, post_renderer(roll, screenres, area)
 {
+	/*
+	glEnable(GL_DEBUG_OUTPUT);
+	glEnable(GL_DEBUG_OUTPUT_SYNCHRONOUS);
+	glDebugMessageCallback([](GLenum source, GLenum type, unsigned int id, GLenum severity, GLsizei length, const char *message, const void *param)
+	{
+		std::unique_ptr<char[]> buf(new char[length + 1]);
+		memcpy(buf.get(), message, length);
+		buf[length] = 0;
+		fprintf(stderr, "%s\n\n", buf.get());
+	}, NULL);
+	glDebugMessageControl(GL_DONT_CARE, GL_DONT_CARE, GL_DONT_CARE, 0, NULL, GL_TRUE);
+	*/
+
 	glEnable(GL_FRAMEBUFFER_SRGB);
 	glClearColor(0.01f, 0.01f, 0.012f, 1.0f);
 	glEnable(GL_BLEND);
@@ -29,7 +42,7 @@ GLRendererBackend::GLRendererBackend(win::AssetRoll &roll, const win::Dimensions
 
 	glActiveTexture(GLConstants::MAIN_COLOR_ATTACHMENT_TEXTURE_UNIT);
 	glBindTexture(GL_TEXTURE_2D, fb_main.get());
-	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB16, screenres.width, screenres.height, 0, GL_RGB, GL_UNSIGNED_BYTE, NULL);
+	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB16, screenres.width, screenres.height, 0, GL_RGB, GL_UNSIGNED_SHORT, NULL);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
@@ -37,7 +50,7 @@ GLRendererBackend::GLRendererBackend(win::AssetRoll &roll, const win::Dimensions
 
 	glActiveTexture(GLConstants::HISTORY_COLOR_ATTACHMENT_TEXTURE_UNIT);
 	glBindTexture(GL_TEXTURE_2D, fb_history.get());
-	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB16, screenres.width, screenres.height, 0, GL_RGB, GL_UNSIGNED_BYTE, NULL);
+	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB16, screenres.width, screenres.height, 0, GL_RGB, GL_UNSIGNED_SHORT, NULL);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
@@ -46,16 +59,16 @@ GLRendererBackend::GLRendererBackend(win::AssetRoll &roll, const win::Dimensions
 	const GLenum buf[] = { GL_COLOR_ATTACHMENT0, GL_COLOR_ATTACHMENT1 };
 	glDrawBuffers(2, buf);
 
-	const GLint clearcolor[] = { 0, 0, 0, 0 };
-	glClearBufferiv(GL_COLOR, 1, clearcolor);
+	const GLfloat clearcolor[] = { 0.0f, 0.0f, 0.0f, 0.0f };
+	glClearBufferfv(GL_COLOR, 1, clearcolor);
 
 	win::gl_check_error();
 }
 
-void GLRendererBackend::render(const std::vector<Renderable> &renderables, const std::vector<MenuRenderable> &menu_renderables, const std::vector<TextRenderable> &text_renderables)
+void GLRendererBackend::render(const std::vector<Renderable> &renderables, const std::vector<LightRenderable> &light_renderables, const std::vector<MenuRenderable> &menu_renderables, const std::vector<TextRenderable> &text_renderables)
 {
-	const GLint clearcolor[] = { 0, 0, 0, 0 };
-	glClearBufferiv(GL_COLOR, 0, clearcolor);
+	const GLfloat clearcolor[] = { 0.003f, 0.003f, 0.003f, 0.0f };
+	glClearBufferfv(GL_COLOR, 0, clearcolor);
 
 	for (const auto &r : renderables)
 		buckets.at(r.layer).renderables.push_back(&r);
@@ -78,7 +91,7 @@ void GLRendererBackend::render(const std::vector<Renderable> &renderables, const
 	}
 
 	glColorMaski(1, GL_TRUE, GL_TRUE, GL_TRUE, GL_TRUE);
-	post_renderer.draw(fb.get());
+	post_renderer.draw(fb.get(), light_renderables);
 
 	win::gl_check_error();
 }

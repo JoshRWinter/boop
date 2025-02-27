@@ -18,5 +18,6 @@ private:
 	static float lerp(float a, float b, float t);
 
 	std::vector<Renderable> lerped;
+	std::vector<LightRenderable> lerped_lights;
 	std::unique_ptr<RendererBackend> backend;
 };

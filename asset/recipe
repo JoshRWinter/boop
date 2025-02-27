@@ -6,13 +6,10 @@ shader/gl/post.vert
 shader/gl/post.frag
 shader/gl/histfade.vert
 shader/gl/histfade.frag
-shader/gl/blur.vert
-shader/gl/blur.frag
 
 svg2tga {
     texture/ball.svg 50 50 exclude
     texture/paddle.svg 50 50 exclude
-    texture/balltail.svg 50 50 exclude
 
     texture/button.svg 10 10 exclude
 }

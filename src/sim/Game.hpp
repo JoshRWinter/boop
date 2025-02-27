@@ -50,7 +50,7 @@ public:
 
 private:
 	void tick(Renderables &renderables, const Input &input);
-	void process_ball(std::vector<LerpedRenderable> &renderables);
+	void process_ball(std::vector<LerpedRenderable> &renderables, std::vector<LerpedLightRenderable> &light_renderables);
 	LerpedRenderable process_player_paddle(const Input &input);
 	LerpedRenderable process_opponent_paddle();
 	void reset_serve(bool towards_host);

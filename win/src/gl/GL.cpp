@@ -96,7 +96,7 @@ void load_gl_functions()
 	glFramebufferTexture2D = (decltype(glFramebufferTexture2D)) get_proc("glFramebufferTexture2D");
 	glDrawBuffers = (decltype(glDrawBuffers)) get_proc("glDrawBuffers");
 	glColorMaski = (decltype(glColorMaski)) get_proc("glColorMaski");
-	glClearBufferiv = (decltype(glClearBufferiv)) get_proc("glClearBufferiv");
+	glClearBufferfv = (decltype(glClearBufferfv)) get_proc("glClearBufferfv");
 	glDeleteFramebuffers = (decltype(glDeleteFramebuffers)) get_proc("glDeleteFramebuffers");
 
 	glGenVertexArrays = (decltype(glGenVertexArrays)) get_proc("glGenVertexArrays");
