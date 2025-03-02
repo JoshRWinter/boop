@@ -33,7 +33,6 @@ GLRendererBackend::GLRendererBackend(win::AssetRoll &roll, const win::Dimensions
 	glDebugMessageControl(GL_DONT_CARE, GL_DONT_CARE, GL_DONT_CARE, 0, NULL, GL_TRUE);
 	*/
 
-	glEnable(GL_FRAMEBUFFER_SRGB);
 	glClearColor(0.01f, 0.01f, 0.012f, 1.0f);
 	glEnable(GL_BLEND);
 	glBlendFunc(GL_ONE, GL_ONE_MINUS_SRC_ALPHA);
