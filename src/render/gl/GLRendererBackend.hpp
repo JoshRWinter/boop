@@ -16,11 +16,14 @@ public:
 	void render(const std::vector<Renderable> &renderables, const std::vector<LightRenderable> &light_renderables, const std::vector<MenuRenderable> &menu_renderables, const std::vector<TextRenderable> &text_renderables) override;
 
 private:
+	void drawfps();
+
 	struct LayerBucket
 	{
 		std::vector<const Renderable*> renderables;
 		std::vector<const MenuRenderable*> menu_renderables;
 		std::vector<const TextRenderable*> text_renderables;
+
 		void clear()
 		{
 			renderables.clear();
@@ -32,7 +35,7 @@ private:
 	std::vector<LayerBucket> buckets;
 
 	win::GLTextRenderer text_renderer;
-	win::GLFont menufont_small, menufont_big;
+	win::GLFont menufont_tiny, menufont_small, menufont_big;
 
 	GLCommonRenderer common_renderer;
 	GLMenuRenderer menu_renderer;
