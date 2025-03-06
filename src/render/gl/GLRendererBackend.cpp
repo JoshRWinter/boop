@@ -17,7 +17,7 @@ GLRendererBackend::GLRendererBackend(win::AssetRoll &roll, const win::Dimensions
 	, menufont_tiny(screenres, area, 0.125f, win::Stream(new win::FileReadStream("/usr/share/fonts/noto/NotoSansMono-Regular.ttf")))
 	, menufont_small(screenres, area, 0.5f, win::Stream(new win::FileReadStream("/usr/share/fonts/noto/NotoSansMono-Regular.ttf")))
 	, menufont_big(screenres, area, 1.0f, win::Stream(new win::FileReadStream("/usr/share/fonts/noto/NotoSansMono-Regular.ttf")))
-	, common_renderer(roll, glm::ortho(area.left, area.right, area.bottom, area.top))
+	, common_renderer(roll, glm::ortho(area.left, area.right, area.bottom, area.top), screenres, area)
 	, menu_renderer(roll, text_renderer, menufont_small, menufont_big, glm::ortho(area.left, area.right, area.bottom, area.top))
 	, post_renderer(roll, screenres, area)
 {
@@ -84,7 +84,7 @@ void GLRendererBackend::render(const std::vector<Renderable> &renderables, const
 	for (auto &bucket : buckets)
 	{
 		glColorMaski(1, GL_TRUE, GL_TRUE, GL_TRUE, GL_TRUE);
-		common_renderer.draw(bucket.renderables);
+		common_renderer.draw(bucket.renderables, light_renderables);
 
 		glColorMaski(1, GL_FALSE, GL_FALSE, GL_FALSE, GL_FALSE);
 		menu_renderer.draw(bucket.menu_renderables, bucket.text_renderables);
@@ -93,7 +93,7 @@ void GLRendererBackend::render(const std::vector<Renderable> &renderables, const
 	}
 
 	glColorMaski(1, GL_TRUE, GL_TRUE, GL_TRUE, GL_TRUE);
-	post_renderer.draw(fb.get(), light_renderables);
+	post_renderer.draw(fb.get());
 
 	win::gl_check_error();
 }

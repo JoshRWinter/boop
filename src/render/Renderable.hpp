@@ -32,19 +32,21 @@ struct LerpedLightRenderable : LightRenderable
 
 struct Renderable
 {
-	Renderable(int layer, Texture texture, float x, float y, float w, float h, const win::Color<float> &color)
-		: layer(layer), texture(texture), x(x), y(y), w(w), h(h), color(color) {}
+	Renderable(int layer, Texture texture, float x, float y, float w, float h, float luminance, const win::Color<float> &color, const win::Color<float> &history_color)
+		: layer(layer), texture(texture), x(x), y(y), w(w), h(h), luminance(luminance), color(color), history_color(history_color) {}
 
 	int layer;
 	Texture texture;
 	float x, y, w, h;
+	float luminance;
 	win::Color<float> color;
+	win::Color<float> history_color;
 };
 
 struct LerpedRenderable : Renderable
 {
-	LerpedRenderable(int layer, Texture texture, float x, float y, float old_x, float old_y, float w, float h, float old_w, float old_h, const win::Color<float> &color)
-		: Renderable(layer, texture, x, y, w, h, color)
+	LerpedRenderable(int layer, Texture texture, float x, float y, float old_x, float old_y, float w, float h, float old_w, float old_h, const float luminance, const win::Color<float> &color, const win::Color<float> &history_color)
+		: Renderable(layer, texture, x, y, w, h, luminance, color, history_color)
 		, old_x(old_x)
 		, old_y(old_y)
 		, old_width(old_w)

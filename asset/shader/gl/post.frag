@@ -4,10 +4,6 @@ uniform sampler2D main_texture;
 uniform sampler2D history_texture;
 
 uniform bool horizontal;
-uniform vec2 light;
-uniform vec3 lightcolor;
-uniform float lightpower;
-uniform vec3 ambientlight;
 
 in vec2 ftexcoord;
 layout (location = 0) out vec4 frag;
@@ -96,9 +92,6 @@ void main()
             blur.g + (main.g * (1.0 - blur.g)),
             blur.b + (main.b * (1.0 - blur.b)),
             1.0);
-
-        vec3 lightcontribution = (vec3(lightpower / (pow(distance(light, gl_FragCoord.xy), 2) + 1.0)) * lightcolor) + ambientlight;
-        frag = vec4(frag.rgb * lightcontribution, 1.0);
 
         frag = dither(frag);
     }

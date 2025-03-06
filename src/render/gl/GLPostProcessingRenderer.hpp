@@ -14,7 +14,7 @@ class GLPostProcessingRenderer
 public:
 	GLPostProcessingRenderer(win::AssetRoll &roll, const win::Dimensions<int> &screenres, const win::Area<float> &gamearea);
 
-	void draw(GLuint fb, const std::vector<LightRenderable> &lights);
+	void draw(GLuint fb);
 
 private:
 	void world_to_screen(float x, float y, int &xi, int &yi);
@@ -37,9 +37,5 @@ private:
 		GLint uniform_main_texture;
 		GLint uniform_history_texture;
 		GLint uniform_blur_horizontal;
-		GLint uniform_light;
-		GLint uniform_lightcolor;
-		GLint uniform_lightpower;
-		GLint uniform_ambientlight;
 	} post;
 };

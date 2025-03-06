@@ -186,15 +186,62 @@ void Game::process_ball(std::vector<LerpedRenderable> &renderables, std::vector<
     			tails[i].x = x + (std::cosf(angle) * dist);
     			tails[i].y = y + (std::sinf(angle) * dist);
 
-			    renderables.emplace_back(0, Texture::ball, tails[i].x, tails[i].y, tails[i].oldx, tails[i].oldy, Ball::width, Ball::height, Ball::width, Ball::height, win::Color<float>(1, 0, 0, 1));
+			    renderables.emplace_back(0,
+					Texture::ball,
+					tails[i].x,
+					tails[i].y,
+					tails[i].oldx,
+					tails[i].oldy,
+					Ball::width,
+					Ball::height,
+					Ball::width,
+					Ball::height,
+					1.0f,
+					win::Color<float>(1.0f, 0.0f, 0.0f, 1.0f),
+					win::Color<float>(1.0f, 0.0f, 0.0f, 1.0f));
+
     			break;
     		}
     	}
     }
 
 	// emit renderables
-	renderables.emplace_back(0, Texture::ball, ball.x, ball.y, oldx, oldy, Ball::width, Ball::height, Ball::width, Ball::height, win::Color<float>(1, 0, 0, 1));
-	light_renderables.emplace_back(ball.x + (Ball::width / 2.0f), ball.y + (Ball::height / 2.0f), oldx + (Ball::width / 2.0f), oldy + (Ball::height / 2.0f), win::Color<float>(1, 1, 0, 1), 10000);
+	renderables.emplace_back(
+		0,
+		Texture::background,
+		area.left,
+		area.bottom,
+		area.left,
+		area.bottom,
+		area.right - area.left,
+		area.top - area.bottom,
+		area.right - area.left,
+		area.top - area.bottom,
+		1.0f,
+		win::Color<float>(1.0f, 1.0f, 1.0f, 1.0f),
+		win::Color<float>(0.0f, 0.0f, 0.0f, 0.0f));
+
+	renderables.emplace_back(
+		0,
+		Texture::ball,
+		ball.x,
+		ball.y,
+		oldx,
+		oldy,
+		Ball::width,
+		Ball::height,
+		Ball::width,
+		Ball::height,
+		1.0f,
+		win::Color<float>(1, 0, 0, 1),
+		win::Color<float>(1, 0, 0, 1));
+
+	light_renderables.emplace_back(ball.x + (Ball::width / 2.0f),
+		ball.y + (Ball::height / 2.0f),
+		oldx + (Ball::width / 2.0f),
+		oldy + (Ball::height / 2.0f),
+		win::Color<float>(1.0f, 0.1f, 0.1f),
+		10000);
 }
 
 LerpedRenderable Game::process_player_paddle(const Input &input)
@@ -203,7 +250,21 @@ LerpedRenderable Game::process_player_paddle(const Input &input)
 	{
 		guest.y = (ball.y - (Paddle::height / 2.0f)) + (Ball::height / 2.0f);
 		networkdata.guest_paddle_y = guest.y;
-		return LerpedRenderable(0, Texture::paddle, 0, 0, 0, 0, 0, 0, 0, 0, win::Color<float>(0, 0, 0, 0)); // this isn't going to go anywhere anyway
+
+		return LerpedRenderable(
+			0,
+			Texture::paddle,
+			0,
+			0,
+			0,
+			0,
+			0,
+			0,
+			0,
+			0,
+			0,
+			win::Color<float>(0, 0, 0, 0),
+			win::Color<float>(0, 0, 0, 0)); // this isn't going to go anywhere anyway
 	}
 	else
 	{
@@ -213,7 +274,21 @@ LerpedRenderable Game::process_player_paddle(const Input &input)
 		const float oldy = paddle.y;
 		paddle.y = input.y - (Paddle::height / 2.0f);
 		networky = paddle.y;
-		return LerpedRenderable(0, Texture::paddle, paddle.x, paddle.y, paddle.x, oldy, Paddle::width, Paddle::height, Paddle::width, Paddle::height, win::Color<float>(1, 1, 1, 1.0));
+
+		return LerpedRenderable(
+			0,
+			Texture::paddle,
+			paddle.x,
+			paddle.y,
+			paddle.x,
+			oldy,
+			Paddle::width,
+			Paddle::height,
+			Paddle::width,
+			Paddle::height,
+			1.0f,
+			win::Color<float>(1.0f, 1.0f, 1.0f, 1.0f),
+			win::Color<float>(1.0f, 1.0f, 1.0f, 1.0f));
 	}
 }
 
@@ -224,7 +299,21 @@ LerpedRenderable Game::process_opponent_paddle()
 
 	const float oldy = paddle.y;
 	paddle.y = y;
-	return LerpedRenderable(0, Texture::paddle, paddle.x, paddle.y, paddle.x, oldy, Paddle::width, Paddle::height, Paddle::width, Paddle::height, win::Color<float>(1, 1, 1, 1.0));
+
+	return LerpedRenderable(
+		0,
+		Texture::paddle,
+		paddle.x,
+		paddle.y,
+		paddle.x, oldy,
+		Paddle::width,
+		Paddle::height,
+		Paddle::width,
+		Paddle::height,
+		1.0f,
+		win::Color<float>(1.0f, 1.0f, 1.0f, 1.0f),
+		win::Color<float>(1.0f, 1.0f, 1.0f, 1.0f));
+
 }
 
 void Game::reset_serve(bool towards_host)

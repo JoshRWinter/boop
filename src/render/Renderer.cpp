@@ -15,7 +15,7 @@ void Renderer::render(const Renderables &renderables, std::chrono::high_resoluti
 	// lerp the lerpables
 	lerped.clear();
 	for (const auto &r : renderables.lerped_renderables)
-		lerped.emplace_back(r.layer, r.texture, lerp(r.old_x, r.x, t), lerp(r.old_y, r.y, t), lerp(r.old_width, r.w, t), lerp(r.old_height, r.h, t), r.color);
+		lerped.emplace_back(r.layer, r.texture, lerp(r.old_x, r.x, t), lerp(r.old_y, r.y, t), lerp(r.old_width, r.w, t), lerp(r.old_height, r.h, t), r.luminance, r.color, r.history_color);
 
 	lerped_lights.clear();
 	for (const auto &r : renderables.light_renderables)
