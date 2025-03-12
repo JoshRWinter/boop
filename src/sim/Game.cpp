@@ -240,7 +240,7 @@ void Game::process_ball(std::vector<LerpedRenderable> &renderables, std::vector<
 		ball.y + (Ball::height / 2.0f),
 		oldx + (Ball::width / 2.0f),
 		oldy + (Ball::height / 2.0f),
-		win::Color<float>(1.0f, 0.1f, 0.1f),
+		win::Color<float>(0.6f, 0.4f, 0.4f),
 		10000);
 }
 

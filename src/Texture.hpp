@@ -2,6 +2,7 @@
 
 enum class Texture
 {
+	background,
 	ball,
 	paddle
 };

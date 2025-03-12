@@ -8,6 +8,7 @@ shader/gl/histfade.vert
 shader/gl/histfade.frag
 
 svg2tga {
+    texture/background.svg 1920 1080 exclude
     texture/ball.svg 50 50 exclude
     texture/paddle.svg 50 50 exclude
 
