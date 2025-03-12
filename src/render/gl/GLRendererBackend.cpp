@@ -14,9 +14,9 @@ using namespace win::gl;
 GLRendererBackend::GLRendererBackend(win::AssetRoll &roll, const win::Dimensions<int> &screenres, const win::Area<float> &area)
 	: buckets(5)
 	, text_renderer(screenres, area, GLConstants::FONT_TEXTURE_UNIT, true, GLConstants::TEXT_RENDERER_UNIFORM_BLOCK_BINDING, true)
-	, menufont_tiny(screenres, area, 0.125f, win::Stream(new win::FileReadStream("/usr/share/fonts/noto/NotoSansMono-Regular.ttf")))
-	, menufont_small(screenres, area, 0.5f, win::Stream(new win::FileReadStream("/usr/share/fonts/noto/NotoSansMono-Regular.ttf")))
-	, menufont_big(screenres, area, 1.0f, win::Stream(new win::FileReadStream("/usr/share/fonts/noto/NotoSansMono-Regular.ttf")))
+	, menufont_tiny(screenres, area, 0.125f, roll["font/Comicy.ttf"])
+	, menufont_small(screenres, area, 0.5f, roll["font/Comicy.ttf"])
+	, menufont_big(screenres, area, 1.0f, roll["font/Comicy.ttf"])
 	, common_renderer(roll, glm::ortho(area.left, area.right, area.bottom, area.top), screenres, area)
 	, menu_renderer(roll, text_renderer, menufont_small, menufont_big, glm::ortho(area.left, area.right, area.bottom, area.top))
 	, post_renderer(roll, screenres, area)
@@ -70,8 +70,6 @@ void GLRendererBackend::render(const std::vector<Renderable> &renderables, const
 	const GLfloat clearcolor[] = { 0.003f, 0.003f, 0.003f, 0.0f };
 	glClearBufferfv(GL_COLOR, 0, clearcolor);
 
-	drawfps();
-
 	for (const auto &r : renderables)
 		buckets.at(r.layer).renderables.push_back(&r);
 
@@ -91,6 +89,10 @@ void GLRendererBackend::render(const std::vector<Renderable> &renderables, const
 
 		bucket.clear();
 	}
+
+#ifndef NDEBUG
+	drawfps();
+#endif
 
 	glColorMaski(1, GL_TRUE, GL_TRUE, GL_TRUE, GL_TRUE);
 	post_renderer.draw(fb.get());
@@ -113,6 +115,6 @@ void GLRendererBackend::drawfps()
 		frame = 0;
 	}
 
-	text_renderer.draw(menufont_tiny, fpsstring, -7.925f, 4.35f, win::Color<float>(0.3f, 0.3f, 0.0f));
+	text_renderer.draw(menufont_tiny, fpsstring, -7.925f, 4.35f, win::Color<float>(0.3f, 0.3f, 0.3f));
 	text_renderer.flush();
 }

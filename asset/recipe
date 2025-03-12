@@ -7,6 +7,8 @@ shader/gl/post.frag
 shader/gl/histfade.vert
 shader/gl/histfade.frag
 
+font/Comicy.ttf
+
 svg2tga {
     texture/background.svg 1920 1080 exclude
     texture/ball.svg 50 50 exclude
