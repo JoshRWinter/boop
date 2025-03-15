@@ -81,11 +81,17 @@ void GLRendererBackend::render(const std::vector<Renderable> &renderables, const
 
 	for (auto &bucket : buckets)
 	{
-		glColorMaski(1, GL_TRUE, GL_TRUE, GL_TRUE, GL_TRUE);
-		common_renderer.draw(bucket.renderables, light_renderables);
+		if (!bucket.renderables.empty())
+		{
+			glColorMaski(1, GL_TRUE, GL_TRUE, GL_TRUE, GL_TRUE);
+			common_renderer.draw(bucket.renderables, light_renderables);
+		}
 
-		glColorMaski(1, GL_FALSE, GL_FALSE, GL_FALSE, GL_FALSE);
-		menu_renderer.draw(bucket.menu_renderables, bucket.text_renderables);
+		if (!bucket.menu_renderables.empty())
+		{
+			glColorMaski(1, GL_FALSE, GL_FALSE, GL_FALSE, GL_FALSE);
+			menu_renderer.draw(bucket.menu_renderables, bucket.text_renderables);
+		}
 
 		bucket.clear();
 	}
