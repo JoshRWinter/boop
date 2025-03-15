@@ -19,9 +19,7 @@ class GLTextRenderer : public TextRenderer
 	WIN_NO_COPY(GLTextRenderer);
 	friend class Font;
 
-	constexpr static int object_data_multiplier = 3;
-	constexpr static int object_data_length = 300;
-	constexpr static int uniform_object_data_length = object_data_length * object_data_multiplier;
+	constexpr static int object_data_length = 2048;
 
 public:
 	GLTextRenderer(const Dimensions<int> &screen_pixel_dimensions, const Area<float> &screen_area, GLenum texture_unit, bool texture_unit_owned, GLuint uniform_block_binding, bool uniform_block_binding_owned);

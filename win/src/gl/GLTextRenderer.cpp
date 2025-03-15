@@ -19,7 +19,7 @@ static const char *vertexshader =
 
 "struct Object { vec2 position; uint dims; float index; };\n"
 
-"layout (std140) uniform object_data { Object data[900]; };\n"
+"layout (std140) uniform object_data { Object data[2048]; };\n"
 "uniform mat4 projection;\n"
 "uniform float width;\n"
 "uniform float height;\n"
@@ -31,7 +31,7 @@ static const char *vertexshader =
 "out vec3 ftexcoord;\n"
 
 "void main(){\n"
-"int i = draw_id % 900;\n"
+"int i = draw_id % 2048;\n"
 "float w = (data[i].dims >> 16) / float(65535);\n"
 "float h = (data[i].dims & 65535) / float(65535);\n"
 "ftexcoord = vec3(float(texcoord.x) * w, float(texcoord.y) * h, data[i].index);\n"
@@ -88,9 +88,9 @@ GLTextRenderer::GLTextRenderer(const Dimensions<int> &screen_pixel_dimensions, c
 		0, 1, 2, 0, 2, 3
 	};
 
-	static_assert((uniform_object_data_length * 2 - 2) <= 32767, "we gon' need a bigger boat here cap'n");
-	std::uint16_t draw_ids[(uniform_object_data_length * 2) - 2];
-	for (int i = 0; i < (uniform_object_data_length * 2) - 2; ++i)
+	static_assert((object_data_length * 2 - 2) <= 32767, "we gon' need a bigger boat here cap'n");
+	std::uint16_t draw_ids[(object_data_length * 2) - 2];
+	for (int i = 0; i < (object_data_length * 2) - 2; ++i)
 		draw_ids[i] = i;
 
 	// shaders and uniforms
@@ -146,9 +146,9 @@ GLTextRenderer::GLTextRenderer(const Dimensions<int> &screen_pixel_dimensions, c
 	if (object_data_block_index == GL_INVALID_INDEX) win::bug("No object data uniform block index");
 	glUniformBlockBinding(program.get(), object_data_block_index, uniform_block_binding);
 	glBindBufferBase(GL_UNIFORM_BUFFER, uniform_block_binding, uniform_object_data.get());
-	glBufferStorage(GL_UNIFORM_BUFFER, sizeof(ObjectBytes) * object_data_length * object_data_multiplier, NULL, GL_MAP_WRITE_BIT | GL_MAP_PERSISTENT_BIT | GL_MAP_COHERENT_BIT);
-	void *instances_mem = glMapBufferRange(GL_UNIFORM_BUFFER, 0, sizeof(ObjectBytes) * object_data_length * object_data_multiplier, GL_MAP_WRITE_BIT | GL_MAP_PERSISTENT_BIT | GL_MAP_COHERENT_BIT);
-	object_data = std::move(GLMappedRingBuffer<ObjectBytes>(instances_mem, object_data_length * object_data_multiplier));
+	glBufferStorage(GL_UNIFORM_BUFFER, sizeof(ObjectBytes) * object_data_length, NULL, GL_MAP_WRITE_BIT | GL_MAP_PERSISTENT_BIT | GL_MAP_COHERENT_BIT);
+	void *instances_mem = glMapBufferRange(GL_UNIFORM_BUFFER, 0, sizeof(ObjectBytes) * object_data_length, GL_MAP_WRITE_BIT | GL_MAP_PERSISTENT_BIT | GL_MAP_COHERENT_BIT);
+	object_data = std::move(GLMappedRingBuffer<ObjectBytes>(instances_mem, object_data_length));
 }
 
 GLFont GLTextRenderer::create_font(float size, win::Stream data)
