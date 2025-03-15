@@ -13,7 +13,7 @@ using namespace win::gl;
 
 GLRendererBackend::GLRendererBackend(win::AssetRoll &roll, const win::Dimensions<int> &screenres, const win::Area<float> &area)
 	: buckets(5)
-	, text_renderer(screenres, area, GLConstants::FONT_TEXTURE_UNIT, true, GLConstants::TEXT_RENDERER_UNIFORM_BLOCK_BINDING, true)
+	, text_renderer(screenres, area, GLConstants::FONT_TEXTURE_UNIT, true, GLConstants::TEXT_RENDERER_SHADER_STORAGE_BLOCK_BINDING, true)
 	, menufont_tiny(screenres, area, 0.125f, roll["font/Comicy.ttf"])
 	, menufont_small(screenres, area, 0.5f, roll["font/Comicy.ttf"])
 	, menufont_big(screenres, area, 1.0f, roll["font/Comicy.ttf"])
@@ -87,7 +87,7 @@ void GLRendererBackend::render(const std::vector<Renderable> &renderables, const
 			common_renderer.draw(bucket.renderables, light_renderables);
 		}
 
-		if (!bucket.menu_renderables.empty())
+		if (!bucket.menu_renderables.empty() || !bucket.text_renderables.empty())
 		{
 			glColorMaski(1, GL_FALSE, GL_FALSE, GL_FALSE, GL_FALSE);
 			menu_renderer.draw(bucket.menu_renderables, bucket.text_renderables);
