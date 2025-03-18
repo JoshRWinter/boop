@@ -236,12 +236,13 @@ void Game::process_ball(std::vector<LerpedRenderable> &renderables, std::vector<
 		win::Color<float>(1, 0, 0, 1),
 		win::Color<float>(1, 0, 0, 1));
 
-	light_renderables.emplace_back(ball.x + (Ball::width / 2.0f),
+	light_renderables.emplace_back(
+		ball.x + (Ball::width / 2.0f),
 		ball.y + (Ball::height / 2.0f),
 		oldx + (Ball::width / 2.0f),
 		oldy + (Ball::height / 2.0f),
 		win::Color<float>(0.6f, 0.4f, 0.4f),
-		10000);
+		100);
 }
 
 LerpedRenderable Game::process_player_paddle(const Input &input)

@@ -74,7 +74,7 @@ void GLCommonRenderer::draw(const std::vector<const Renderable*> &renderables, c
 		world_to_screen(lights[0].x, lights[0].y, x, y);
 		glUniform2f(uniform_light, x, y);
 		glUniform3f(uniform_lightcolor, lights[0].color.red, lights[0].color.green, lights[0].color.blue);
-		glUniform1f(uniform_lightpower, (screenres.width / 1000.0f) * lights[0].power);
+		glUniform1f(uniform_lightpower, (screenres.width / 10.0f) * lights[0].power);
 	}
 
 	for (const auto &renderable : renderables)
