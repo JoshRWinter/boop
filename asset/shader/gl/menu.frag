@@ -8,5 +8,6 @@ layout (location = 0) out vec4 frag;
 
 void main()
 {
-    frag = texture(tex, ftexcoord) * color;
+    vec4 t = texture(tex, ftexcoord);
+    frag = vec4((t.rgb / t.a) * color.rgb * t.a * color.a, t.a * color.a);
 }
