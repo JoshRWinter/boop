@@ -1,4 +1,5 @@
 #include <cmath>
+#include <random>
 
 #include "Game.hpp"
 #include "menu/Menu.hpp"
@@ -9,6 +10,8 @@ Game::Game(const win::Area<float> &area, bool runbot)
 	, area(area)
 	, match(area)
 {
+	std::mt19937 mersenne(time(NULL));
+	color = runbot ? (Color)std::uniform_int_distribution<int>(0, 5)(mersenne) : Color::red;
 	reset();
 
 	if (runbot)
@@ -27,7 +30,7 @@ void Game::play(SimulationHost &host)
 		if (showmenu && !runbot)
 		{
 			showmenu = false;
-			Menu::menu_main(host, match, "");
+			color = Menu::menu_main(host, match, "");
 
 			if (host.quit())
 				return;
@@ -48,9 +51,9 @@ void Game::play(SimulationHost &host)
 void Game::tick(Renderables &renderables, const Input &input)
 {
 	if (match.hosting())
-		match.host_get_data(networkdata.guest_paddle_y);
+		match.host_get_data(networkdata.guest_paddle_color, networkdata.guest_paddle_y);
 	else
-		match.guest_get_data(networkdata.host_paddle_y, networkdata.ball_x, networkdata.ball_y, networkdata.host_score, networkdata.guest_score);
+		match.guest_get_data(networkdata.host_paddle_color, networkdata.host_paddle_y, networkdata.ball_x, networkdata.ball_y, networkdata.host_score, networkdata.guest_score);
 
 	const auto reason = match.errored();
 	if (reason != NetworkMatch::ErrorReason::none)
@@ -71,9 +74,9 @@ void Game::tick(Renderables &renderables, const Input &input)
 	renderables.text_renderables.emplace_back(0, 4.0f, 3.0f, true, TextRenderable::Type::smol, win::Color<float>(0.6f, 0.6f, 0.6f, 1.0f), scoretext);
 
 	if (match.hosting())
-		match.host_send_data(networkdata.host_paddle_y, ball.x, ball.y, networkdata.host_score, networkdata.guest_score);
+		match.host_send_data((int)color, networkdata.host_paddle_y, ball.x, ball.y, networkdata.host_score, networkdata.guest_score);
 	else
-		match.guest_send_data(networkdata.guest_paddle_y);
+		match.guest_send_data((int)color, networkdata.guest_paddle_y);
 
 	const auto reason2 = match.errored();
 	if (reason2 != NetworkMatch::ErrorReason::none)
@@ -288,8 +291,8 @@ LerpedRenderable Game::process_player_paddle(const Input &input)
 			Paddle::width,
 			Paddle::height,
 			1.0f,
-			win::Color<float>(1.0f, 1.0f, 1.0f, 1.0f),
-			win::Color<float>(1.0f, 1.0f, 1.0f, 1.0f));
+			get_color(color),
+			get_color(color));
 	}
 }
 
@@ -297,6 +300,7 @@ LerpedRenderable Game::process_opponent_paddle()
 {
 	auto &paddle = match.hosting() ? guest : host;
 	const auto y = match.hosting() ? networkdata.guest_paddle_y : networkdata.host_paddle_y;
+	const auto c = (Color)(match.hosting() ? networkdata.guest_paddle_color : networkdata.host_paddle_color);
 
 	const float oldy = paddle.y;
 	paddle.y = y;
@@ -312,8 +316,8 @@ LerpedRenderable Game::process_opponent_paddle()
 		Paddle::width,
 		Paddle::height,
 		1.0f,
-		win::Color<float>(1.0f, 1.0f, 1.0f, 1.0f),
-		win::Color<float>(1.0f, 1.0f, 1.0f, 1.0f));
+		get_color(c),
+		get_color(c));
 
 }
 

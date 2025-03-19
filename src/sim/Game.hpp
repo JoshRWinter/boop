@@ -3,6 +3,7 @@
 #include <win/Win.hpp>
 #include <win/Utility.hpp>
 
+#include "../Colors.hpp"
 #include "../render/Renderable.hpp"
 #include "../Input.hpp"
 #include "NetworkMatch.hpp"
@@ -38,6 +39,7 @@ class Game
 
 	struct NetworkData
 	{
+		int host_paddle_color = 0, guest_paddle_color = 0;
 		float host_paddle_y = 0.0f, guest_paddle_y = 0.0f;
 		float ball_x = 0.0f, ball_y = 0.0f;
 		int host_score = 0, guest_score = 0;
@@ -60,6 +62,7 @@ private:
 
 	bool showmenu;
 	bool runbot;
+	Color color;
 	Ball ball;
 	BallTailItem tails[BallTailItem::tails];
 	Paddle host;

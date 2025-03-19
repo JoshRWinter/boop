@@ -10,6 +10,7 @@ set(sources
 
 	src/Texture.hpp
 	src/Input.hpp
+	src/Colors.hpp
 
 	src/sim/menu/Menu.hpp
 	src/sim/menu/Menu.cpp

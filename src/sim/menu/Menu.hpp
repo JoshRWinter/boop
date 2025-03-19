@@ -1,12 +1,10 @@
 #pragma once
 
-#include <vector>
-
 #include <win/Win.hpp>
 
 #include "../SimulationHost.hpp"
 #include "../NetworkMatch.hpp"
-
+#include "../../Colors.hpp"
 
 class Menu
 {
@@ -34,14 +32,29 @@ public:
 		bool click;
 	};
 
-	static void menu_main(SimulationHost &host, NetworkMatch &match, const char *errmsg);
+	struct ColorSelect
+	{
+		ColorSelect(float x, float y, float w, float h, const win::Color<float> &color)
+			: x(x)
+			, y(y)
+			, w(w)
+			, h(h)
+			, color(color)
+		{}
+
+		float x, y, w, h;
+		win::Color<float> color;
+	};
+
+	static Color menu_main(SimulationHost &host, NetworkMatch &match, const char *errmsg);
 	static bool menu_host(SimulationHost &host, NetworkMatch &match, NetworkMatch::ErrorReason &error);
 	static bool menu_join(SimulationHost &host, NetworkMatch &match, NetworkMatch::ErrorReason &error);
 	static bool menu_joining(SimulationHost &host, NetworkMatch &match, NetworkMatch::ErrorReason &error, const char *ip);
 
 private:
-	//static std::string set_error_text(NetworkMatch::ErrorReason reason);
 	static void map_renderables(Renderables &renderables, const Button &button, float x, float y);
+	static void map_renderables(Renderables &renderables, const ColorSelect &color, bool selected);
 	static bool mouseover(const Button &button, float x, float y);
+	static bool mouseover(const ColorSelect &color, float x, float y);
 	static bool button_clicked(const Button &button, bool click, float x, float y);
 };

@@ -1,2 +1,3 @@
 $padding 2
-button.tga:0:0:10:10
+button.tga:102:0:10:10
+colorselect.tga:0:0:100:100

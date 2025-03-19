@@ -9,5 +9,6 @@ enum class Texture
 
 enum class MenuTexture
 {
-	button
+	button,
+	colorselect
 };

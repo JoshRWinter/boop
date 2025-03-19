@@ -1,11 +1,25 @@
+#include <random>
+#include <time.h>
+
 #include "Menu.hpp"
 
-void Menu::menu_main(SimulationHost &host, NetworkMatch &match, const char *errmsg)
+Color Menu::menu_main(SimulationHost &host, NetworkMatch &match, const char *errmsg)
 {
-	Button computer(-button_width / 2.0f, -0.5f, button_width, button_height, "Computer");
-	Button hostgame(-button_width / 2.0f, -1.5f, button_width, button_height, "Host");
-	Button join(-button_width / 2.0f, -2.5f, button_width, button_height, "Join");
-	Button quit(-button_width / 2.0f, -3.5f, button_width, button_height, "Quit");
+	ColorSelect red(-3.0f, 0.8f, 0.75f, 0.75f, get_red());
+	ColorSelect green(-2.0f, 0.8f, 0.75f, 0.75f, get_green());
+	ColorSelect blue(-1.0f, 0.8f, 0.75f, 0.75f, get_blue());
+	ColorSelect yellow(0.25f, 0.8f, 0.75f, 0.75f, get_yellow());
+	ColorSelect cyan(1.25f, 0.8f, 0.75f, 0.75f, get_cyan());
+	ColorSelect magenta(2.25f, 0.8f, 0.75f, 0.75f, get_magenta());
+
+	ColorSelect *colors[] = { &red, &green, &blue, &yellow, &cyan, &magenta };
+	std::mt19937 mersenne(time(NULL));
+	auto color = (Color)std::uniform_int_distribution<int>(0, 5)(mersenne);
+
+	Button computer(-button_width / 2.0f, -0.75f, button_width, button_height, "Computer");
+	Button hostgame(-button_width / 2.0f, -1.75f, button_width, button_height, "Host");
+	Button join(-button_width / 2.0f, -2.75f, button_width, button_height, "Join");
+	Button quit(-button_width / 2.0f, -3.75f, button_width, button_height, "Quit");
 
 	while (!host.quit())
 	{
@@ -17,7 +31,7 @@ void Menu::menu_main(SimulationHost &host, NetworkMatch &match, const char *errm
 			match.start_bot();
 			auto error = NetworkMatch::ErrorReason::none;
 			if (menu_host(host, match, error))
-				return;
+				return color;
 
 			if (error != NetworkMatch::ErrorReason::none)
 				errmsg = "Hosting error";
@@ -27,7 +41,7 @@ void Menu::menu_main(SimulationHost &host, NetworkMatch &match, const char *errm
 			hostgame.click = false;
 			auto error = NetworkMatch::ErrorReason::none;
 			if (menu_host(host, match, error))
-				return;
+				return color;
 
 			if (error != NetworkMatch::ErrorReason::none)
 				errmsg = "Hosting error";
@@ -37,7 +51,7 @@ void Menu::menu_main(SimulationHost &host, NetworkMatch &match, const char *errm
 			join.click = false;
 			auto error = NetworkMatch::ErrorReason::none;
 			if (menu_join(host, match, error))
-				return;
+				return color;
 
 			if (error != NetworkMatch::ErrorReason::none)
 				errmsg = "Joining error";
@@ -59,7 +73,15 @@ void Menu::menu_main(SimulationHost &host, NetworkMatch &match, const char *errm
 		map_renderables(renderables, join, input.x, input.y);
 		map_renderables(renderables, quit, input.x, input.y);
 
-		renderables.text_renderables.emplace_back(0, 0.0f, 2.0f, true, TextRenderable::Type::yuge, win::Color(1.0f, 0.0f, 0.0f, 1.0f), "boop");
+		for (int i = 0; i < 6; ++i)
+		{
+			if (mouseover(*colors[i], input.x, input.y))
+				color = (Color)i;
+
+			map_renderables(renderables, *colors[i], (int)color == i);
+		}
+
+		renderables.text_renderables.emplace_back(0, 0.0f, 2.5f, true, TextRenderable::Type::yuge, colors[(int)color]->color, "boop");
 
 		if (errmsg != NULL)
 			renderables.text_renderables.emplace_back(0, 0.0f, 1.0f, true, TextRenderable::Type::smol, win::Color<float>(0.8f, 0.1f, 0.1f, 1.0f), errmsg);
@@ -67,6 +89,8 @@ void Menu::menu_main(SimulationHost &host, NetworkMatch &match, const char *errm
 		host.release_renderables(renderables);
 		host.sleep();
 	}
+
+	return color;
 }
 
 bool Menu::menu_host(SimulationHost &host, NetworkMatch &match, NetworkMatch::ErrorReason &error)
@@ -203,35 +227,27 @@ bool Menu::menu_joining(SimulationHost &host, NetworkMatch &match, NetworkMatch:
 	return false;
 }
 
-/*
-std::string Menu::set_error_text(NetworkMatch::ErrorReason reason)
-{
-	switch (reason)
-	{
-		case NetworkMatch::ErrorReason::bad_address:
-			return "Bad address";
-		case NetworkMatch::ErrorReason::cant_listen:
-			return "Can't listen on port " + std::to_string(NetworkMatch::PORT);
-		case NetworkMatch::ErrorReason::lost_connection:
-			return "Connection was lost.";
-			break;
-		case NetworkMatch::ErrorReason::unknown:
-			return "Unknown network error";
-		default:
-			return "wut";
-	}
-}
-*/
-
 void Menu::map_renderables(Renderables &renderables, const Button &button, float x, float y)
 {
 	renderables.menu_renderables.emplace_back(0, MenuTexture::button, button.x, button.y, button.w, button.h, button.click ? clicked : (mouseover(button, x, y) ? hover : color));
 	renderables.text_renderables.emplace_back(1, button.x + button.w / 2.0f, button.y + 0.2f, true, TextRenderable::Type::smol, win::Color<float>(1.0f, 0.5f, 0.5f, 1.0f), button.text);
 }
 
+void Menu::map_renderables(Renderables &renderables, const ColorSelect &color, bool selected)
+{
+	const float raise = 0.2f;
+
+	renderables.menu_renderables.emplace_back(0, MenuTexture::colorselect, color.x, color.y + (selected ? raise : 0.0f), color.w, color.h, color.color);
+}
+
 bool Menu::mouseover(const Button &button, float x, float y)
 {
 	return x >= button.x && x <= button.x + button.w && y >= button.y && y <= button.y + button.h;
+}
+
+bool Menu::mouseover(const ColorSelect &color, float x, float y)
+{
+	return x >= color.x && x <= color.x + color.w && y >= color.y && y <= color.y + color.h;
 }
 
 bool Menu::button_clicked(const Button &button, bool click, float x, float y)

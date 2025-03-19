@@ -47,12 +47,12 @@ public:
 	ErrorReason errored() const;
 
 	// called by host
-	bool host_get_data(float &guest_paddle_y);
-	void host_send_data(float host_paddle_y, float ball_x, float ball_y, int host_score, int guest_score);
+	bool host_get_data(int &guest_paddle_color, float &guest_paddle_y);
+	void host_send_data(int guest_paddle_color, float host_paddle_y, float ball_x, float ball_y, int host_score, int guest_score);
 
 	// called by guest
-	bool guest_get_data(float &host_paddle_y, float &ball_x, float &ball_y, int &host_score, int &guest_score);
-	void guest_send_data(float guest_paddle_y);
+	bool guest_get_data(int &host_paddle_color, float &host_paddle_y, float &ball_x, float &ball_y, int &host_score, int &guest_score);
+	void guest_send_data(int guest_paddle_color, float guest_paddle_y);
 
 private:
 	win::Area<float> area;

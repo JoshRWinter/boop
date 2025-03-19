@@ -15,6 +15,7 @@ svg2tga {
     texture/paddle.svg 50 50 exclude
 
     texture/button.svg 10 10 exclude
+    texture/colorselect.svg 100 100 exclude
 }
 
 atlas {
