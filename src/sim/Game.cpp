@@ -63,6 +63,21 @@ void Game::tick(Renderables &renderables, const Input &input)
 		return;
 	}
 
+	renderables.lerped_renderables.emplace_back(
+		0,
+		Texture::background,
+		area.left,
+		area.bottom,
+		area.left,
+		area.bottom,
+		area.right - area.left,
+		area.top - area.bottom,
+		area.right - area.left,
+		area.top - area.bottom,
+		1.0f,
+		win::Color<float>(1.0f, 1.0f, 1.0f, 1.0f),
+		win::Color<float>(0.0f, 0.0f, 0.0f, 0.0f));
+
 	process_ball(renderables.lerped_renderables, renderables.light_renderables);
 	renderables.lerped_renderables.emplace_back(process_player_paddle(input));
 	renderables.lerped_renderables.emplace_back(process_opponent_paddle());
@@ -235,21 +250,6 @@ void Game::process_ball(std::vector<LerpedRenderable> &renderables, std::vector<
     }
 
 	// emit renderables
-	renderables.emplace_back(
-		0,
-		Texture::background,
-		area.left,
-		area.bottom,
-		area.left,
-		area.bottom,
-		area.right - area.left,
-		area.top - area.bottom,
-		area.right - area.left,
-		area.top - area.bottom,
-		1.0f,
-		win::Color<float>(1.0f, 1.0f, 1.0f, 1.0f),
-		win::Color<float>(0.0f, 0.0f, 0.0f, 0.0f));
-
 	renderables.emplace_back(
 		0,
 		Texture::ball,
