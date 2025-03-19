@@ -257,7 +257,7 @@ LerpedRenderable Game::process_player_paddle(const Input &input)
 	if (runbot)
 	{
 		guest.y = (ball.y - (Paddle::height / 2.0f)) + (Ball::height / 2.0f);
-		networkdata.guest_paddle_y = guest.y;
+		networkdata.guest_paddle_y = guest.y + (Paddle::height / 2.0f);
 		networkdata.guest_paddle_color = (int)color;
 
 		return LerpedRenderable(
@@ -285,7 +285,7 @@ LerpedRenderable Game::process_player_paddle(const Input &input)
 
 		const float oldy = paddle.y;
 		paddle.y = input.y - (Paddle::height / 2.0f);
-		networky = paddle.y;
+		networky = input.y;
 
 		return LerpedRenderable(
 			0,
@@ -311,7 +311,7 @@ LerpedRenderable Game::process_opponent_paddle()
 	const auto c = (Color)(match.hosting() ? networkdata.guest_paddle_color : networkdata.host_paddle_color);
 
 	const float oldy = paddle.y;
-	paddle.y = y;
+	paddle.y = y - (Paddle::height / 2.0f);
 
 	return LerpedRenderable(
 		0,
@@ -326,7 +326,6 @@ LerpedRenderable Game::process_opponent_paddle()
 		1.0f,
 		get_color(c),
 		get_color(c));
-
 }
 
 void Game::reset_serve(bool towards_host)
