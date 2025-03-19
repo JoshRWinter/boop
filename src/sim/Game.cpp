@@ -53,7 +53,7 @@ void Game::tick(Renderables &renderables, const Input &input)
 	if (match.hosting())
 		match.host_get_data(networkdata.guest_paddle_color, networkdata.guest_paddle_y);
 	else
-		match.guest_get_data(networkdata.host_paddle_color, networkdata.host_paddle_y, networkdata.ball_x, networkdata.ball_y, networkdata.host_score, networkdata.guest_score);
+		match.guest_get_data(networkdata.host_paddle_color, networkdata.host_paddle_y, networkdata.ball_x, networkdata.ball_y, networkdata.ball_xv, networkdata.ball_yv, networkdata.host_score, networkdata.guest_score);
 
 	const auto reason = match.errored();
 	if (reason != NetworkMatch::ErrorReason::none)
@@ -74,7 +74,7 @@ void Game::tick(Renderables &renderables, const Input &input)
 	renderables.text_renderables.emplace_back(0, 4.0f, 3.0f, true, TextRenderable::Type::smol, win::Color<float>(0.6f, 0.6f, 0.6f, 1.0f), scoretext);
 
 	if (match.hosting())
-		match.host_send_data((int)color, networkdata.host_paddle_y, ball.x, ball.y, networkdata.host_score, networkdata.guest_score);
+		match.host_send_data((int)color, networkdata.host_paddle_y, ball.x, ball.y, ball.xv, ball.yv, networkdata.host_score, networkdata.guest_score);
 	else
 		match.guest_send_data((int)color, networkdata.guest_paddle_y);
 
@@ -143,6 +143,8 @@ void Game::process_ball(std::vector<LerpedRenderable> &renderables, std::vector<
 	{
 		ball.x = networkdata.ball_x;
 		ball.y = networkdata.ball_y;
+		ball.xv = networkdata.ball_xv;
+		ball.yv = networkdata.ball_yv;
 	}
 
 	if (bounce)
@@ -151,12 +153,6 @@ void Game::process_ball(std::vector<LerpedRenderable> &renderables, std::vector<
 			bounces.erase(bounces.end() - 1);
 
 		bounces.emplace(bounces.begin(), ball.x, ball.y);
-	}
-
-	if (match.hosting())
-	{
-		networkdata.ball_x = ball.x;
-		networkdata.ball_y = ball.y;
 	}
 
 	const auto distance = [](float x1, float y1, float x2, float y2)

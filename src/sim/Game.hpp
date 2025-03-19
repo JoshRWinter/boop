@@ -42,6 +42,7 @@ class Game
 		int host_paddle_color = 0, guest_paddle_color = 0;
 		float host_paddle_y = 0.0f, guest_paddle_y = 0.0f;
 		float ball_x = 0.0f, ball_y = 0.0f;
+		float ball_xv = 0.0f, ball_yv = 0.0f;
 		int host_score = 0, guest_score = 0;
 	};
 
