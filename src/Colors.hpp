@@ -9,7 +9,8 @@ enum class Color
 	blue,
 	yellow,
 	cyan,
-	magenta
+	magenta,
+	last = magenta
 };
 
 inline win::Color<float> get_red() { return win::Color<float>(0.8f, 0.2f, 0.2f); }

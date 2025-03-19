@@ -1,5 +1,7 @@
 #pragma once
 
+#include <random>
+
 #include <win/Win.hpp>
 #include <win/Utility.hpp>
 
@@ -61,9 +63,13 @@ private:
 	bool collide(const Ball &ball, const Paddle &paddle);
 	float get_ball_yv(const Ball &ball, const Paddle &paddle);
 
+	std::mt19937 rand;
 	bool showmenu;
 	bool runbot;
-	Color color;
+	Color paddle_color;
+	Color current_ball_color;
+	Color target_ball_color;
+	float ball_color_switch_pct;
 	Ball ball;
 	BallTailItem tails[BallTailItem::tails];
 	Paddle host;

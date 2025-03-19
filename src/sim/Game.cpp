@@ -1,17 +1,17 @@
 #include <cmath>
-#include <random>
+#include <algorithm>
 
 #include "Game.hpp"
 #include "menu/Menu.hpp"
 
 Game::Game(const win::Area<float> &area, bool runbot)
-	: showmenu(true)
+	: rand(time(NULL))
+	, showmenu(true)
 	, runbot(runbot)
 	, area(area)
 	, match(area)
 {
-	std::mt19937 mersenne(time(NULL));
-	color = runbot ? (Color)std::uniform_int_distribution<int>(0, 5)(mersenne) : Color::red;
+	paddle_color = runbot ? (Color)std::uniform_int_distribution<int>(0, (int)Color::last)(rand) : Color::red;
 	reset();
 
 	if (runbot)
@@ -30,7 +30,7 @@ void Game::play(SimulationHost &host)
 		if (showmenu && !runbot)
 		{
 			showmenu = false;
-			color = Menu::menu_main(host, match, "");
+			paddle_color = Menu::menu_main(host, match, "");
 
 			if (host.quit())
 				return;
@@ -88,6 +88,28 @@ void Game::tick(Renderables &renderables, const Input &input)
 
 void Game::process_ball(std::vector<LerpedRenderable> &renderables, std::vector<LerpedLightRenderable> &light_renderables)
 {
+	win::Color<float> ball_color;
+
+	{
+		const auto lerp = [](float a, float b, float t) { return ((b - a) * std::clamp(t, 0.0f, 1.0f)) + a; };
+
+		const auto current_color = get_color(current_ball_color);
+		const auto next_color = get_color(target_ball_color);
+
+		ball_color.red = lerp(current_color.red, next_color.red, ball_color_switch_pct);
+		ball_color.green = lerp(current_color.green, next_color.green, ball_color_switch_pct);
+		ball_color.blue = lerp(current_color.blue, next_color.blue, ball_color_switch_pct);
+
+		ball_color_switch_pct += 0.001f;
+
+		if (ball_color_switch_pct > 1.5)
+		{
+			ball_color_switch_pct = 0.0f;
+			current_ball_color = target_ball_color;
+			target_ball_color = (Color)std::uniform_int_distribution<int>(0, (int)Color::last)(rand);
+		}
+	}
+
 	const float oldx = ball.x;
 	const float oldy = ball.y;
 
@@ -204,8 +226,8 @@ void Game::process_ball(std::vector<LerpedRenderable> &renderables, std::vector<
 					Ball::width,
 					Ball::height,
 					1.0f,
-					win::Color<float>(1.0f, 0.0f, 0.0f, 1.0f),
-					win::Color<float>(1.0f, 0.0f, 0.0f, 1.0f));
+					ball_color,
+					ball_color);
 
     			break;
     		}
@@ -239,16 +261,16 @@ void Game::process_ball(std::vector<LerpedRenderable> &renderables, std::vector<
 		Ball::height,
 		Ball::width,
 		Ball::height,
-		1.0f,
-		win::Color<float>(1, 0, 0, 1),
-		win::Color<float>(1, 0, 0, 1));
+		0.0f,
+		ball_color,
+        ball_color);
 
 	light_renderables.emplace_back(
 		ball.x + (Ball::width / 2.0f),
 		ball.y + (Ball::height / 2.0f),
 		oldx + (Ball::width / 2.0f),
 		oldy + (Ball::height / 2.0f),
-		win::Color<float>(0.6f, 0.4f, 0.4f),
+		ball_color,
 		100);
 }
 
@@ -258,7 +280,7 @@ LerpedRenderable Game::process_player_paddle(const Input &input)
 	{
 		guest.y = (ball.y - (Paddle::height / 2.0f)) + (Ball::height / 2.0f);
 		networkdata.guest_paddle_y = guest.y + (Paddle::height / 2.0f);
-		networkdata.guest_paddle_color = (int)color;
+		networkdata.guest_paddle_color = (int)paddle_color;
 
 		return LerpedRenderable(
 			0,
@@ -281,7 +303,7 @@ LerpedRenderable Game::process_player_paddle(const Input &input)
 		auto &networky = match.hosting() ? networkdata.host_paddle_y : networkdata.guest_paddle_y;
 		auto &networkcolor = match.hosting() ? networkdata.host_paddle_color : networkdata.guest_paddle_color;
 
-		networkcolor = (int)color;
+		networkcolor = (int)paddle_color;
 
 		const float oldy = paddle.y;
 		paddle.y = input.y - (Paddle::height / 2.0f);
@@ -299,8 +321,8 @@ LerpedRenderable Game::process_player_paddle(const Input &input)
 			Paddle::width,
 			Paddle::height,
 			1.0f,
-			get_color(color),
-			get_color(color));
+			get_color(paddle_color),
+			get_color(paddle_color));
 	}
 }
 
@@ -362,6 +384,10 @@ void Game::reset()
 
 	guest.x = area.left + 0.5f;
 	guest.y = 0.0f;
+
+	current_ball_color = (Color)std::uniform_int_distribution<int>(0, (int)Color::last)(rand);
+	target_ball_color = (Color)std::uniform_int_distribution<int>(0, (int)Color::last)(rand);
+	ball_color_switch_pct = 0.0f;
 }
 
 bool Game::collide(const Ball &ball, const Paddle &paddle)
