@@ -74,9 +74,9 @@ void Game::tick(Renderables &renderables, const Input &input)
 	renderables.text_renderables.emplace_back(0, 4.0f, 3.0f, true, TextRenderable::Type::smol, win::Color<float>(0.6f, 0.6f, 0.6f, 1.0f), scoretext);
 
 	if (match.hosting())
-		match.host_send_data((int)color, networkdata.host_paddle_y, ball.x, ball.y, ball.xv, ball.yv, networkdata.host_score, networkdata.guest_score);
+		match.host_send_data(networkdata.host_paddle_color, networkdata.host_paddle_y, networkdata.ball_x, networkdata.ball_y, networkdata.ball_xv, networkdata.ball_yv, networkdata.host_score, networkdata.guest_score);
 	else
-		match.guest_send_data((int)color, networkdata.guest_paddle_y);
+		match.guest_send_data(networkdata.guest_paddle_color, networkdata.guest_paddle_y);
 
 	const auto reason2 = match.errored();
 	if (reason2 != NetworkMatch::ErrorReason::none)
@@ -138,6 +138,11 @@ void Game::process_ball(std::vector<LerpedRenderable> &renderables, std::vector<
 			ball.y = area.bottom - Ball::squishiness;
 			ball.yv = -ball.yv;
 		}
+
+		networkdata.ball_x = ball.x;
+		networkdata.ball_y = ball.y;
+		networkdata.ball_xv = ball.xv;
+		networkdata.ball_yv = ball.yv;
 	}
 	else
 	{
@@ -253,6 +258,7 @@ LerpedRenderable Game::process_player_paddle(const Input &input)
 	{
 		guest.y = (ball.y - (Paddle::height / 2.0f)) + (Ball::height / 2.0f);
 		networkdata.guest_paddle_y = guest.y;
+		networkdata.guest_paddle_color = (int)color;
 
 		return LerpedRenderable(
 			0,
@@ -273,6 +279,9 @@ LerpedRenderable Game::process_player_paddle(const Input &input)
 	{
 		auto &paddle = match.hosting() ? host : guest;
 		auto &networky = match.hosting() ? networkdata.host_paddle_y : networkdata.guest_paddle_y;
+		auto &networkcolor = match.hosting() ? networkdata.host_paddle_color : networkdata.guest_paddle_color;
+
+		networkcolor = (int)color;
 
 		const float oldy = paddle.y;
 		paddle.y = input.y - (Paddle::height / 2.0f);
