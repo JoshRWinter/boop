@@ -141,6 +141,9 @@ void Game::process_ball(std::vector<LerpedRenderable> &renderables, std::vector<
 	}
 	else
 	{
+		if (ball.xv != networkdata.ball_xv || ball.yv != networkdata.ball_yv)
+			bounce = true;
+
 		ball.x = networkdata.ball_x;
 		ball.y = networkdata.ball_y;
 		ball.xv = networkdata.ball_xv;
