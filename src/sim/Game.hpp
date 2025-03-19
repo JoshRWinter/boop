@@ -28,7 +28,7 @@ struct BallTailItem
 struct Paddle
 {
     static constexpr float width = 0.3f;
-    static constexpr float height = 1.5f;
+    static constexpr float height = 1.5666f;
 
 	float x, y;
 };

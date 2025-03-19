@@ -1,4 +1,4 @@
 $padding 2
 background.tga:0:0:1920:1080
-ball.tga:0:1082:50:50
-paddle.tga:52:1082:50:50
+ball.tga:1922:0:50:50
+paddle.tga:1922:52:36:188

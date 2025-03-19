@@ -2,13 +2,13 @@
 <!-- Created with Inkscape (http://www.inkscape.org/) -->
 
 <svg
-   width="7.5421381mm"
-   height="47.776974mm"
-   viewBox="0 0 7.5421379 47.776975"
+   width="9.5211229mm"
+   height="49.695583mm"
+   viewBox="0 0 9.5211229 49.695584"
    version="1.1"
    id="svg1"
-   sodipodi:docname="paddle.svg"
    inkscape:version="1.4 (e7c3feb100, 2024-10-09)"
+   sodipodi:docname="paddle.svg"
    xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
    xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
    xmlns="http://www.w3.org/2000/svg"
@@ -23,11 +23,11 @@
      inkscape:pagecheckerboard="0"
      inkscape:deskcolor="#505050"
      inkscape:document-units="mm"
-     inkscape:zoom="2.3609618"
-     inkscape:cx="62.686317"
-     inkscape:cy="153.32734"
-     inkscape:window-width="1920"
-     inkscape:window-height="1053"
+     inkscape:zoom="2.534831"
+     inkscape:cx="41.817384"
+     inkscape:cy="38.661355"
+     inkscape:window-width="2560"
+     inkscape:window-height="1413"
      inkscape:window-x="0"
      inkscape:window-y="0"
      inkscape:window-maximized="0"
@@ -38,11 +38,14 @@
      inkscape:label="Layer 1"
      inkscape:groupmode="layer"
      id="layer1"
-     transform="translate(-92.483222,-42.516115)">
-    <path
+     transform="translate(-72.183395,-114.67294)">
+    <rect
+       style="fill:#ffffff;fill-rule:evenodd;stroke-width:1.8863"
        id="rect1"
-       style="fill:#ffffff;fill-rule:evenodd;stroke-width:1.83386"
-       d="m 100.02536,42.728096 v 47.354639 c 0,0.899552 -7.542138,-1.280013 -7.542138,-2.869975 V 45.598074 c 0,-1.589968 7.542138,-3.774293 7.542138,-2.869978 z"
-       sodipodi:nodetypes="sssss" />
+       width="6.7028875"
+       height="49.695583"
+       x="72.183395"
+       y="114.67294"
+       ry="3.3514438" />
   </g>
 </svg>
