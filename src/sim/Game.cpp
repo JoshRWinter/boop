@@ -50,6 +50,8 @@ void Game::play(SimulationHost &host)
 
 void Game::tick(Renderables &renderables, const Input &input)
 {
+	++match_time;
+
 	if (match.hosting())
 		match.host_get_data(networkdata.guest_paddle_color, networkdata.guest_paddle_y);
 	else
@@ -141,15 +143,14 @@ void Game::process_ball(std::vector<LerpedRenderable> &renderables, std::vector<
 		{
 			bounce = true;
 			ball.x = (host.x - Ball::width) + Ball::squishiness;
-			ball.xv = -ball.xv;
-			ball.yv = get_ball_yv(ball, host);
+			get_ball_bounce(ball, host, get_speed(), ball.xv, ball.yv);
 		}
 		else if (collide(ball, guest))
 		{
 			bounce = true;
 			ball.x = (guest.x + Paddle::width) - Ball::squishiness;
 			ball.xv = -ball.xv;
-			ball.yv = get_ball_yv(ball, guest);
+			get_ball_bounce(ball, guest, get_speed(), ball.xv, ball.yv);
 		}
 
 		// check for collision with area boundaries
@@ -352,10 +353,13 @@ LerpedRenderable Game::process_opponent_paddle()
 
 void Game::reset_serve(bool towards_host)
 {
+	match_time = 0;
+
+	ball.yv = 0.0f;
+	ball.xv = get_speed() * (towards_host ? 1.0f : -1.0f);
+
 	ball.x = -Ball::width / 2.0f;
 	ball.y = -Ball::height / 2.0f;
-	ball.xv = 0.35f * (towards_host ? 1.0f : -1.0f);
-	ball.yv = 0.0f;
 
 	bounces.clear();
 	bounces.emplace_back(ball.x, ball.y);
@@ -371,13 +375,7 @@ void Game::reset_serve(bool towards_host)
 
 void Game::reset()
 {
-	ball.x = 0.0f;
-	ball.y = 0.0f;
-	ball.xv = 0.35f;
-	ball.yv = 0.0f;
-
-	bounces.clear();
-	bounces.emplace_back(ball.x, ball.y);
+	reset_serve(true);
 
 	host.x = (area.right - Paddle::width) - 0.5f;
 	host.y = 0.0f;
@@ -397,10 +395,35 @@ bool Game::collide(const Ball &ball, const Paddle &paddle)
 		(ball.x + Ball::width) - Ball::squishiness > paddle.x && ball.x + Ball::squishiness < paddle.x + (Paddle::width * 1.0f);
 }
 
-float Game::get_ball_yv(const Ball &ball, const Paddle &paddle)
+float Game::get_speed()
 {
-	const float mult = ((((ball.y + (Ball::height / 2.0f)) - paddle.y) / Paddle::height) * 2.0f) - 1.0f;
+	const float min_speed = 0.275f;
+	const float max_speed = 0.45f;
+	const float progression = std::min(match_time / 1200.0f, 1.0f);
 
-	return mult / 5.0f;
+	return ((max_speed - min_speed) * progression) + min_speed;
+}
+
+void Game::get_ball_bounce(const Ball &ball, const Paddle &paddle, float speed, float &xv, float &yv)
+{
+	const float angle_high = paddle.x > 0.0f ? 2.3562f : 0.7854f;
+	const float angle_low = paddle.x > 0.0f ? 3.927f : -0.7854;
+
+	const float paddle_center_y = paddle.y + (Paddle::height / 2.0f);
+	const float ball_center_y = (ball.y + (Ball::height / 2.0f)) - paddle_center_y;
+
+	const float paddle_top = Paddle::height / 2.0f;
+
+	// between -1 and 1 based on the spot the ball hits the paddle
+	// (may be slightly more or less than -1 or 1)
+	const float ypos = ball_center_y / paddle_top;
+
+	// the same number expressed on a scale from 0 to 1 (may be slightly more or less)
+	float scale = (ypos + 1) / 2.0f;
+
+	const float angle = ((angle_high - angle_low) * scale) + angle_low;
+
+	xv = std::cosf(angle) * speed;
+	yv = std::sinf(angle) * speed;
 }
 

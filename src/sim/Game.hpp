@@ -61,11 +61,13 @@ private:
 	void reset_serve(bool towards_host);
 	void reset();
 	bool collide(const Ball &ball, const Paddle &paddle);
-	float get_ball_yv(const Ball &ball, const Paddle &paddle);
+	float get_speed();
+	void get_ball_bounce(const Ball &ball, const Paddle &paddle, float speed, float &xv, float &yv);
 
 	std::mt19937 rand;
 	bool showmenu;
 	bool runbot;
+	int match_time;
 	Color paddle_color;
 	Color current_ball_color;
 	Color target_ball_color;
