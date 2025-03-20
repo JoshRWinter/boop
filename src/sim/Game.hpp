@@ -23,7 +23,7 @@ struct Ball
 
 struct BallTailItem
 {
-	static constexpr int tails = 6;
+	static constexpr int tails = 4;
 	float x, oldx, y, oldy;
 };
 

@@ -86,6 +86,7 @@ void GLCommonRenderer::draw(const std::vector<const Renderable*> &renderables, c
 		glUniformMatrix4fv(uniform_transform, 1, GL_FALSE, glm::value_ptr(transform));
 		glUniform4f(uniform_color, renderable->color.red, renderable->color.green, renderable->color.blue, renderable->color.alpha);
 		glUniform4f(uniform_history_color, renderable->history_color.red, renderable->history_color.green, renderable->history_color.blue, renderable->history_color.alpha);
+		glUniform1f(uniform_luminance, renderable->luminance);
 
 		glDrawArrays(GL_TRIANGLES, (int)renderable->texture * 6, 6);
 	}

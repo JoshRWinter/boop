@@ -74,7 +74,7 @@ void Game::tick(Renderables &renderables, const Input &input)
 		area.top - area.bottom,
 		area.right - area.left,
 		area.top - area.bottom,
-		1.0f,
+		0.0f,
 		win::Color<float>(1.0f, 1.0f, 1.0f, 1.0f),
 		win::Color<float>(0.0f, 0.0f, 0.0f, 0.0f));
 
@@ -261,7 +261,7 @@ void Game::process_ball(std::vector<LerpedRenderable> &renderables, std::vector<
 		Ball::height,
 		Ball::width,
 		Ball::height,
-		0.0f,
+		1.0f,
 		ball_color,
         ball_color);
 
