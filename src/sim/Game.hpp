@@ -30,9 +30,8 @@ struct BallTailItem
 struct Paddle
 {
     static constexpr float width = 0.3f;
-    static constexpr float height = 1.5666f;
 
-	float x, y;
+	float x, y, h;
 };
 
 class Game
@@ -43,6 +42,7 @@ class Game
 	{
 		int host_paddle_color = 0, guest_paddle_color = 0;
 		float host_paddle_y = 0.0f, guest_paddle_y = 0.0f;
+		float paddle_height = 0.0f;
 		float ball_x = 0.0f, ball_y = 0.0f;
 		float ball_xv = 0.0f, ball_yv = 0.0f;
 		int host_score = 0, guest_score = 0;
@@ -61,6 +61,7 @@ private:
 	void reset_serve(bool towards_host);
 	void reset();
 	bool collide(const Ball &ball, const Paddle &paddle);
+	float get_paddle_height();
 	float get_speed();
 	void get_ball_bounce(const Ball &ball, const Paddle &paddle, float speed, float &xv, float &yv);
 

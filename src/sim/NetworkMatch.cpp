@@ -90,7 +90,7 @@ bool NetworkMatch::join(const char *ip)
 
 	int dummy1;
 	float dummy2;
-	if (guest_get_data(dummy1, dummy2, dummy2, dummy2, dummy2, dummy2, dummy1, dummy1))
+	if (guest_get_data(dummy1, dummy2, dummy2, dummy2, dummy2, dummy2, dummy2, dummy1, dummy1))
 	{
 		state = MatchState::joined;
 		return true;
@@ -156,7 +156,7 @@ bool NetworkMatch::host_get_data(int &guest_paddle_color, float &guest_paddle_y)
 	return true;
 }
 
-void NetworkMatch::host_send_data(int host_paddle_color, float host_paddle_y, float ball_x, float ball_y, float ball_xv, float ball_yv, int host_score, int guest_score)
+void NetworkMatch::host_send_data(int host_paddle_color, float host_paddle_y, float paddle_height, float ball_x, float ball_y, float ball_xv, float ball_yv, int host_score, int guest_score)
 {
 	if (state != MatchState::hosting && state != MatchState::listening)
 		win::bug("Trying to host but in state " + std::to_string((int)state) + " instead");
@@ -171,27 +171,28 @@ void NetworkMatch::host_send_data(int host_paddle_color, float host_paddle_y, fl
 		return;
 	}
 
-	unsigned char payload[27];
+	unsigned char payload[31];
 	unsigned char c;
 
 	++host_counter;
 	memcpy(payload + 0, &host_counter, sizeof(host_counter));
 	memcpy(payload + 4, &host_paddle_y, sizeof(host_paddle_y));
-	memcpy(payload + 8, &ball_x, sizeof(ball_x));
-	memcpy(payload + 12, &ball_y, sizeof(ball_x));
-	memcpy(payload + 16, &ball_xv, sizeof(ball_xv));
-	memcpy(payload + 20, &ball_yv, sizeof(ball_yv));
+	memcpy(payload + 8, &paddle_height, sizeof(paddle_height));
+	memcpy(payload + 12, &ball_x, sizeof(ball_x));
+	memcpy(payload + 16, &ball_y, sizeof(ball_x));
+	memcpy(payload + 20, &ball_xv, sizeof(ball_xv));
+	memcpy(payload + 24, &ball_yv, sizeof(ball_yv));
 	c = host_score;
-	memcpy(payload + 24, &c, sizeof(c));
+	memcpy(payload + 28, &c, sizeof(c));
 	c = guest_score;
-	memcpy(payload + 25, &c, sizeof(c));
+	memcpy(payload + 29, &c, sizeof(c));
 	c = host_paddle_color;
-	memcpy(payload + 26, &c, sizeof(c));
+	memcpy(payload + 30, &c, sizeof(c));
 
 	server.send(payload, sizeof(payload), guestid);
 }
 
-bool NetworkMatch::guest_get_data(int &host_paddle_color, float &host_paddle_y, float &ball_x, float &ball_y, float &ball_xv, float &ball_yv, int &host_score, int &guest_score)
+bool NetworkMatch::guest_get_data(int &host_paddle_color, float &host_paddle_y, float &paddle_height, float &ball_x, float &ball_y, float &ball_xv, float &ball_yv, int &host_score, int &guest_score)
 {
 	if (state != MatchState::joined && state != MatchState::joining)
 		win::bug("Trying to be joined but in state " + std::to_string((int)state) + " instead");
@@ -213,8 +214,8 @@ bool NetworkMatch::guest_get_data(int &host_paddle_color, float &host_paddle_y, 
 		return false;
 	}
 
-	unsigned char payload[27];
-	unsigned char receiving[27];
+	unsigned char payload[31];
+	unsigned char receiving[31];
 
 	bool received = false;
 
@@ -240,24 +241,27 @@ bool NetworkMatch::guest_get_data(int &host_paddle_color, float &host_paddle_y, 
 	host_paddle_y = f;
 
 	memcpy(&f, payload + 8, sizeof(f));
-	ball_x = f;
+	paddle_height = f;
 
 	memcpy(&f, payload + 12, sizeof(f));
-	ball_y = f;
+	ball_x = f;
 
 	memcpy(&f, payload + 16, sizeof(f));
-	ball_xv = f;
+	ball_y = f;
 
 	memcpy(&f, payload + 20, sizeof(f));
+	ball_xv = f;
+
+	memcpy(&f, payload + 24, sizeof(f));
 	ball_yv = f;
 
-	memcpy(&c, payload + 24, sizeof(c));
+	memcpy(&c, payload + 28, sizeof(c));
 	host_score = c;
 
-	memcpy(&c, payload + 25, sizeof(c));
+	memcpy(&c, payload + 29, sizeof(c));
 	guest_score = c;
 
-	memcpy(&c, payload + 26, sizeof(c));
+	memcpy(&c, payload + 30, sizeof(c));
 	host_paddle_color = c;
 
 	last_receive_time = std::chrono::steady_clock::now();

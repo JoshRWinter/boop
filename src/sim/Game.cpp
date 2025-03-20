@@ -55,7 +55,7 @@ void Game::tick(Renderables &renderables, const Input &input)
 	if (match.hosting())
 		match.host_get_data(networkdata.guest_paddle_color, networkdata.guest_paddle_y);
 	else
-		match.guest_get_data(networkdata.host_paddle_color, networkdata.host_paddle_y, networkdata.ball_x, networkdata.ball_y, networkdata.ball_xv, networkdata.ball_yv, networkdata.host_score, networkdata.guest_score);
+		match.guest_get_data(networkdata.host_paddle_color, networkdata.host_paddle_y, networkdata.paddle_height, networkdata.ball_x, networkdata.ball_y, networkdata.ball_xv, networkdata.ball_yv, networkdata.host_score, networkdata.guest_score);
 
 	const auto reason = match.errored();
 	if (reason != NetworkMatch::ErrorReason::none)
@@ -91,7 +91,7 @@ void Game::tick(Renderables &renderables, const Input &input)
 	renderables.text_renderables.emplace_back(0, 4.0f, 3.0f, true, TextRenderable::Type::smol, win::Color<float>(0.6f, 0.6f, 0.6f, 1.0f), scoretext);
 
 	if (match.hosting())
-		match.host_send_data(networkdata.host_paddle_color, networkdata.host_paddle_y, networkdata.ball_x, networkdata.ball_y, networkdata.ball_xv, networkdata.ball_yv, networkdata.host_score, networkdata.guest_score);
+		match.host_send_data(networkdata.host_paddle_color, networkdata.host_paddle_y, networkdata.paddle_height, networkdata.ball_x, networkdata.ball_y, networkdata.ball_xv, networkdata.ball_yv, networkdata.host_score, networkdata.guest_score);
 	else
 		match.guest_send_data(networkdata.guest_paddle_color, networkdata.guest_paddle_y);
 
@@ -279,8 +279,9 @@ LerpedRenderable Game::process_player_paddle(const Input &input)
 {
 	if (runbot)
 	{
-		guest.y = (ball.y - (Paddle::height / 2.0f)) + (Ball::height / 2.0f);
-		networkdata.guest_paddle_y = guest.y + (Paddle::height / 2.0f);
+		guest.y = (ball.y - (guest.h / 2.0f)) + (Ball::height / 2.0f);
+		guest.h = networkdata.paddle_height;
+		networkdata.guest_paddle_y = guest.y + (guest.h / 2.0f);
 		networkdata.guest_paddle_color = (int)paddle_color;
 
 		return LerpedRenderable(
@@ -304,10 +305,15 @@ LerpedRenderable Game::process_player_paddle(const Input &input)
 		auto &networky = match.hosting() ? networkdata.host_paddle_y : networkdata.guest_paddle_y;
 		auto &networkcolor = match.hosting() ? networkdata.host_paddle_color : networkdata.guest_paddle_color;
 
+		paddle.h = match.hosting() ? get_paddle_height() : networkdata.paddle_height;
+
+		if (match.hosting())
+			networkdata.paddle_height = paddle.h;
+
 		networkcolor = (int)paddle_color;
 
 		const float oldy = paddle.y;
-		paddle.y = input.y - (Paddle::height / 2.0f);
+		paddle.y = input.y - (paddle.h / 2.0f);
 		networky = input.y;
 
 		return LerpedRenderable(
@@ -318,9 +324,9 @@ LerpedRenderable Game::process_player_paddle(const Input &input)
 			paddle.x,
 			oldy,
 			Paddle::width,
-			Paddle::height,
+			paddle.h,
 			Paddle::width,
-			Paddle::height,
+			paddle.h,
 			1.0f,
 			get_color(paddle_color),
 			get_color(paddle_color));
@@ -330,11 +336,12 @@ LerpedRenderable Game::process_player_paddle(const Input &input)
 LerpedRenderable Game::process_opponent_paddle()
 {
 	auto &paddle = match.hosting() ? guest : host;
+	paddle.h = match.hosting() ? get_paddle_height() : networkdata.paddle_height;
 	const auto y = match.hosting() ? networkdata.guest_paddle_y : networkdata.host_paddle_y;
 	const auto c = (Color)(match.hosting() ? networkdata.guest_paddle_color : networkdata.host_paddle_color);
 
 	const float oldy = paddle.y;
-	paddle.y = y - (Paddle::height / 2.0f);
+	paddle.y = y - (paddle.h / 2.0f);
 
 	return LerpedRenderable(
 		0,
@@ -343,9 +350,9 @@ LerpedRenderable Game::process_opponent_paddle()
 		paddle.y,
 		paddle.x, oldy,
 		Paddle::width,
-		Paddle::height,
+		paddle.h,
 		Paddle::width,
-		Paddle::height,
+		paddle.h,
 		1.0f,
 		get_color(c),
 		get_color(c));
@@ -391,8 +398,17 @@ void Game::reset()
 bool Game::collide(const Ball &ball, const Paddle &paddle)
 {
 	return
-		ball.y + Ball::height > paddle.y && ball.y < paddle.y + Paddle::height &&
+		ball.y + Ball::height > paddle.y && ball.y < paddle.y + paddle.h &&
 		(ball.x + Ball::width) - Ball::squishiness > paddle.x && ball.x + Ball::squishiness < paddle.x + (Paddle::width * 1.0f);
+}
+
+float Game::get_paddle_height()
+{
+	const float min_height = 1.3f;
+	const float max_height = 2.0f;
+	const float progression = std::min(match_time / 2000.0f, 1.0f);
+
+	return ((min_height - max_height) * progression) + max_height;
 }
 
 float Game::get_speed()
@@ -409,10 +425,10 @@ void Game::get_ball_bounce(const Ball &ball, const Paddle &paddle, float speed, 
 	const float angle_high = paddle.x > 0.0f ? 2.3562f : 0.7854f;
 	const float angle_low = paddle.x > 0.0f ? 3.927f : -0.7854;
 
-	const float paddle_center_y = paddle.y + (Paddle::height / 2.0f);
+	const float paddle_center_y = paddle.y + (paddle.h / 2.0f);
 	const float ball_center_y = (ball.y + (Ball::height / 2.0f)) - paddle_center_y;
 
-	const float paddle_top = Paddle::height / 2.0f;
+	const float paddle_top = paddle.h / 2.0f;
 
 	// between -1 and 1 based on the spot the ball hits the paddle
 	// (may be slightly more or less than -1 or 1)
