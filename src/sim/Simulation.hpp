@@ -28,7 +28,6 @@ public:
 
 private:
 	void sim(win::Area<float> area, bool runbot);
-	void sleep();
 
 	SyncObjectManager<Renderables, 4> som_renderables;
 	SyncObjectManager<Input, 3> som_input;

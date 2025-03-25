@@ -49,12 +49,3 @@ void Simulation::sim(win::Area<float> area, bool runbot)
 	Game game(area, runbot);
 	game.play(host);
 }
-
-void Simulation::sleep()
-{
-	const auto start = std::chrono::high_resolution_clock::now();
-
-	std::this_thread::sleep_for(std::chrono::milliseconds(12));
-
-	while (std::chrono::duration<float, std::milli>(std::chrono::high_resolution_clock::now() - start).count() < 16.666f);
-}
