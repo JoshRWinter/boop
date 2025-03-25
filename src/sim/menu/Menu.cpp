@@ -81,10 +81,10 @@ Color Menu::menu_main(SimulationHost &host, NetworkMatch &match, const char *err
 			map_renderables(renderables, *colors[i], (int)color == i);
 		}
 
-		renderables.text_renderables.emplace_back(0, 0.0f, 2.5f, true, TextRenderable::Type::yuge, colors[(int)color]->color, "boop");
+		renderables.text_renderables.emplace_back(0.0f, 2.5f, true, TextRenderable::Type::yuge, colors[(int)color]->color, "boop");
 
 		if (errmsg != NULL)
-			renderables.text_renderables.emplace_back(0, 0.0f, 1.0f, true, TextRenderable::Type::smol, win::Color<float>(0.8f, 0.1f, 0.1f, 1.0f), errmsg);
+			renderables.text_renderables.emplace_back(0.0f, 1.0f, true, TextRenderable::Type::smol, win::Color<float>(0.8f, 0.1f, 0.1f, 1.0f), errmsg);
 
 		host.release_renderables(renderables);
 		host.sleep();
@@ -122,7 +122,7 @@ bool Menu::menu_host(SimulationHost &host, NetworkMatch &match, NetworkMatch::Er
 
 		auto &renderables = host.get_renderables();
 		map_renderables(renderables, back, input.x, input.y);
-		renderables.text_renderables.emplace_back(0, 0.0f, 2.0f, true, TextRenderable::Type::smol, textcolor, "Hosting on port 28857");
+		renderables.text_renderables.emplace_back(0.0f, 2.0f, true, TextRenderable::Type::smol, textcolor, "Hosting on port 28857");
 		host.release_renderables(renderables);
 
 		host.sleep();
@@ -178,8 +178,8 @@ bool Menu::menu_join(SimulationHost &host, NetworkMatch &match, NetworkMatch::Er
 		map_renderables(renderables, back, input.x, input.y);
 		map_renderables(renderables, join, input.x, input.y);
 
-		renderables.text_renderables.emplace_back(0, 0.0f, 2.0f, true, TextRenderable::Type::smol, textcolor, "Type an IP Address");
-		renderables.text_renderables.emplace_back(0, 0.0f, 1.0f, true, TextRenderable::Type::smol, textcolor, ip_input.c_str());
+		renderables.text_renderables.emplace_back(0.0f, 2.0f, true, TextRenderable::Type::smol, textcolor, "Type an IP Address");
+		renderables.text_renderables.emplace_back(0.0f, 1.0f, true, TextRenderable::Type::smol, textcolor, ip_input.c_str());
 
 		host.release_renderables(renderables);
 		host.sleep();
@@ -218,7 +218,7 @@ bool Menu::menu_joining(SimulationHost &host, NetworkMatch &match, NetworkMatch:
 
 		auto &renderables = host.get_renderables();
 		map_renderables(renderables, back, input.x, input.y);
-		renderables.text_renderables.emplace_back(0, 0.0f, 2.0f, true, TextRenderable::Type::smol, textcolor, "Joining...");
+		renderables.text_renderables.emplace_back(0.0f, 2.0f, true, TextRenderable::Type::smol, textcolor, "Joining...");
 		host.release_renderables(renderables);
 
 		host.sleep();
@@ -229,15 +229,15 @@ bool Menu::menu_joining(SimulationHost &host, NetworkMatch &match, NetworkMatch:
 
 void Menu::map_renderables(Renderables &renderables, const Button &button, float x, float y)
 {
-	renderables.menu_renderables.emplace_back(0, MenuTexture::button, button.x, button.y, button.w, button.h, button.click ? clicked : (mouseover(button, x, y) ? hover : color));
-	renderables.text_renderables.emplace_back(1, button.x + button.w / 2.0f, button.y + 0.2f, true, TextRenderable::Type::smol, win::Color<float>(1.0f, 0.5f, 0.5f, 1.0f), button.text);
+	renderables.menu_renderables.emplace_back(MenuTexture::button, button.x, button.y, button.w, button.h, button.click ? clicked : (mouseover(button, x, y) ? hover : color));
+	renderables.text_renderables.emplace_back(button.x + button.w / 2.0f, button.y + 0.2f, true, TextRenderable::Type::smol, win::Color<float>(1.0f, 0.5f, 0.5f, 1.0f), button.text);
 }
 
 void Menu::map_renderables(Renderables &renderables, const ColorSelect &color, bool selected)
 {
 	const float raise = 0.2f;
 
-	renderables.menu_renderables.emplace_back(0, MenuTexture::colorselect, color.x, color.y + (selected ? raise : 0.0f), color.w, color.h, color.color);
+	renderables.menu_renderables.emplace_back(MenuTexture::colorselect, color.x, color.y + (selected ? raise : 0.0f), color.w, color.h, color.color);
 }
 
 bool Menu::mouseover(const Button &button, float x, float y)

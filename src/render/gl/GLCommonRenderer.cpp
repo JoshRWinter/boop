@@ -55,7 +55,7 @@ GLCommonRenderer::GLCommonRenderer(win::AssetRoll &roll, const glm::mat4 &projec
 	win::gl_check_error();
 }
 
-void GLCommonRenderer::draw(const std::vector<const Renderable*> &renderables, const std::vector<LightRenderable> &lights)
+void GLCommonRenderer::draw(const std::vector<Renderable> &renderables, const std::vector<LightRenderable> &lights)
 {
 	glUseProgram(program.get());
 	glBindVertexArray(vao.get());
@@ -79,16 +79,16 @@ void GLCommonRenderer::draw(const std::vector<const Renderable*> &renderables, c
 
 	for (const auto &renderable : renderables)
 	{
-		const auto translate = glm::translate(ident, glm::vec3(renderable->x + (renderable->w / 2.0f), renderable->y + (renderable->h / 2.0f), 0.0f));
-		const auto scale = glm::scale(ident, glm::vec3(renderable->w, renderable->h, 1.0f));
+		const auto translate = glm::translate(ident, glm::vec3(renderable.x + (renderable.w / 2.0f), renderable.y + (renderable.h / 2.0f), 0.0f));
+		const auto scale = glm::scale(ident, glm::vec3(renderable.w, renderable.h, 1.0f));
 
 		const auto transform = projection * translate * scale;
 		glUniformMatrix4fv(uniform_transform, 1, GL_FALSE, glm::value_ptr(transform));
-		glUniform4f(uniform_color, renderable->color.red, renderable->color.green, renderable->color.blue, renderable->color.alpha);
-		glUniform4f(uniform_history_color, renderable->history_color.red, renderable->history_color.green, renderable->history_color.blue, renderable->history_color.alpha);
-		glUniform1f(uniform_luminance, renderable->luminance);
+		glUniform4f(uniform_color, renderable.color.red, renderable.color.green, renderable.color.blue, renderable.color.alpha);
+		glUniform4f(uniform_history_color, renderable.history_color.red, renderable.history_color.green, renderable.history_color.blue, renderable.history_color.alpha);
+		glUniform1f(uniform_luminance, renderable.emissiveness);
 
-		glDrawArrays(GL_TRIANGLES, (int)renderable->texture * 6, 6);
+		glDrawArrays(GL_TRIANGLES, (int)renderable.texture * 6, 6);
 	}
 }
 

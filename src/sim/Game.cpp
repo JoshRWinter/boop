@@ -8,6 +8,10 @@ Game::Game(const win::Area<float> &area, bool runbot)
 	: rand(time(NULL))
 	, showmenu(true)
 	, runbot(runbot)
+	, background_renderable_id(next_renderable_id++)
+	, ball(next_renderable_id++, next_renderable_id++)
+	, host(next_renderable_id++)
+	, guest(next_renderable_id++)
 	, area(area)
 	, match(area)
 {
@@ -65,30 +69,26 @@ void Game::tick(Renderables &renderables, const Input &input)
 		return;
 	}
 
-	renderables.lerped_renderables.emplace_back(
-		0,
+	renderables.renderables.emplace_back(
+        background_renderable_id,
 		Texture::background,
 		area.left,
 		area.bottom,
-		area.left,
-		area.bottom,
-		area.right - area.left,
-		area.top - area.bottom,
 		area.right - area.left,
 		area.top - area.bottom,
 		0.0f,
 		win::Color<float>(1.0f, 1.0f, 1.0f, 1.0f),
 		win::Color<float>(0.0f, 0.0f, 0.0f, 0.0f));
 
-	process_ball(renderables.lerped_renderables, renderables.light_renderables);
-	renderables.lerped_renderables.emplace_back(process_player_paddle(input));
-	renderables.lerped_renderables.emplace_back(process_opponent_paddle());
+	process_ball(renderables.renderables, renderables.light_renderables);
+	renderables.renderables.emplace_back(process_player_paddle(input));
+	renderables.renderables.emplace_back(process_opponent_paddle());
 
 	char scoretext[10];
 	snprintf(scoretext, sizeof(scoretext), "%d", networkdata.guest_score);
-	renderables.text_renderables.emplace_back(0, -4.0f, 3.0f, true, TextRenderable::Type::smol, win::Color<float>(0.6f, 0.6f, 0.6f, 1.0f), scoretext);
+	renderables.text_renderables.emplace_back(-4.0f, 3.0f, true, TextRenderable::Type::smol, win::Color<float>(0.6f, 0.6f, 0.6f, 1.0f), scoretext);
 	snprintf(scoretext, sizeof(scoretext), "%d", networkdata.host_score);
-	renderables.text_renderables.emplace_back(0, 4.0f, 3.0f, true, TextRenderable::Type::smol, win::Color<float>(0.6f, 0.6f, 0.6f, 1.0f), scoretext);
+	renderables.text_renderables.emplace_back(4.0f, 3.0f, true, TextRenderable::Type::smol, win::Color<float>(0.6f, 0.6f, 0.6f, 1.0f), scoretext);
 
 	if (match.hosting())
 		match.host_send_data(networkdata.host_paddle_color, networkdata.host_paddle_y, networkdata.paddle_height, networkdata.ball_x, networkdata.ball_y, networkdata.ball_xv, networkdata.ball_yv, networkdata.host_score, networkdata.guest_score);
@@ -103,7 +103,7 @@ void Game::tick(Renderables &renderables, const Input &input)
 	}
 }
 
-void Game::process_ball(std::vector<LerpedRenderable> &renderables, std::vector<LerpedLightRenderable> &light_renderables)
+void Game::process_ball(std::vector<Renderable> &renderables, std::vector<LightRenderable> &light_renderables)
 {
 	win::Color<float> ball_color;
 
@@ -126,9 +126,6 @@ void Game::process_ball(std::vector<LerpedRenderable> &renderables, std::vector<
 			target_ball_color = (Color)std::uniform_int_distribution<int>(0, (int)Color::last)(rand);
 		}
 	}
-
-	const float oldx = ball.x;
-	const float oldy = ball.y;
 
 	bool bounce = false;
 
@@ -226,19 +223,14 @@ void Game::process_ball(std::vector<LerpedRenderable> &renderables, std::vector<
     		{
     			const float angle = std::atan2f(bounce_point.y - y, bounce_point.x - x);
 
-    			tails[i].oldx = tails[i].x;
-    			tails[i].oldy = tails[i].y;
     			tails[i].x = x + (std::cosf(angle) * dist);
     			tails[i].y = y + (std::sinf(angle) * dist);
 
-			    renderables.emplace_back(0,
+			    renderables.emplace_back(
+			    	tails[i].renderable_id,
 					Texture::ball,
 					tails[i].x,
 					tails[i].y,
-					tails[i].oldx,
-					tails[i].oldy,
-					Ball::width,
-					Ball::height,
 					Ball::width,
 					Ball::height,
 					1.0f,
@@ -252,14 +244,10 @@ void Game::process_ball(std::vector<LerpedRenderable> &renderables, std::vector<
 
 	// emit renderables
 	renderables.emplace_back(
-		0,
+        ball.renderable_id,
 		Texture::ball,
 		ball.x,
 		ball.y,
-		oldx,
-		oldy,
-		Ball::width,
-		Ball::height,
 		Ball::width,
 		Ball::height,
 		1.0f,
@@ -267,15 +255,14 @@ void Game::process_ball(std::vector<LerpedRenderable> &renderables, std::vector<
         ball_color);
 
 	light_renderables.emplace_back(
+        ball.light_renderable_id,
 		ball.x + (Ball::width / 2.0f),
 		ball.y + (Ball::height / 2.0f),
-		oldx + (Ball::width / 2.0f),
-		oldy + (Ball::height / 2.0f),
 		ball_color,
 		100);
 }
 
-LerpedRenderable Game::process_player_paddle(const Input &input)
+Renderable Game::process_player_paddle(const Input &input)
 {
 	if (runbot)
 	{
@@ -284,13 +271,9 @@ LerpedRenderable Game::process_player_paddle(const Input &input)
 		networkdata.guest_paddle_y = guest.y + (guest.h / 2.0f);
 		networkdata.guest_paddle_color = (int)paddle_color;
 
-		return LerpedRenderable(
+		return Renderable(
 			0,
 			Texture::paddle,
-			0,
-			0,
-			0,
-			0,
 			0,
 			0,
 			0,
@@ -312,19 +295,14 @@ LerpedRenderable Game::process_player_paddle(const Input &input)
 
 		networkcolor = (int)paddle_color;
 
-		const float oldy = paddle.y;
 		paddle.y = input.y - (paddle.h / 2.0f);
 		networky = input.y;
 
-		return LerpedRenderable(
-			0,
+		return Renderable(
+            paddle.renderable_id,
 			Texture::paddle,
 			paddle.x,
 			paddle.y,
-			paddle.x,
-			oldy,
-			Paddle::width,
-			paddle.h,
 			Paddle::width,
 			paddle.h,
 			1.0f,
@@ -333,24 +311,20 @@ LerpedRenderable Game::process_player_paddle(const Input &input)
 	}
 }
 
-LerpedRenderable Game::process_opponent_paddle()
+Renderable Game::process_opponent_paddle()
 {
 	auto &paddle = match.hosting() ? guest : host;
 	paddle.h = match.hosting() ? get_paddle_height() : networkdata.paddle_height;
 	const auto y = match.hosting() ? networkdata.guest_paddle_y : networkdata.host_paddle_y;
 	const auto c = (Color)(match.hosting() ? networkdata.guest_paddle_color : networkdata.host_paddle_color);
 
-	const float oldy = paddle.y;
 	paddle.y = y - (paddle.h / 2.0f);
 
-	return LerpedRenderable(
-		0,
+	return Renderable(
+        paddle.renderable_id,
 		Texture::paddle,
 		paddle.x,
 		paddle.y,
-		paddle.x, oldy,
-		Paddle::width,
-		paddle.h,
 		Paddle::width,
 		paddle.h,
 		1.0f,
@@ -361,6 +335,8 @@ LerpedRenderable Game::process_opponent_paddle()
 void Game::reset_serve(bool towards_host)
 {
 	match_time = 0;
+
+	ball.renderable_id = next_renderable_id++;
 
 	ball.yv = 0.0f;
 	ball.xv = get_speed() * (towards_host ? 1.0f : -1.0f);
@@ -373,10 +349,9 @@ void Game::reset_serve(bool towards_host)
 
 	for (auto &tail : tails)
 	{
+		tail.renderable_id = next_renderable_id++;
 		tail.x = ball.x;
 		tail.y = ball.y;
-		tail.oldx = tail.x;
-		tail.oldy = tail.y;
 	}
 }
 

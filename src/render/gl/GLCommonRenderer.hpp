@@ -16,7 +16,7 @@ public:
 	GLCommonRenderer(win::AssetRoll &roll, const glm::mat4 &projection, const win::Dimensions<int> &screenres, const win::Area<float> &area);
 	virtual ~GLCommonRenderer()	= default;
 
-	void draw(const std::vector<const Renderable*> &renderables, const std::vector<LightRenderable> &lights);
+	void draw(const std::vector<Renderable> &renderables, const std::vector<LightRenderable> &lights);
 
 private:
 	void world_to_screen(float x, float y, int &xi, int &yi);

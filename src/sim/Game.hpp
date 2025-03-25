@@ -17,21 +17,29 @@ struct Ball
 	static constexpr float height = 0.3f;
 	static constexpr float squishiness = width * 0.3f;
 
-	float x, y;
-	float xv, yv;
+	Ball(unsigned renderable_id, unsigned light_renderable_id) : renderable_id(renderable_id), light_renderable_id(light_renderable_id) {}
+
+	unsigned renderable_id;
+	unsigned light_renderable_id;
+	float x = 0.0f, y = 0.0f;
+	float xv = 0.0f, yv = 0.0f;
 };
 
 struct BallTailItem
 {
 	static constexpr int tails = 4;
-	float x, oldx, y, oldy;
+	unsigned renderable_id = -1;
+	float x = 0.0f, y = 0.0f;
 };
 
 struct Paddle
 {
     static constexpr float width = 0.3f;
 
-	float x, y, h;
+    explicit Paddle(unsigned renderable_id) : renderable_id(renderable_id) {}
+
+	unsigned renderable_id;
+	float x = 0.0f, y = 0.0f, h = 0.0f;
 };
 
 class Game
@@ -55,9 +63,9 @@ public:
 
 private:
 	void tick(Renderables &renderables, const Input &input);
-	void process_ball(std::vector<LerpedRenderable> &renderables, std::vector<LerpedLightRenderable> &light_renderables);
-	LerpedRenderable process_player_paddle(const Input &input);
-	LerpedRenderable process_opponent_paddle();
+	void process_ball(std::vector<Renderable> &renderables, std::vector<LightRenderable> &light_renderables);
+	Renderable process_player_paddle(const Input &input);
+	Renderable process_opponent_paddle();
 	void reset_serve(bool towards_host);
 	void reset();
 	bool collide(const Ball &ball, const Paddle &paddle);
@@ -65,10 +73,12 @@ private:
 	float get_speed();
 	void get_ball_bounce(const Ball &ball, const Paddle &paddle, float speed, float &xv, float &yv);
 
+	unsigned next_renderable_id = 0;
 	std::mt19937 rand;
 	bool showmenu;
 	bool runbot;
 	int match_time;
+	unsigned background_renderable_id;
 	Color paddle_color;
 	Color current_ball_color;
 	Color target_ball_color;

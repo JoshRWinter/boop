@@ -19,7 +19,7 @@ class GLMenuRenderer
 public:
 	GLMenuRenderer(win::AssetRoll &roll, win::GLTextRenderer &text_renderer, win::GLFont &menufont_small, win::GLFont &menufont_big, const glm::mat4 &projection);
 
-	void draw(const std::vector<const MenuRenderable*> &menu_renderables, const std::vector<const TextRenderable*> &text_renderables);
+	void draw(const std::vector<MenuRenderable> &menu_renderables, const std::vector<TextRenderable> &text_renderables);
 
 private:
 	void generate_vertex_data(const win::Atlas &atlas, std::vector<float> &posdata, std::vector<unsigned short> &texcoord);

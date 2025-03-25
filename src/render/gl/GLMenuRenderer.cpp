@@ -47,7 +47,7 @@ GLMenuRenderer::GLMenuRenderer(win::AssetRoll &roll, win::GLTextRenderer &text_r
 	win::gl_check_error();
 }
 
-void GLMenuRenderer::draw(const std::vector<const MenuRenderable*> &menu_renderables, const std::vector<const TextRenderable*> &text_renderables)
+void GLMenuRenderer::draw(const std::vector<MenuRenderable> &menu_renderables, const std::vector<TextRenderable> &text_renderables)
 {
 	glUseProgram(program.get());
 	glBindVertexArray(vao.get());
@@ -56,25 +56,25 @@ void GLMenuRenderer::draw(const std::vector<const MenuRenderable*> &menu_rendera
 
 	for (const auto &r : menu_renderables)
 	{
-		const auto translate = glm::translate(ident, glm::vec3(r->x + (r->w / 2.0f), r->y + (r->h / 2.0f), 0.0f));
-		const auto scale = glm::scale(ident, glm::vec3(r->w, r->h, 1.0f));
+		const auto translate = glm::translate(ident, glm::vec3(r.x + (r.w / 2.0f), r.y + (r.h / 2.0f), 0.0f));
+		const auto scale = glm::scale(ident, glm::vec3(r.w, r.h, 1.0f));
 		const auto transform = projection * translate * scale;
 
-		glUniform4f(uniform_color, r->color.red, r->color.green, r->color.blue, r->color.alpha);
+		glUniform4f(uniform_color, r.color.red, r.color.green, r.color.blue, r.color.alpha);
 		glUniformMatrix4fv(uniform_transform, 1, GL_FALSE, glm::value_ptr(transform));
 
-		glDrawArrays(GL_TRIANGLES, (int)r->texture * 6, 6);
+		glDrawArrays(GL_TRIANGLES, (int)r.texture * 6, 6);
 	}
 
 	for (const auto &r : text_renderables)
 	{
 		const win::GLFont *f;
-		if (r->texttype == TextRenderable::Type::smol)
+		if (r.texttype == TextRenderable::Type::smol)
 			f = &menufont_small;
 		else
 			f = &menufont_big;
 
-		text_renderer.draw(*f, r->text, r->x, r->y, r->color, r->centered);
+		text_renderer.draw(*f, r.text, r.x, r.y, r.color, r.centered);
 	}
 
 	text_renderer.flush();

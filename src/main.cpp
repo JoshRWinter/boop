@@ -89,9 +89,11 @@ int main(int argc, char **argv)
 		input_available = true;
 	});
 
-	Renderables *renderables = NULL;
-	while ((renderables = sim.get_renderables()) == NULL) ;
-	auto lasttime = renderables->time;
+	Renderables *prev_renderables = NULL;
+	Renderables *current_renderables = NULL;
+
+	while ((prev_renderables = sim.get_renderables()) == NULL) ;
+	while ((current_renderables = sim.get_renderables()) == NULL) ;
 
 	while (!quit)
 	{
@@ -113,12 +115,13 @@ int main(int argc, char **argv)
 		auto new_renderables = sim.get_renderables();
 		if (new_renderables != NULL)
 		{
-			lasttime = renderables->time;
-			sim.release_renderables(renderables);
-			renderables = new_renderables;
+			sim.release_renderables(prev_renderables);
+
+			prev_renderables = current_renderables;
+			current_renderables = new_renderables;
 		}
 
-		renderer.render(*renderables, lasttime);
+		renderer.render(*prev_renderables, *current_renderables);
 
 		display.swap();
 	}

@@ -18,22 +18,6 @@ public:
 private:
 	void drawfps();
 
-	struct LayerBucket
-	{
-		std::vector<const Renderable*> renderables;
-		std::vector<const MenuRenderable*> menu_renderables;
-		std::vector<const TextRenderable*> text_renderables;
-
-		void clear()
-		{
-			renderables.clear();
-			menu_renderables.clear();
-			text_renderables.clear();
-		}
-	};
-
-	std::vector<LayerBucket> buckets;
-
 	win::GLTextRenderer text_renderer;
 	win::GLFont menufont_tiny, menufont_small, menufont_big;
 

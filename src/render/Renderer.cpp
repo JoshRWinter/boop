@@ -5,26 +5,87 @@ Renderer::Renderer(win::AssetRoll &roll, const win::Dimensions<int> &screenres, 
 	: backend(new GLRendererBackend(roll, screenres, area))
 {}
 
-void Renderer::render(const Renderables &renderables, std::chrono::high_resolution_clock::time_point last)
+void Renderer::render(const Renderables &prev, const Renderables &current)
 {
-	const auto interval = std::chrono::duration<float, std::milli>(renderables.time - last).count();
-	const auto diff = std::chrono::duration<float, std::milli>(std::chrono::high_resolution_clock::now() - renderables.time).count();
+	const auto now = std::chrono::high_resolution_clock::now();
+	const auto time_since_current = std::chrono::duration<float, std::milli>(now - current.time).count();
+	const auto interval = std::chrono::duration<float, std::milli>(current.time - prev.time).count();
+	const auto t = time_since_current / interval;
 
-	const auto t = diff / interval;
-
-	// lerp the lerpables
-	lerped.clear();
-	for (const auto &r : renderables.lerped_renderables)
-		lerped.emplace_back(r.layer, r.texture, lerp(r.old_x, r.x, t), lerp(r.old_y, r.y, t), lerp(r.old_width, r.w, t), lerp(r.old_height, r.h, t), r.luminance, r.color, r.history_color);
-
+	lerped_renderables.clear();
 	lerped_lights.clear();
-	for (const auto &r : renderables.light_renderables)
-		lerped_lights.emplace_back(lerp(r.old_x, r.x, t), lerp(r.old_y, r.y, t), r.color, r.power);
 
-	backend->render(lerped, lerped_lights, renderables.menu_renderables, renderables.text_renderables);
+	for (const auto &r : current.renderables)
+	{
+		const Renderable *old = NULL;
+
+		// find the old one
+		for (const auto &r2 : prev.renderables)
+		{
+			if (r2.id == r.id)
+			{
+				old = &r2;
+				break;
+			}
+		}
+
+		if (old != NULL)
+		{
+			lerped_renderables.emplace_back(
+				r.id,
+				r.texture,
+				lerp(old->x, r.x, t),
+				lerp(old->y, r.y, t),
+				lerp(old->w, r.w, t),
+				lerp(old->h, r.h, t),
+				lerp(old->emissiveness, r.emissiveness, t),
+				lerp(old->color, r.color, t),
+				lerp(old->history_color, r.history_color, t));
+		}
+		else
+		{
+			lerped_renderables.push_back(r);
+		}
+	}
+
+	for (const auto &r : current.light_renderables)
+	{
+		const LightRenderable *old = NULL;
+
+		// find the old one
+		for (const auto &r2 : prev.light_renderables)
+		{
+			if (r2.id == r.id)
+			{
+				old = &r2;
+				break;
+			}
+		}
+
+		if (old != NULL)
+		{
+			lerped_lights.emplace_back(
+				r.id,
+				lerp(old->x, r.x, t),
+				lerp(old->y, r.y, t),
+				lerp(old->color, r.color, t),
+				lerp(old->power, r.power, t));
+		}
+		else
+		{
+			lerped_lights.push_back(r);
+		}
+	}
+
+	backend->render(lerped_renderables, lerped_lights, current.menu_renderables, current.text_renderables);
 }
 
 float Renderer::lerp(float a, float b, float t)
 {
 	return ((b - a) * t) + a;
+}
+
+win::Color<float> Renderer::lerp(const win::Color<float> &a, const win::Color<float> &b, float t)
+{
+	return win::Color(lerp(a.red, b.red, t), lerp(a.green, b.green, t), lerp(a.blue, b.blue, t), lerp(a.alpha, b.alpha, t));
 }

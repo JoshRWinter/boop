@@ -12,12 +12,14 @@ class Renderer
 public:
 	Renderer(win::AssetRoll &roll, const win::Dimensions<int> &screen_area, const win::Area<float> &area);
 
-	void render(const Renderables &renderables, std::chrono::high_resolution_clock::time_point last);
+	void render(const Renderables &prev, const Renderables &current);
 
 private:
 	static float lerp(float a, float b, float t);
+	static win::Color<float> lerp(const win::Color<float> &a, const win::Color<float> &b, float t);
 
-	std::vector<Renderable> lerped;
-	std::vector<LightRenderable> lerped_lights;
 	std::unique_ptr<RendererBackend> backend;
+
+	std::vector<Renderable> lerped_renderables;
+	std::vector<LightRenderable> lerped_lights;
 };
