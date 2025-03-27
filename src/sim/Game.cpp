@@ -24,31 +24,31 @@ Game::Game(const win::Area<float> &area, bool runbot)
 	}
 }
 
-void Game::play(SimulationHost &host)
+void Game::play(SimulationHost &sim)
 {
 	std::vector<char> textinput(20);
 	textinput.clear();
 
-	while (!host.quit())
+	while (!sim.quit())
 	{
 		if (showmenu && !runbot)
 		{
 			showmenu = false;
-			paddle_color = Menu::menu_main(host, match, "");
+			paddle_color = Menu::menu_main(sim, match, "");
 
-			if (host.quit())
+			if (sim.quit())
 				return;
 		}
 
-		auto &renderables = host.get_renderables();
-		const auto input = host.get_input();
-		host.get_text_input(textinput);
+		auto &renderables = sim.get_renderables();
+		const auto input = sim.get_input();
+		sim.get_text_input(textinput);
 
 		tick(renderables, input);
 
-		host.release_renderables(renderables);
+		sim.release_renderables(renderables);
 
-		host.sleep();
+		sim.sleep();
 	}
 }
 
