@@ -319,8 +319,6 @@ Win32Display::Win32Display(const DisplayOptions &options)
 		SetWindowPos(window, NULL, 0, 0, options.width + (options.width - rect.right), options.height + (options.height - rect.bottom), SWP_SHOWWINDOW);
 	}
 
-	glViewport(0, 0, options.width, options.height);
-
 	UpdateWindow(window);
 }
 
@@ -375,6 +373,7 @@ int Win32Display::screen_height()
 
 void Win32Display::cursor(bool show)
 {
+	ShowCursor(show);
 }
 
 void Win32Display::vsync(bool on)
