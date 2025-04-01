@@ -95,6 +95,8 @@ int main(int argc, char **argv)
 	while ((prev_renderables = sim.get_renderables()) == NULL) ;
 	while ((current_renderables = sim.get_renderables()) == NULL) ;
 
+	bool cursor_enabled = true;
+
 	while (!quit)
 	{
 		display.process();
@@ -119,6 +121,17 @@ int main(int argc, char **argv)
 
 			prev_renderables = current_renderables;
 			current_renderables = new_renderables;
+
+			if (current_renderables->menu_renderables.empty() && cursor_enabled)
+			{
+				display.cursor(false);
+				cursor_enabled = false;
+			}
+			else if (!current_renderables->menu_renderables.empty() && !cursor_enabled)
+			{
+				display.cursor(true);
+				cursor_enabled = true;
+			}
 		}
 
 		renderer.render(*prev_renderables, *current_renderables);
