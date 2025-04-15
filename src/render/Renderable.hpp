@@ -24,12 +24,13 @@ struct LightRenderable
 
 struct Renderable
 {
-	Renderable(unsigned id, Texture texture, float x, float y, float w, float h, float emissiveness, const win::Color<float> &color, const win::Color<float> &history_color)
-		: id(id), texture(texture), x(x), y(y), w(w), h(h), emissiveness(emissiveness), color(color), history_color(history_color) {}
+	Renderable(unsigned id, Texture texture, float x, float y, float w, float h, float rot, float emissiveness, const win::Color<float> &color, const win::Color<float> &history_color)
+		: id(id), texture(texture), x(x), y(y), w(w), h(h), rot(rot), emissiveness(emissiveness), color(color), history_color(history_color) {}
 
 	unsigned id;
 	Texture texture;
 	float x, y, w, h;
+	float rot;
 	float emissiveness;
 	win::Color<float> color;
 	win::Color<float> history_color;

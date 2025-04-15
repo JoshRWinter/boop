@@ -34,7 +34,7 @@ struct BallTailItem
 
 struct Paddle
 {
-    static constexpr float width = 0.3f;
+    static constexpr float width = 0.6f;
 
     explicit Paddle(unsigned renderable_id) : renderable_id(renderable_id) {}
 

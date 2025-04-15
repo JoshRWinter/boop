@@ -38,6 +38,7 @@ void Renderer::render(const Renderables &prev, const Renderables &current)
 				lerp(old->y, r.y, t),
 				lerp(old->w, r.w, t),
 				lerp(old->h, r.h, t),
+				lerp(old->rot, r.rot, t),
 				lerp(old->emissiveness, r.emissiveness, t),
 				lerp(old->color, r.color, t),
 				lerp(old->history_color, r.history_color, t));

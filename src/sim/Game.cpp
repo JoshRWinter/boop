@@ -77,6 +77,7 @@ void Game::tick(Renderables &renderables, const Input &input)
 		area.right - area.left,
 		area.top - area.bottom,
 		0.0f,
+		0.0f,
 		win::Color<float>(1.0f, 1.0f, 1.0f, 1.0f),
 		win::Color<float>(0.0f, 0.0f, 0.0f, 0.0f));
 
@@ -233,6 +234,7 @@ void Game::process_ball(std::vector<Renderable> &renderables, std::vector<LightR
 					tails[i].y,
 					Ball::width,
 					Ball::height,
+					0.0f,
 					1.0f,
 					ball_color,
 					ball_color);
@@ -250,6 +252,7 @@ void Game::process_ball(std::vector<Renderable> &renderables, std::vector<LightR
 		ball.y,
 		Ball::width,
 		Ball::height,
+		0.0f,
 		1.0f,
 		ball_color,
         ball_color);
@@ -274,6 +277,7 @@ Renderable Game::process_player_paddle(const Input &input)
 		return Renderable(
 			0,
 			Texture::paddle,
+			0,
 			0,
 			0,
 			0,
@@ -305,6 +309,7 @@ Renderable Game::process_player_paddle(const Input &input)
 			paddle.y,
 			Paddle::width,
 			paddle.h,
+            paddle.x > 0.0f ? 0.0f : M_PI,
 			1.0f,
 			get_color(paddle_color),
 			get_color(paddle_color));
@@ -327,6 +332,7 @@ Renderable Game::process_opponent_paddle()
 		paddle.y,
 		Paddle::width,
 		paddle.h,
+        paddle.x > 0.0f ? 0.0f : M_PI,
 		1.0f,
 		get_color(c),
 		get_color(c));
@@ -359,10 +365,10 @@ void Game::reset()
 {
 	reset_serve(true);
 
-	host.x = (area.right - Paddle::width) - 0.5f;
+	host.x = (area.right - (Paddle::width / 2.0f)) - 0.3f;
 	host.y = 0.0f;
 
-	guest.x = area.left + 0.5f;
+	guest.x = (area.left + 0.3f) - (Paddle::width / 2.0f);
 	guest.y = 0.0f;
 
 	current_ball_color = (Color)std::uniform_int_distribution<int>(0, (int)Color::last)(rand);
