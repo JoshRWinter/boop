@@ -122,6 +122,7 @@ int main(int argc, char **argv)
 			prev_renderables = current_renderables;
 			current_renderables = new_renderables;
 
+#ifndef WINPLAT_LINUX
 			if (current_renderables->menu_renderables.empty() && cursor_enabled)
 			{
 				display.cursor(false);
@@ -132,6 +133,7 @@ int main(int argc, char **argv)
 				display.cursor(true);
 				cursor_enabled = true;
 			}
+#endif
 		}
 
 		renderer.render(*prev_renderables, *current_renderables);
