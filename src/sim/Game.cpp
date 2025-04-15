@@ -259,7 +259,7 @@ void Game::process_ball(std::vector<Renderable> &renderables, std::vector<LightR
 		ball.x + (Ball::width / 2.0f),
 		ball.y + (Ball::height / 2.0f),
 		ball_color,
-		175);
+		220);
 }
 
 Renderable Game::process_player_paddle(const Input &input)
