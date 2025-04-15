@@ -11,7 +11,7 @@ font/Comicy.ttf
 
 svg2tga {
     texture/background.svg 1920 1080 exclude
-    texture/ball.svg 50 50 exclude
+    texture/ball.svg 29 29 exclude
     texture/paddle.svg 72 240 exclude
 
     texture/button.svg 10 10 exclude
