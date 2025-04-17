@@ -95,5 +95,7 @@ struct Renderables
 	std::vector<MenuRenderable> menu_renderables;
 	std::vector<TextRenderable> text_renderables;
 
+	unsigned player_controlled_id;
+
 	std::chrono::high_resolution_clock::time_point time;
 };

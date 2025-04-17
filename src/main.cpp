@@ -136,7 +136,7 @@ int main(int argc, char **argv)
 #endif
 		}
 
-		renderer.render(*prev_renderables, *current_renderables);
+		renderer.render(*prev_renderables, *current_renderables, input.y);
 
 		display.swap();
 	}

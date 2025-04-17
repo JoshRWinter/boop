@@ -85,6 +85,8 @@ void Game::tick(Renderables &renderables, const Input &input)
 	renderables.renderables.emplace_back(process_player_paddle(input));
 	renderables.renderables.emplace_back(process_opponent_paddle());
 
+	renderables.player_controlled_id = match.hosting() ? host.renderable_id : guest.renderable_id;
+
 	char scoretext[10];
 	snprintf(scoretext, sizeof(scoretext), "%d", networkdata.guest_score);
 	renderables.text_renderables.emplace_back(-4.0f, 3.0f, true, TextRenderable::Type::smol, win::Color<float>(0.6f, 0.6f, 0.6f, 1.0f), scoretext);

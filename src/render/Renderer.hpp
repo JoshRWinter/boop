@@ -12,7 +12,7 @@ class Renderer
 public:
 	Renderer(win::AssetRoll &roll, const win::Dimensions<int> &screen_area, const win::Area<float> &area);
 
-	void render(const Renderables &prev, const Renderables &current);
+	void render(const Renderables &prev, const Renderables &current, float mousey);
 
 private:
 	static float lerp(float a, float b, float t);

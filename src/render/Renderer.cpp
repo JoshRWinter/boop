@@ -5,7 +5,7 @@ Renderer::Renderer(win::AssetRoll &roll, const win::Dimensions<int> &screenres, 
 	: backend(new GLRendererBackend(roll, screenres, area))
 {}
 
-void Renderer::render(const Renderables &prev, const Renderables &current)
+void Renderer::render(const Renderables &prev, const Renderables &current, float mousey)
 {
 	const auto now = std::chrono::high_resolution_clock::now();
 	const auto time_since_current = std::chrono::duration<float, std::milli>(now - current.time).count();
@@ -31,11 +31,14 @@ void Renderer::render(const Renderables &prev, const Renderables &current)
 
 		if (old != NULL)
 		{
+			const float y = r.id == current.player_controlled_id ? mousey - (r.h / 2.0f) : r.y;
+			const float old_y = r.id == current.player_controlled_id ? y : old->y;
+
 			lerped_renderables.emplace_back(
 				r.id,
 				r.texture,
 				lerp(old->x, r.x, t),
-				lerp(old->y, r.y, t),
+				lerp(old_y, y, t),
 				lerp(old->w, r.w, t),
 				lerp(old->h, r.h, t),
 				lerp(old->rot, r.rot, t),
