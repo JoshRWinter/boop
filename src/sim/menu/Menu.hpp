@@ -5,6 +5,16 @@
 #include "../SimulationHost.hpp"
 #include "../NetworkMatch.hpp"
 #include "../../Colors.hpp"
+#include "../Difficulty.hpp"
+
+struct MainMenuResult
+{
+	MainMenuResult(Color color, DifficultyLevel difficulty)
+		: color(color), difficulty(difficulty) {}
+
+	Color color;
+	DifficultyLevel difficulty;
+};
 
 class Menu
 {
@@ -46,7 +56,8 @@ public:
 		win::Color<float> color;
 	};
 
-	static Color menu_main(SimulationHost &host, NetworkMatch &match, const char *errmsg);
+	static MainMenuResult menu_main(SimulationHost &host, NetworkMatch &match, const char *errmsg);
+	static bool menu_choose_difficulty(SimulationHost &host, DifficultyLevel &level);
 	static bool menu_host(SimulationHost &host, NetworkMatch &match, NetworkMatch::ErrorReason &error);
 	static bool menu_join(SimulationHost &host, NetworkMatch &match, NetworkMatch::ErrorReason &error);
 	static bool menu_joining(SimulationHost &host, NetworkMatch &match, NetworkMatch::ErrorReason &error, const char *ip);

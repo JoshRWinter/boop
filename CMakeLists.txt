@@ -22,6 +22,8 @@ set(sources
 
 	src/sim/Game.hpp
 	src/sim/Game.cpp
+	src/sim/Difficulty.hpp
+	src/sim/Difficulty.cpp
 	src/sim/NetworkMatch.hpp
 	src/sim/NetworkMatch.cpp
 

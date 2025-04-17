@@ -3,7 +3,7 @@
 
 #include "Menu.hpp"
 
-Color Menu::menu_main(SimulationHost &host, NetworkMatch &match, const char *errmsg)
+MainMenuResult Menu::menu_main(SimulationHost &host, NetworkMatch &match, const char *errmsg)
 {
 	ColorSelect red(-3.0f, 0.8f, 0.75f, 0.75f, get_red());
 	ColorSelect green(-2.0f, 0.8f, 0.75f, 0.75f, get_green());
@@ -12,9 +12,9 @@ Color Menu::menu_main(SimulationHost &host, NetworkMatch &match, const char *err
 	ColorSelect cyan(1.25f, 0.8f, 0.75f, 0.75f, get_cyan());
 	ColorSelect magenta(2.25f, 0.8f, 0.75f, 0.75f, get_magenta());
 
-	ColorSelect *colors[] = { &red, &green, &blue, &yellow, &cyan, &magenta };
+	ColorSelect *colors[] = {&red, &green, &blue, &yellow, &cyan, &magenta};
 	std::mt19937 mersenne(time(NULL));
-	auto color = (Color)std::uniform_int_distribution<int>(0, 5)(mersenne);
+	auto color = (Color) std::uniform_int_distribution<int>(0, 5)(mersenne);
 
 	Button computer(-button_width / 2.0f, -0.75f, button_width, button_height, "Computer");
 	Button hostgame(-button_width / 2.0f, -1.75f, button_width, button_height, "Host");
@@ -28,30 +28,40 @@ Color Menu::menu_main(SimulationHost &host, NetworkMatch &match, const char *err
 		if (button_clicked(computer, input.click, input.x, input.y))
 		{
 			computer.click = false;
-			match.start_bot();
-			auto error = NetworkMatch::ErrorReason::none;
-			if (menu_host(host, match, error))
-				return color;
 
-			if (error != NetworkMatch::ErrorReason::none)
-				errmsg = "Hosting error";
+			DifficultyLevel diff;
+			if (menu_choose_difficulty(host, diff))
+			{
+				match.start_bot();
+				auto error = NetworkMatch::ErrorReason::none;
+				if (menu_host(host, match, error))
+					return MainMenuResult(color, diff);
+
+				if (error != NetworkMatch::ErrorReason::none)
+					errmsg = "Hosting error";
+			}
 		}
 		else if (button_clicked(hostgame, input.click, input.x, input.y))
 		{
 			hostgame.click = false;
-			auto error = NetworkMatch::ErrorReason::none;
-			if (menu_host(host, match, error))
-				return color;
 
-			if (error != NetworkMatch::ErrorReason::none)
-				errmsg = "Hosting error";
+			DifficultyLevel diff;
+			if (menu_choose_difficulty(host, diff))
+			{
+				auto error = NetworkMatch::ErrorReason::none;
+				if (menu_host(host, match, error))
+					return MainMenuResult(color, diff);
+
+				if (error != NetworkMatch::ErrorReason::none)
+					errmsg = "Hosting error";
+			}
 		}
 		else if (button_clicked(join, input.click, input.x, input.y))
 		{
 			join.click = false;
 			auto error = NetworkMatch::ErrorReason::none;
 			if (menu_join(host, match, error))
-				return color;
+				return MainMenuResult(color, DifficultyLevel::easy);
 
 			if (error != NetworkMatch::ErrorReason::none)
 				errmsg = "Joining error";
@@ -76,12 +86,12 @@ Color Menu::menu_main(SimulationHost &host, NetworkMatch &match, const char *err
 		for (int i = 0; i < 6; ++i)
 		{
 			if (mouseover(*colors[i], input.x, input.y))
-				color = (Color)i;
+				color = (Color) i;
 
-			map_renderables(renderables, *colors[i], (int)color == i);
+			map_renderables(renderables, *colors[i], (int) color == i);
 		}
 
-		renderables.text_renderables.emplace_back(0.0f, 2.5f, true, TextRenderable::Type::yuge, colors[(int)color]->color, "boop");
+		renderables.text_renderables.emplace_back(0.0f, 2.5f, true, TextRenderable::Type::yuge, colors[(int) color]->color, "boop");
 
 		if (errmsg != NULL)
 			renderables.text_renderables.emplace_back(0.0f, 1.0f, true, TextRenderable::Type::smol, win::Color<float>(0.8f, 0.1f, 0.1f, 1.0f), errmsg);
@@ -90,7 +100,63 @@ Color Menu::menu_main(SimulationHost &host, NetworkMatch &match, const char *err
 		host.sleep();
 	}
 
-	return color;
+	return MainMenuResult(color, DifficultyLevel::easy);
+}
+
+bool Menu::menu_choose_difficulty(SimulationHost &host, DifficultyLevel &level)
+{
+	Button easy(-button_width / 2.0f, 0.0f, button_width, button_height, "Ezpz");
+	Button medium(-button_width / 2.0f, -1.0f, button_width, button_height, "Medium");
+	Button hard(-button_width / 2.0f, -2.0f, button_width, button_height, "Hard");
+
+	Button back(-button_width / 2.0f, -3.5f, button_width, button_height, "Back");
+
+	while (true)
+	{
+		if (host.quit())
+			return false;
+
+		const auto input = host.get_input();
+
+		if (button_clicked(easy, input.click, input.x, input.y))
+		{
+			level = DifficultyLevel::easy;
+			return true;
+		}
+
+		if (button_clicked(medium, input.click, input.x, input.y))
+		{
+			level = DifficultyLevel::med;
+			return true;
+		}
+
+		if (button_clicked(hard, input.click, input.x, input.y))
+		{
+			level = DifficultyLevel::hard;
+			return true;
+		}
+
+		if (button_clicked(back, input.click, input.x, input.y))
+		{
+			return false;
+		}
+
+		easy.click = mouseover(easy, input.x, input.y) && input.click;
+		medium.click = mouseover(medium, input.x, input.y) && input.click;
+		hard.click = mouseover(hard, input.x, input.y) && input.click;
+		back.click = mouseover(back, input.x, input.y) && input.click;
+
+		auto &renderables = host.get_renderables();
+
+		map_renderables(renderables, easy, input.x, input.y);
+		map_renderables(renderables, medium, input.x, input.y);
+		map_renderables(renderables, hard, input.x, input.y);
+		map_renderables(renderables, back, input.x, input.y);
+		renderables.text_renderables.emplace_back(0.0f, 2.0f, true, TextRenderable::Type::smol, textcolor, "Choose difficulty");
+		host.release_renderables(renderables);
+
+		host.sleep();
+	}
 }
 
 bool Menu::menu_host(SimulationHost &host, NetworkMatch &match, NetworkMatch::ErrorReason &error)
@@ -126,7 +192,6 @@ bool Menu::menu_host(SimulationHost &host, NetworkMatch &match, NetworkMatch::Er
 		host.release_renderables(renderables);
 
 		host.sleep();
-
 	}
 
 	return false;

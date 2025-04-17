@@ -34,7 +34,9 @@ void Game::play(SimulationHost &sim)
 		if (showmenu && !runbot)
 		{
 			showmenu = false;
-			paddle_color = Menu::menu_main(sim, match, "");
+			const auto result = Menu::menu_main(sim, match, "");
+			paddle_color = result.color;
+			difficulty = result.difficulty;
 
 			if (sim.quit())
 				return;
@@ -387,7 +389,7 @@ bool Game::collide(const Ball &ball, const Paddle &paddle)
 
 float Game::get_paddle_height()
 {
-	const float min_height = 1.3f;
+	const float min_height = Difficulty::get_min_paddle_height(difficulty);
 	const float max_height = 2.0f;
 	const float progression = std::min(match_time / 2000.0f, 1.0f);
 
@@ -397,7 +399,7 @@ float Game::get_paddle_height()
 float Game::get_speed()
 {
 	const float min_speed = 0.275f;
-	const float max_speed = 0.45f;
+	const float max_speed = Difficulty::get_max_ball_speed(difficulty);
 	const float progression = std::min(match_time / 1200.0f, 1.0f);
 
 	return ((max_speed - min_speed) * progression) + min_speed;

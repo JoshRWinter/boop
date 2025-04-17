@@ -10,6 +10,7 @@
 #include "../Input.hpp"
 #include "NetworkMatch.hpp"
 #include "SimulationHost.hpp"
+#include "Difficulty.hpp"
 
 struct Ball
 {
@@ -79,6 +80,7 @@ private:
 	bool runbot;
 	int match_time;
 	unsigned background_renderable_id;
+	DifficultyLevel difficulty;
 	Color paddle_color;
 	Color current_ball_color;
 	Color target_ball_color;
