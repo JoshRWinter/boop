@@ -80,7 +80,7 @@ private:
 	bool runbot;
 	int match_time;
 	unsigned background_renderable_id;
-	DifficultyLevel difficulty;
+	DifficultyLevel difficulty = DifficultyLevel::easy;
 	Color paddle_color;
 	Color current_ball_color;
 	Color target_ball_color;
