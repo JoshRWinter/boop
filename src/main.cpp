@@ -2,6 +2,10 @@
 #include <win/AssetRoll.hpp>
 #include <win/gl/GL.hpp>
 
+#ifdef WINPLAT_WINDOWS
+#include <timeapi.h>
+#endif
+
 #include "render/Renderer.hpp"
 #include "sim/Simulation.hpp"
 
@@ -11,6 +15,8 @@ int WinMain(HINSTANCE hinstance, HINSTANCE prev, PSTR cmd, int show)
 int main(int argc, char **argv)
 #endif
 {
+	timeBeginPeriod(0);
+
 	win::AssetRoll roll("boop.roll");
 
 	// display setup
@@ -141,5 +147,6 @@ int main(int argc, char **argv)
 		display.swap();
 	}
 
+	timeEndPeriod(0);
 	return 0;
 }

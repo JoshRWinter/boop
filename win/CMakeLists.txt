@@ -165,6 +165,7 @@ if(WIN32)
 		${CMAKE_CURRENT_LIST_DIR}/lib/ogg.lib
 		${CMAKE_CURRENT_LIST_DIR}/lib/vorbis.lib
 		ws2_32
+		winmm
 		)
 
 	if(CMAKE_CXX_FLAGS MATCHES "/W[0-4]")
