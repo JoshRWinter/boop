@@ -94,7 +94,7 @@ MainMenuResult Menu::menu_main(SimulationHost &host, NetworkMatch &match, const 
 		renderables.text_renderables.emplace_back(0.0f, 2.5f, true, TextRenderable::Type::yuge, colors[(int) color]->color, "boop");
 
 		if (errmsg != NULL)
-			renderables.text_renderables.emplace_back(0.0f, 1.0f, true, TextRenderable::Type::smol, win::Color<float>(0.8f, 0.1f, 0.1f, 1.0f), errmsg);
+			renderables.text_renderables.emplace_back(0.0f, 3.8f, true, TextRenderable::Type::smol, win::Color<float>(0.8f, 0.1f, 0.1f, 1.0f), errmsg);
 
 		host.release_renderables(renderables);
 		host.sleep();
