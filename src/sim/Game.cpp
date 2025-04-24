@@ -139,11 +139,11 @@ void Game::process_ball(std::vector<Renderable> &renderables, std::vector<LightR
 
 	if (match.hosting())
 	{
-		const float slowdown = 0.2;
 		for (int i = 0; i < 5; ++i)
 		{
-			ball.x += ball.xv * slowdown;
-			ball.y += ball.yv * slowdown;
+			const float slowdown = match_time > 20 ? 1.0f : match_time / 20.0f;
+			ball.x += ball.xv * slowdown * 0.2f;
+			ball.y += ball.yv * slowdown * 0.2f;
 
 			// check for collision with paddles
 			if (collide(ball, host))
