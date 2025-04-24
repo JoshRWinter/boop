@@ -11,14 +11,14 @@
 #include "../SyncObjectManager.hpp"
 #include "../render/Renderable.hpp"
 #include "../Input.hpp"
-#include "SimulationHost.hpp"
+#include "Difficulty.hpp"
 
 class Simulation
 {
 	WIN_NO_COPY_MOVE(Simulation);
 
 public:
-	Simulation(const win::Area<float> &area, bool runbot);
+	Simulation(const win::Area<float> &area, bool runbot, DifficultyLevel bot_difficulty);
 	~Simulation();
 
 	Renderables *get_renderables();
@@ -27,7 +27,7 @@ public:
 	void set_text_input(const std::vector<char> &text);
 
 private:
-	void sim(win::Area<float> area, bool runbot);
+	void sim(win::Area<float> area, bool runbot, DifficultyLevel bot_difficulty);
 
 	SyncObjectManager<Renderables, 4> som_renderables;
 	SyncObjectManager<Input, 3> som_input;

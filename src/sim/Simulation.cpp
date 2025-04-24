@@ -3,11 +3,11 @@
 #include "Simulation.hpp"
 #include "Game.hpp"
 
-Simulation::Simulation(const win::Area<float> &area, bool runbot)
+Simulation::Simulation(const win::Area<float> &area, bool runbot, DifficultyLevel bot_difficulty)
 	: bot(runbot)
 	, quit(false)
 {
-	simthread = std::thread([area, runbot, this](){ sim(area, runbot); });
+	simthread = std::thread([area, runbot, bot_difficulty, this]{ sim(area, runbot, bot_difficulty); });
 }
 
 Simulation::~Simulation()
@@ -43,9 +43,9 @@ void Simulation::set_text_input(const std::vector<char> &text)
     	written += textinput.write(text.data() + written, text.size() - written);
 }
 
-void Simulation::sim(win::Area<float> area, bool runbot)
+void Simulation::sim(win::Area<float> area, bool runbot, DifficultyLevel bot_difficulty)
 {
 	SimulationHost host(quit, som_renderables, som_input, textinput);
-	Game game(area, runbot);
+	Game game(area, runbot, bot_difficulty);
 	game.play(host);
 }

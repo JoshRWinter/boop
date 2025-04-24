@@ -39,7 +39,7 @@ int main(int argc, char **argv)
 	const win::Dimensions<int> screenres(display.width(), display.height());
 	const win::Area<float> area(-8.0f, 8.0f, -4.5f, 4.5f);
 
-	Simulation sim(area, false);
+	Simulation sim(area, false, DifficultyLevel::easy);
 	Renderer renderer(roll, screenres, area);
 
 	Input input;

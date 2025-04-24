@@ -11,6 +11,7 @@
 #include "NetworkMatch.hpp"
 #include "SimulationHost.hpp"
 #include "Difficulty.hpp"
+#include "Bot.hpp"
 
 struct Ball
 {
@@ -58,7 +59,7 @@ class Game
 	};
 
 public:
-	Game(const win::Area<float> &area, bool runbot);
+	Game(const win::Area<float> &area, bool runbot, DifficultyLevel bot_difficulty);
 
 	void play(SimulationHost &host);
 
@@ -78,13 +79,14 @@ private:
 	std::mt19937 rand;
 	bool showmenu;
 	bool runbot;
-	int match_time;
+	int match_time = 0;
 	unsigned background_renderable_id;
+	Bot bot;
 	DifficultyLevel difficulty = DifficultyLevel::easy;
 	Color paddle_color;
 	Color current_ball_color;
 	Color target_ball_color;
-	float ball_color_switch_pct;
+	float ball_color_switch_pct = 0.0f;
 	Ball ball;
 	BallTailItem tails[BallTailItem::tails];
 	Paddle host;

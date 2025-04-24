@@ -5,11 +5,12 @@
 #include "Game.hpp"
 #include "menu/Menu.hpp"
 
-Game::Game(const win::Area<float> &area, bool runbot)
+Game::Game(const win::Area<float> &area, bool runbot, DifficultyLevel bot_difficulty)
 	: rand(time(NULL))
 	, showmenu(true)
 	, runbot(runbot)
 	, background_renderable_id(next_renderable_id++)
+	, bot(area, Ball::height, Ball::squishiness, (area.left + 0.3f) + (Paddle::width / 2.0f))
 	, ball(next_renderable_id++, next_renderable_id++)
 	, host(next_renderable_id++)
 	, guest(next_renderable_id++)
@@ -21,6 +22,7 @@ Game::Game(const win::Area<float> &area, bool runbot)
 
 	if (runbot)
 	{
+		difficulty = bot_difficulty;
 		while (!match.join("::1")) std::this_thread::sleep_for(std::chrono::milliseconds(100));
 	}
 }
@@ -73,7 +75,7 @@ void Game::tick(Renderables &renderables, const Input &input)
 	}
 
 	renderables.renderables.emplace_back(
-        background_renderable_id,
+		background_renderable_id,
 		Texture::background,
 		area.left,
 		area.bottom,
@@ -137,47 +139,56 @@ void Game::process_ball(std::vector<Renderable> &renderables, std::vector<LightR
 
 	if (match.hosting())
 	{
-		const float slowdown = 1.0f;
-		ball.x += ball.xv * slowdown;
-		ball.y += ball.yv * slowdown;
+		const float slowdown = 0.2;
+		for (int i = 0; i < 5; ++i)
+		{
+			ball.x += ball.xv * slowdown;
+			ball.y += ball.yv * slowdown;
 
-		// check for collision with paddles
-		if (collide(ball, host))
-		{
-			bounce = true;
-			ball.x = (host.x - Ball::width) + Ball::squishiness;
-			get_ball_bounce(ball, host, get_speed(), ball.xv, ball.yv);
-		}
-		else if (collide(ball, guest))
-		{
-			bounce = true;
-			ball.x = (guest.x + Paddle::width) - Ball::squishiness;
-			ball.xv = -ball.xv;
-			get_ball_bounce(ball, guest, get_speed(), ball.xv, ball.yv);
-		}
+			// check for collision with paddles
+			if (collide(ball, host))
+			{
+				bounce = true;
+				ball.x = (host.x - Ball::width) + Ball::squishiness;
+				get_ball_bounce(ball, host, get_speed(), ball.xv, ball.yv);
+				break;
+			}
+			else if (collide(ball, guest))
+			{
+				bounce = true;
+				ball.x = (guest.x + Paddle::width) - Ball::squishiness;
+				ball.xv = -ball.xv;
+				get_ball_bounce(ball, guest, get_speed(), ball.xv, ball.yv);
+				break;
+			}
 
-		// check for collision with area boundaries
-		if (ball.x > area.right * 5.0f)
-		{
-            reset_serve(false);
-			++networkdata.guest_score;
-		}
-		else if (ball.x < area.left * 5.0f)
-		{
-            reset_serve(true);
-			++networkdata.host_score;
-		}
-		if ((ball.y + Ball::height) - Ball::squishiness > area.top)
-		{
-			bounce = true;
-			ball.y = (area.top - Ball::height) + Ball::squishiness;
-			ball.yv = -ball.yv;
-		}
-		else if (ball.y + Ball::squishiness < area.bottom)
-		{
-			bounce = true;
-			ball.y = area.bottom - Ball::squishiness;
-			ball.yv = -ball.yv;
+			// check for collision with area boundaries
+			if (ball.x > area.right * 5.0f)
+			{
+				reset_serve(false);
+				++networkdata.guest_score;
+				break;
+			}
+			else if (ball.x < area.left * 5.0f)
+			{
+				reset_serve(true);
+				++networkdata.host_score;
+				break;
+			}
+			if ((ball.y + Ball::height) - Ball::squishiness > area.top)
+			{
+				bounce = true;
+				ball.y = (area.top - Ball::height) + Ball::squishiness;
+				ball.yv = -ball.yv;
+				break;
+			}
+			else if (ball.y + Ball::squishiness < area.bottom)
+			{
+				bounce = true;
+				ball.y = area.bottom - Ball::squishiness;
+				ball.yv = -ball.yv;
+				break;
+			}
 		}
 
 		networkdata.ball_x = ball.x;
@@ -211,29 +222,29 @@ void Game::process_ball(std::vector<Renderable> &renderables, std::vector<LightR
 
 	// position ball tail
 	const float trail_distance = 0.09f;
-    for (int i = 0; i < BallTailItem::tails; ++i)
-    {
-	    float dist = trail_distance + (trail_distance * i);
-    	float x = ball.x, y = ball.y;
+	for (int i = 0; i < BallTailItem::tails; ++i)
+	{
+		float dist = trail_distance + (trail_distance * i);
+		float x = ball.x, y = ball.y;
 
-    	for (const auto &bounce_point : bounces)
-    	{
-    		const auto d = distance(x, y, bounce_point.x, bounce_point.y);
-    		if (dist > d)
-    		{
-    			x = bounce_point.x;
-    			y = bounce_point.y;
-                dist = dist - d;
-    		}
-    		else
-    		{
-    			const float angle = std::atan2f(bounce_point.y - y, bounce_point.x - x);
+		for (const auto &bounce_point : bounces)
+		{
+			const auto d = distance(x, y, bounce_point.x, bounce_point.y);
+			if (dist > d)
+			{
+				x = bounce_point.x;
+				y = bounce_point.y;
+				dist = dist - d;
+			}
+			else
+			{
+				const float angle = std::atan2f(bounce_point.y - y, bounce_point.x - x);
 
-    			tails[i].x = x + (std::cosf(angle) * dist);
-    			tails[i].y = y + (std::sinf(angle) * dist);
+				tails[i].x = x + (std::cosf(angle) * dist);
+				tails[i].y = y + (std::sinf(angle) * dist);
 
-			    renderables.emplace_back(
-			    	tails[i].renderable_id,
+				renderables.emplace_back(
+					tails[i].renderable_id,
 					Texture::ball,
 					tails[i].x,
 					tails[i].y,
@@ -244,14 +255,14 @@ void Game::process_ball(std::vector<Renderable> &renderables, std::vector<LightR
 					ball_color,
 					ball_color);
 
-    			break;
-    		}
-    	}
-    }
+				break;
+			}
+		}
+	}
 
 	// emit renderables
 	renderables.emplace_back(
-        ball.renderable_id,
+		ball.renderable_id,
 		Texture::ball,
 		ball.x,
 		ball.y,
@@ -260,10 +271,10 @@ void Game::process_ball(std::vector<Renderable> &renderables, std::vector<LightR
 		0.0f,
 		1.0f,
 		ball_color,
-        ball_color);
+		ball_color);
 
 	light_renderables.emplace_back(
-        ball.light_renderable_id,
+		ball.light_renderable_id,
 		ball.x + (Ball::width / 2.0f),
 		ball.y + (Ball::height / 2.0f),
 		ball_color,
@@ -274,8 +285,9 @@ Renderable Game::process_player_paddle(const Input &input)
 {
 	if (runbot)
 	{
-		guest.y = (ball.y - (guest.h / 2.0f)) + (Ball::height / 2.0f);
 		guest.h = networkdata.paddle_height;
+		guest.y = bot.run(ball.x, ball.y, ball.xv, ball.yv, guest.h, difficulty, match_time);
+
 		networkdata.guest_paddle_y = guest.y + (guest.h / 2.0f);
 		networkdata.guest_paddle_color = (int)paddle_color;
 
@@ -308,13 +320,13 @@ Renderable Game::process_player_paddle(const Input &input)
 		networky = input.y;
 
 		return Renderable(
-            paddle.renderable_id,
+			paddle.renderable_id,
 			Texture::paddle,
 			paddle.x,
 			paddle.y,
 			Paddle::width,
 			paddle.h,
-            paddle.x > 0.0f ? 0.0f : M_PI,
+			paddle.x > 0.0f ? 0.0f : M_PI,
 			1.0f,
 			get_color(paddle_color),
 			get_color(paddle_color));
@@ -331,13 +343,13 @@ Renderable Game::process_opponent_paddle()
 	paddle.y = y - (paddle.h / 2.0f);
 
 	return Renderable(
-        paddle.renderable_id,
+		paddle.renderable_id,
 		Texture::paddle,
 		paddle.x,
 		paddle.y,
 		Paddle::width,
 		paddle.h,
-        paddle.x > 0.0f ? 0.0f : M_PI,
+		paddle.x > 0.0f ? 0.0f : M_PI,
 		1.0f,
 		get_color(c),
 		get_color(c));
@@ -384,8 +396,8 @@ void Game::reset()
 bool Game::collide(const Ball &ball, const Paddle &paddle)
 {
 	return
-		ball.y + Ball::height > paddle.y && ball.y < paddle.y + paddle.h &&
-		(ball.x + Ball::width) - Ball::squishiness > paddle.x && ball.x + Ball::squishiness < paddle.x + (Paddle::width * 1.0f);
+		ball.y + Ball::height >= paddle.y && ball.y <= paddle.y + paddle.h &&
+		(ball.x + Ball::width) - Ball::squishiness >= paddle.x && ball.x + Ball::squishiness <= paddle.x + (Paddle::width * 1.0f);
 }
 
 float Game::get_paddle_height()

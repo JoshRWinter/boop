@@ -32,7 +32,7 @@ MainMenuResult Menu::menu_main(SimulationHost &host, NetworkMatch &match, const 
 			DifficultyLevel diff;
 			if (menu_choose_difficulty(host, diff))
 			{
-				match.start_bot();
+				match.start_bot(diff);
 				auto error = NetworkMatch::ErrorReason::none;
 				if (menu_host(host, match, error))
 					return MainMenuResult(color, diff);

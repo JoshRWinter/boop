@@ -23,12 +23,12 @@ void NetworkMatch::reset()
 		botsim.reset();
 }
 
-void NetworkMatch::start_bot()
+void NetworkMatch::start_bot(DifficultyLevel bot_difficulty)
 {
     if (state != MatchState::disconnected && state != MatchState::listening)
     	win::bug("Trying to start bot but in state " + std::to_string((int)state) + " instead");
 
-	botsim.reset(new Simulation(area, true));
+	botsim.reset(new Simulation(area, true, bot_difficulty));
 	state = MatchState::listening;
 }
 

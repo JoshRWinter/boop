@@ -40,7 +40,7 @@ public:
 	NetworkMatch(const win::Area<float> &area);
 
 	void reset();
-	void start_bot();
+	void start_bot(DifficultyLevel bot_difficulty);
 	bool host();
 	bool join(const char *ip);
 	bool hosting() const;
