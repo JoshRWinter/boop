@@ -63,7 +63,7 @@ void GLMenuRenderer::draw(const std::vector<MenuRenderable> &menu_renderables, c
 		glUniform4f(uniform_color, r.color.red, r.color.green, r.color.blue, r.color.alpha);
 		glUniformMatrix4fv(uniform_transform, 1, GL_FALSE, glm::value_ptr(transform));
 
-		glDrawArrays(GL_TRIANGLES, (int)r.texture * 6, 6);
+		bench("menu draw", glDrawArrays(GL_TRIANGLES, (int)r.texture * 6, 6), 0);
 	}
 
 	for (const auto &r : text_renderables)

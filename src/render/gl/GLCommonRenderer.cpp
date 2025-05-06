@@ -89,7 +89,7 @@ void GLCommonRenderer::draw(const std::vector<Renderable> &renderables, const st
 		glUniform4f(uniform_history_color, renderable.history_color.red, renderable.history_color.green, renderable.history_color.blue, renderable.history_color.alpha);
 		glUniform1f(uniform_luminance, renderable.emissiveness);
 
-		glDrawArrays(GL_TRIANGLES, (int)renderable.texture * 6, 6);
+		bench("common draw", glDrawArrays(GL_TRIANGLES, (int)renderable.texture * 6, 6), 0);
 	}
 }
 

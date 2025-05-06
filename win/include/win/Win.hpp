@@ -43,3 +43,14 @@ namespace win
 }
 
 }
+
+#include <chrono>
+
+#define WIN_APPEND2(a, b) a##b
+#define WIN_APPEND(a, b) WIN_APPEND2(a, b)
+
+#define bench(name, x, thresholdms) \
+	const auto WIN_APPEND(benchmark, __LINE__) = std::chrono::high_resolution_clock::now();\
+	x;\
+	const float WIN_APPEND(benchmarkms, __LINE__) = std::chrono::duration<float, std::milli>(std::chrono::high_resolution_clock::now() - WIN_APPEND(benchmark, __LINE__)).count(); \
+	if (WIN_APPEND(benchmarkms, __LINE__) >= thresholdms) fprintf(stderr, "%s: %.4fms\n", name, WIN_APPEND(benchmarkms, __LINE__))
