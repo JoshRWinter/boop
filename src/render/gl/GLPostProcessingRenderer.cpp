@@ -55,14 +55,14 @@ void GLPostProcessingRenderer::draw(GLuint fb)
 	glBindFramebuffer(GL_FRAMEBUFFER, post.fbo.get());
 	glUniform1i(post.uniform_history_texture, GLConstants::HISTORY_COLOR_ATTACHMENT_TEXTURE_UNIT - GL_TEXTURE0);
 	glUniform1i(post.uniform_blur_horizontal, 1);
-	bench("post draw 1", glDrawArrays(GL_TRIANGLES, 0, 3), 0);
+	glDrawArrays(GL_TRIANGLES, 0, 3);
 
 	// vertical blur and other post processing
 	glBindFramebuffer(GL_FRAMEBUFFER, 0);
 	glUniform1i(post.uniform_history_texture, GLConstants::BLUR_COLOR_ATTACHMENT_TEXTURE_UNIT - GL_TEXTURE0);
 	glUniform1i(post.uniform_blur_horizontal, 0);
 
-	bench("post draw 2", glDrawArrays(GL_TRIANGLES, 0, 3), 0);
+	glDrawArrays(GL_TRIANGLES, 0, 3);
 
 	glBindFramebuffer(GL_FRAMEBUFFER, fb);
 

@@ -138,7 +138,7 @@ int main(int argc, char **argv)
 
 		renderer.render(*prev_renderables, *current_renderables, input.y);
 
-		bench("display swap", display.swap(), 0);
+		display.swap();
 	}
 
 	return 0;
