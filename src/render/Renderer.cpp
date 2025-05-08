@@ -7,10 +7,17 @@ Renderer::Renderer(win::AssetRoll &roll, const win::Dimensions<int> &screenres, 
 
 void Renderer::render(const Renderables &prev, const Renderables &current, float mousey)
 {
-	const auto now = std::chrono::high_resolution_clock::now();
-	const auto time_since_current = std::chrono::duration<float, std::milli>(now - current.time).count();
-	const auto interval = std::chrono::duration<float, std::milli>(current.time - prev.time).count();
-	const auto t = time_since_current / interval;
+	const auto prev_time = std::chrono::duration<float>(prev.time - start).count();
+	const auto current_time = std::chrono::duration<float>(current.time - start).count();
+	const auto now = std::chrono::duration<float>(std::chrono::high_resolution_clock::now() - start).count();
+
+	const auto ft = 1.0f / 60.0f;
+	const auto next_vblank = (now - std::fmod(now, ft)) + ft;
+
+	const auto inbetween = next_vblank - (1.0f / 60.0f);
+	const auto t = (inbetween - prev_time) / (current_time - prev_time);
+
+	//fprintf(stderr, "prev_time: %.4f, current_time: %.4f, now: %.4f, next_vblank: %.4f, inbetween: %.4f, t: %.4f\n", prev_time, current_time, now, next_vblank, inbetween, t);
 
 	lerped_renderables.clear();
 	lerped_lights.clear();

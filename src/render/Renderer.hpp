@@ -1,6 +1,7 @@
 #pragma once
 
 #include <memory>
+#include <chrono>
 
 #include <win/AssetRoll.hpp>
 #include <win/Utility.hpp>
@@ -20,6 +21,7 @@ private:
 
 	std::unique_ptr<RendererBackend> backend;
 
+	std::chrono::time_point<std::chrono::high_resolution_clock> start = std::chrono::high_resolution_clock::now();
 	std::vector<Renderable> lerped_renderables;
 	std::vector<LightRenderable> lerped_lights;
 };
