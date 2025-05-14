@@ -63,6 +63,6 @@ namespace win
 	if (WIN_TOKEN_APPEND(win_interval_elapsed_ms, __LINE__) >= thresholdms) fprintf(stderr, "%s: %.4fms\n", name, WIN_TOKEN_APPEND(win_interval_elapsed_ms, __LINE__)); \
 	WIN_TOKEN_APPEND(win_interval_last_time, __LINE__) = WIN_TOKEN_APPEND(win_interval_current_time, __LINE__)
 #else
-#define WIN_BENCHMARK(name, x, thresholdms)
+#define WIN_BENCHMARK(name, x, thresholdms) x
 #define WIN_INTERVAL(name, thresholdms)
 #endif
