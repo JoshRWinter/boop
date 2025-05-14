@@ -15,6 +15,9 @@ add_library(win STATIC
 	# utility
 	#
 
+	include/win/FrameTimingCalculator.hpp
+	src/FrameTimingCalculator.cpp
+
 	include/win/Utility.hpp
 	src/Utility.cpp
 

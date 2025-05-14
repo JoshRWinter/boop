@@ -96,6 +96,7 @@ int main(int argc, char **argv)
 	while ((current_renderables = sim.get_renderables()) == NULL) ;
 
 	bool cursor_enabled = true;
+	bool rendered = false;
 
 	while (!quit)
 	{
@@ -117,9 +118,17 @@ int main(int argc, char **argv)
 		auto new_renderables = sim.get_renderables();
 		if (new_renderables != NULL)
 		{
-			sim.release_renderables(prev_renderables);
+			if (rendered)
+			{
+				rendered = false;
+				sim.release_renderables(prev_renderables);
+				prev_renderables = current_renderables;
+			}
+			else
+			{
+				sim.release_renderables(current_renderables);
+			}
 
-			prev_renderables = current_renderables;
 			current_renderables = new_renderables;
 
 #ifndef WINPLAT_LINUX
@@ -136,9 +145,11 @@ int main(int argc, char **argv)
 #endif
 		}
 
-		renderer.render(*prev_renderables, *current_renderables, input.y);
-
-		display.swap();
+		if (renderer.render(*prev_renderables, *current_renderables, input.y))
+		{
+			rendered = true;
+			display.swap();
+		}
 	}
 
 	return 0;
