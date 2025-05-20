@@ -1,6 +1,7 @@
 #include <win/Display.hpp>
 #include <win/AssetRoll.hpp>
 #include <win/gl/GL.hpp>
+#include <win/FrameTimingCalculator.hpp>
 
 #include "render/Renderer.hpp"
 #include "sim/Simulation.hpp"
@@ -41,6 +42,7 @@ int main(int argc, char **argv)
 
 	Simulation sim(area, false, DifficultyLevel::easy);
 	Renderer renderer(roll, screenres, area);
+	win::FrameTimingCalculator ftc;
 
 	Input input;
 	bool input_available = false;
@@ -91,12 +93,12 @@ int main(int argc, char **argv)
 
 	Renderables *prev_renderables = NULL;
 	Renderables *current_renderables = NULL;
+	bool rendered = false;
 
 	while ((prev_renderables = sim.get_renderables()) == NULL) ;
 	while ((current_renderables = sim.get_renderables()) == NULL) ;
 
 	bool cursor_enabled = true;
-	bool rendered = false;
 
 	while (!quit)
 	{
@@ -145,8 +147,11 @@ int main(int argc, char **argv)
 #endif
 		}
 
-		if (renderer.render(*prev_renderables, *current_renderables, input.y))
+		bool ready = false;
+		const auto lerp_t = ftc.get_lerp_t(prev_renderables->time, current_renderables->time, 50.0f, ready);
+		if (ready)
 		{
+			renderer.render(*prev_renderables, *current_renderables, lerp_t, input.y);
 			rendered = true;
 			display.swap();
 		}

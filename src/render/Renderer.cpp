@@ -5,13 +5,8 @@ Renderer::Renderer(win::AssetRoll &roll, const win::Dimensions<int> &screenres, 
 	: backend(new GLRendererBackend(roll, screenres, area))
 {}
 
-bool Renderer::render(const Renderables &prev, const Renderables &current, float mousey)
+void Renderer::render(const Renderables &prev, const Renderables &current, float lerp_t, float mousey)
 {
-	bool ready;
-	const float t = ftc.get_lerp_t(prev.time, current.time, 84.98f, ready);
-	if (!ready)
-		return false;
-
 	lerped_renderables.clear();
 	lerped_lights.clear();
 
@@ -37,14 +32,14 @@ bool Renderer::render(const Renderables &prev, const Renderables &current, float
 			lerped_renderables.emplace_back(
 				r.id,
 				r.texture,
-				lerp(old->x, r.x, t),
-				lerp(old_y, y, t),
-				lerp(old->w, r.w, t),
-				lerp(old->h, r.h, t),
-				lerp(old->rot, r.rot, t),
-				lerp(old->emissiveness, r.emissiveness, t),
-				lerp(old->color, r.color, t),
-				lerp(old->history_color, r.history_color, t));
+				lerp(old->x, r.x, lerp_t),
+				lerp(old_y, y, lerp_t),
+				lerp(old->w, r.w, lerp_t),
+				lerp(old->h, r.h, lerp_t),
+				lerp(old->rot, r.rot, lerp_t),
+				lerp(old->emissiveness, r.emissiveness, lerp_t),
+				lerp(old->color, r.color, lerp_t),
+				lerp(old->history_color, r.history_color, lerp_t));
 		}
 		else
 		{
@@ -70,10 +65,10 @@ bool Renderer::render(const Renderables &prev, const Renderables &current, float
 		{
 			lerped_lights.emplace_back(
 				r.id,
-				lerp(old->x, r.x, t),
-				lerp(old->y, r.y, t),
-				lerp(old->color, r.color, t),
-				lerp(old->power, r.power, t));
+				lerp(old->x, r.x, lerp_t),
+				lerp(old->y, r.y, lerp_t),
+				lerp(old->color, r.color, lerp_t),
+				lerp(old->power, r.power, lerp_t));
 		}
 		else
 		{
@@ -82,8 +77,6 @@ bool Renderer::render(const Renderables &prev, const Renderables &current, float
 	}
 
 	backend->render(lerped_renderables, lerped_lights, current.menu_renderables, current.text_renderables);
-
-	return true;
 }
 
 float Renderer::lerp(float a, float b, float t)
