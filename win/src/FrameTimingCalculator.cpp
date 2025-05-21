@@ -14,7 +14,7 @@ float FrameTimingCalculator::get_lerp_t(std::chrono::time_point<std::chrono::hig
 	const auto ft = 1.0f / refresh_rate;
 	const float next_vblank = (now - std::fmod(now, ft)) + ft;
 
-	const auto between = next_vblank - (1.0f / std::max(60.0f, refresh_rate));
+	const auto between = next_vblank - (1.0f / 60.0f);
 	const float t = (between - prev_time) / (current_time - prev_time);
 
 	ready = next_vblank != last_vblank;

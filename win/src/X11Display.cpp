@@ -5,6 +5,7 @@
 #include <X11/Xlib.h>
 #include <X11/XKBlib.h>
 #include <X11/Xatom.h>
+#include <X11/extensions/Xrandr.h>
 
 #include <win/X11Display.hpp>
 
@@ -290,6 +291,8 @@ X11Display::X11Display(const DisplayOptions &options)
 
 	XFree(xvi);
 	XFree(fbconfig);
+
+	update_refresh_rate();
 }
 
 X11Display::~X11Display()
@@ -399,6 +402,11 @@ int X11Display::screen_height()
 	return HeightOfScreen(ScreenOfDisplay(xdisplay, 0));
 }
 
+float X11Display::refresh_rate()
+{
+	return rrate;
+}
+
 void X11Display::cursor(bool show)
 {
 	if(show)
@@ -428,6 +436,13 @@ void X11Display::vsync(bool on)
 NativeWindowHandle X11Display::native_handle()
 {
 	return &window;
+}
+
+void X11Display::update_refresh_rate()
+{
+	const auto info = XRRGetScreenInfo(xdisplay, window);
+	rrate = XRRConfigCurrentRate(info);
+	XRRFreeScreenConfigInfo(info);
 }
 
 }

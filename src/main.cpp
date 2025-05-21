@@ -148,7 +148,7 @@ int main(int argc, char **argv)
 		}
 
 		bool ready = false;
-		const auto lerp_t = ftc.get_lerp_t(prev_renderables->time, current_renderables->time, 50.0f, ready);
+		const auto lerp_t = ftc.get_lerp_t(prev_renderables->time, current_renderables->time, display.refresh_rate(), ready);
 		if (ready)
 		{
 			renderer.render(*prev_renderables, *current_renderables, lerp_t, input.y);

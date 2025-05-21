@@ -26,14 +26,18 @@ public:
 	int height() override;
 	int screen_width() override;
 	int screen_height() override;
+	float refresh_rate() override;
 	void cursor(bool show) override;
 	void vsync(bool on) override;
 	NativeWindowHandle native_handle() override;
 
 private:
+	void update_refresh_rate();
+
 	Window window;
 	GLXContext context;
 	PFNGLXSWAPINTERVALEXTPROC glXSwapIntervalEXT;
+	float rrate = -1.0f;
 };
 
 }

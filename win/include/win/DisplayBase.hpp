@@ -64,6 +64,7 @@ public:
 	virtual int height() = 0;
 	virtual int screen_width() = 0;
 	virtual int screen_height() = 0;
+	virtual float refresh_rate() = 0;
 	virtual void cursor(bool) = 0;
 	virtual void vsync(bool) = 0;
 	virtual NativeWindowHandle native_handle() = 0;

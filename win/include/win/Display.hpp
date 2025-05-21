@@ -33,6 +33,7 @@ public:
 	int height() { return inner->height(); }
 	int screen_width() { return inner->screen_width(); }
 	int screen_height() { return inner->screen_height(); }
+	float refresh_rate() { return inner->refresh_rate(); }
 	void cursor(bool show) { inner->cursor(show); }
 	void vsync(bool on) { inner->vsync(on); }
 	NativeWindowHandle native_handle() { return inner->native_handle(); }
