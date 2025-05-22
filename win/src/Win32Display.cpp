@@ -270,6 +270,9 @@ LRESULT CALLBACK Win32Display::wndproc(HWND hwnd, UINT msg, WPARAM wp, LPARAM lp
 			return 0;
 		case WM_ERASEBKGND:
 			return 0;
+		case WM_WINDOWPOSCHANGED:
+			display.update_refresh_rate();
+			return 0;
 		default:
 			return DefWindowProc(hwnd, msg, wp, lp);
 	}
@@ -322,6 +325,8 @@ Win32Display::Win32Display(const DisplayOptions &options)
 	glViewport(0, 0, width(), height());
 
 	UpdateWindow(window);
+
+	update_refresh_rate();
 }
 
 Win32Display::~Win32Display()
@@ -373,6 +378,11 @@ int Win32Display::screen_height()
 	return GetSystemMetrics(SM_CYSCREEN);
 }
 
+float Win32Display::refresh_rate()
+{
+	return rrate;
+}
+
 void Win32Display::cursor(bool show)
 {
 	ShowCursor(show);
@@ -386,6 +396,40 @@ void Win32Display::vsync(bool on)
 NativeWindowHandle Win32Display::native_handle()
 {
 	return window;
+}
+
+void Win32Display::update_refresh_rate()
+{
+	HMONITOR monitor = MonitorFromWindow(window, MONITOR_DEFAULTTONULL);
+
+	if (monitor == NULL)
+	{
+		fprintf(stderr, "MonitorFromWindow() returned NULL\n");
+		rrate = 60.0f;
+		return;
+	}
+
+	MONITORINFOEX mi;
+	mi.cbSize = sizeof(mi);
+
+	if (!GetMonitorInfo(monitor, &mi))
+	{
+		fprintf(stderr, "GetMonitorInfo() returned NULL\n");
+		rrate = 60.0f;
+		return;
+	}
+
+	DEVMODE dm;
+	dm.dmSize = sizeof(dm);
+
+	if (!EnumDisplaySettings(mi.szDevice, ENUM_CURRENT_SETTINGS, &dm))
+	{
+		fprintf(stderr, "GetMonitorInfo() returned NULL\n");
+		rrate = 60.0f;
+		return;
+	}
+
+	rrate = dm.dmDisplayFrequency;
 }
 
 }
