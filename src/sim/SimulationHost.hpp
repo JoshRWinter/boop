@@ -5,6 +5,7 @@
 
 #include <win/Win.hpp>
 #include <win/ConcurrentRingBuffer.hpp>
+#include <win/SimSpeedRegulator.hpp>
 
 #include "../SyncObjectManager.hpp"
 #include "../render/Renderable.hpp"
@@ -31,8 +32,9 @@ private:
 	SyncObjectManager<Renderables, 4> &renderables;
 	SyncObjectManager<Input, 3> &input;
 	win::ConcurrentRingBuffer<char, 20> &textinput;
+	win::SimSpeedRegulator simspeed;
 
-	std::chrono::time_point<std::chrono::high_resolution_clock> last_wake;
+	std::chrono::time_point<std::chrono::high_resolution_clock> end_of_current_sim_tick = std::chrono::high_resolution_clock::now();
 
 	Input inputcache;
 };

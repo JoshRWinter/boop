@@ -8,7 +8,6 @@ SimulationHost::SimulationHost(std::atomic<bool> &simquit, SyncObjectManager<Ren
 	, renderables(renderables)
 	, input(input)
 	, textinput(textinput)
-	, last_wake(std::chrono::high_resolution_clock::now())
 { }
 
 Renderables &SimulationHost::get_renderables()
@@ -26,7 +25,7 @@ Renderables &SimulationHost::get_renderables()
 
 void SimulationHost::release_renderables(Renderables &renderables)
 {
-	renderables.time = std::chrono::high_resolution_clock::now();
+	renderables.time = end_of_current_sim_tick;
 	this->renderables.writer_release(&renderables);
 }
 
@@ -56,25 +55,8 @@ bool SimulationHost::quit()
 	return simquit.load();
 }
 
-
 void SimulationHost::sleep()
 {
-	// sleep for 16.666 milliseconds (60hz)
-
-	float consumed;
-	do
-	{
-		consumed = std::chrono::duration<float, std::milli>(std::chrono::high_resolution_clock::now() - last_wake).count();
-
-		if (consumed < 10.0f)
-		{
-			std::this_thread::sleep_for(std::chrono::microseconds(10));
-		}
-		else
-		{
-			// don't sleep this close to the deadline
-		}
-	} while (consumed < 16.666f * 1.0f);
-
-	last_wake = std::chrono::high_resolution_clock::now();
+	// end of current sim tick AFTER the sleep, that is
+	end_of_current_sim_tick = simspeed.sleep(60);
 }

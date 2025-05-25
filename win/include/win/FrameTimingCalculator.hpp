@@ -13,13 +13,14 @@ class FrameTimingCalculator
 
 public:
 	FrameTimingCalculator() = default;
-	float get_lerp_t(std::chrono::time_point<std::chrono::high_resolution_clock> prev, std::chrono::time_point<std::chrono::high_resolution_clock> current, float refresh_rate, bool &ready);
+
+	bool ready_for_next_frame(float refresh_frequency);
+	float get_lerp_t(std::chrono::time_point<std::chrono::high_resolution_clock> prev, std::chrono::time_point<std::chrono::high_resolution_clock> current, float refresh_frequency, float sim_frequency);
 
 private:
-	static float get_simulation_delta(std::chrono::time_point<std::chrono::high_resolution_clock> prev, std::chrono::time_point<std::chrono::high_resolution_clock> current);
 
-	std::chrono::time_point<std::chrono::high_resolution_clock> start = std::chrono::high_resolution_clock::now();
-	float last_vblank = 0.0f;
+	std::chrono::time_point<std::chrono::high_resolution_clock> beginning = std::chrono::high_resolution_clock::now();
+	long long last_vblank_nanos = 0;
 };
 
 }

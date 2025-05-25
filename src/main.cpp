@@ -93,7 +93,6 @@ int main(int argc, char **argv)
 
 	Renderables *prev_renderables = NULL;
 	Renderables *current_renderables = NULL;
-	bool rendered = false;
 
 	while ((prev_renderables = sim.get_renderables()) == NULL) ;
 	while ((current_renderables = sim.get_renderables()) == NULL) ;
@@ -117,42 +116,34 @@ int main(int argc, char **argv)
 			text_buffer.clear();
 		}
 
-		auto new_renderables = sim.get_renderables();
-		if (new_renderables != NULL)
+		if (ftc.ready_for_next_frame(display.refresh_rate()))
 		{
-			if (rendered)
+			auto new_renderables = sim.get_renderables();
+			if (new_renderables != NULL)
 			{
-				rendered = false;
 				sim.release_renderables(prev_renderables);
-				prev_renderables = current_renderables;
-			}
-			else
-			{
-				sim.release_renderables(current_renderables);
-			}
 
-			current_renderables = new_renderables;
+				prev_renderables = current_renderables;
+				current_renderables = new_renderables;
 
 #ifndef WINPLAT_LINUX
-			if (current_renderables->menu_renderables.empty() && cursor_enabled)
-			{
-				display.cursor(false);
-				cursor_enabled = false;
-			}
-			else if (!current_renderables->menu_renderables.empty() && !cursor_enabled)
-			{
-				display.cursor(true);
-				cursor_enabled = true;
-			}
+				if (current_renderables->menu_renderables.empty() && cursor_enabled)
+				{
+					display.cursor(false);
+					cursor_enabled = false;
+				}
+				else if (!current_renderables->menu_renderables.empty() && !cursor_enabled)
+				{
+					display.cursor(true);
+					cursor_enabled = true;
+				}
 #endif
-		}
+			}
 
-		bool ready = false;
-		const auto lerp_t = ftc.get_lerp_t(prev_renderables->time, current_renderables->time, display.refresh_rate(), ready);
-		if (ready)
-		{
+			const auto lerp_t = ftc.get_lerp_t(prev_renderables->time, current_renderables->time, display.refresh_rate(), 60.0f);
+			fprintf(stderr, "%.4f\n", lerp_t);
+
 			renderer.render(*prev_renderables, *current_renderables, lerp_t, input.y);
-			rendered = true;
 			display.swap();
 		}
 	}

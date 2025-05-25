@@ -5,20 +5,39 @@
 namespace win
 {
 
-float FrameTimingCalculator::get_lerp_t(std::chrono::time_point<std::chrono::high_resolution_clock> prev, std::chrono::time_point<std::chrono::high_resolution_clock> current, float refresh_rate, bool &ready)
+bool FrameTimingCalculator::ready_for_next_frame(float refresh_frequency)
 {
-	const auto prev_time = std::chrono::duration<float>(prev - start).count();
-	const auto current_time = std::chrono::duration<float>(current - start).count();
-	const auto now = std::chrono::duration<float>(std::chrono::high_resolution_clock::now() - start).count();
+	const auto now = std::chrono::high_resolution_clock::now();
+	const auto now_nanos = std::chrono::duration<long long, std::nano>(now - beginning).count();
 
-	const auto ft = 1.0f / refresh_rate;
-	const float next_vblank = (now - std::fmod(now, ft)) + ft;
+	const long long frametime_nanos = (1.0 / refresh_frequency) * 1'000'000'000;
 
-	const auto between = next_vblank - (1.0f / 60.0f);
-	const float t = (between - prev_time) / (current_time - prev_time);
+	const auto prev_vblank_nanos = now_nanos - (now_nanos % frametime_nanos);
+	const auto next_vblank_nanos = prev_vblank_nanos + frametime_nanos;
 
-	ready = next_vblank != last_vblank;
-	last_vblank = next_vblank;
+	const bool ready = next_vblank_nanos != last_vblank_nanos;
+	last_vblank_nanos = next_vblank_nanos;
+
+	return ready;
+}
+
+float FrameTimingCalculator::get_lerp_t(std::chrono::time_point<std::chrono::high_resolution_clock> prev, std::chrono::time_point<std::chrono::high_resolution_clock> current, float refresh_frequency, float sim_frequency)
+{
+	const auto now = std::chrono::high_resolution_clock::now();
+
+	const auto prev_time_nanos = std::chrono::duration<long long, std::nano>(prev - beginning).count();
+	const auto current_time_nanos = std::chrono::duration<long long, std::nano>(current - beginning).count();
+	const auto now_nanos = std::chrono::duration<long long, std::nano>(now - beginning).count();
+
+	const long long sim_frequency_nanos = (1.0 / sim_frequency) * 1'000'000'000;
+	const long long frametime_nanos = (1.0 / refresh_frequency) * 1'000'000'000;
+
+	const auto prev_vblank_nanos = now_nanos - (now_nanos % frametime_nanos);
+	const auto next_vblank_nanos = prev_vblank_nanos + frametime_nanos;
+
+	const auto between_nanos = next_vblank_nanos - sim_frequency_nanos;
+	const float t = (between_nanos - prev_time_nanos) / (double)(current_time_nanos - prev_time_nanos);
+
 	return t;
 }
 
