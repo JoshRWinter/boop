@@ -5,6 +5,10 @@
 namespace win
 {
 
+FrameTimingCalculator::FrameTimingCalculator(std::chrono::time_point<std::chrono::high_resolution_clock> beginning)
+	: beginning(beginning)
+{ }
+
 bool FrameTimingCalculator::ready_for_next_frame(float refresh_frequency)
 {
 	const auto now = std::chrono::high_resolution_clock::now();
@@ -35,8 +39,11 @@ float FrameTimingCalculator::get_lerp_t(std::chrono::time_point<std::chrono::hig
 	const auto prev_vblank_nanos = now_nanos - (now_nanos % frametime_nanos);
 	const auto next_vblank_nanos = prev_vblank_nanos + frametime_nanos;
 
-	const auto between_nanos = next_vblank_nanos - sim_frequency_nanos;
+	const auto between_nanos = next_vblank_nanos;// - sim_frequency_nanos;
 	const float t = (between_nanos - prev_time_nanos) / (double)(current_time_nanos - prev_time_nanos);
+
+	const auto shrink = 10000000.0f;
+	fprintf(stderr, "prevsim: %.4f\ncursim: %.4f\nnow: %.4f\nprevvblank: %.4f\nnextvblank: %.4f\nbetween: %.4f\nt: %.4f\n\n\n\n\n", prev_time_nanos / shrink, current_time_nanos / shrink, now_nanos / shrink, prev_vblank_nanos / shrink, next_vblank_nanos / shrink, between_nanos / shrink, t);
 
 	return t;
 }

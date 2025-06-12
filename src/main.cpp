@@ -40,9 +40,11 @@ int main(int argc, char **argv)
 	const win::Dimensions<int> screenres(display.width(), display.height());
 	const win::Area<float> area(-8.0f, 8.0f, -4.5f, 4.5f);
 
-	Simulation sim(area, false, DifficultyLevel::easy);
+	const auto beginning = std::chrono::high_resolution_clock::now();
+
+	Simulation sim(area, false, DifficultyLevel::easy, win::SimSpeedRegulator(beginning));
 	Renderer renderer(roll, screenres, area);
-	win::FrameTimingCalculator ftc;
+	win::FrameTimingCalculator ftc(beginning);
 
 	Input input;
 	bool input_available = false;
@@ -141,7 +143,7 @@ int main(int argc, char **argv)
 			}
 
 			const auto lerp_t = ftc.get_lerp_t(prev_renderables->time, current_renderables->time, display.refresh_rate(), 60.0f);
-			fprintf(stderr, "%.4f\n", lerp_t);
+			//fprintf(stderr, "%.4f\n", lerp_t);
 
 			renderer.render(*prev_renderables, *current_renderables, lerp_t, input.y);
 			display.swap();

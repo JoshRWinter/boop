@@ -3,11 +3,12 @@
 
 #include "SimulationHost.hpp"
 
-SimulationHost::SimulationHost(std::atomic<bool> &simquit, SyncObjectManager<Renderables, 4> &renderables, SyncObjectManager<Input, 3> &input, win::ConcurrentRingBuffer<char, 20> &textinput)
+SimulationHost::SimulationHost(std::atomic<bool> &simquit, SyncObjectManager<Renderables, 4> &renderables, SyncObjectManager<Input, 3> &input, win::ConcurrentRingBuffer<char, 20> &textinput, win::SimSpeedRegulator simspeed)
 	: simquit(simquit)
 	, renderables(renderables)
 	, input(input)
 	, textinput(textinput)
+	, simspeed(simspeed)
 { }
 
 Renderables &SimulationHost::get_renderables()

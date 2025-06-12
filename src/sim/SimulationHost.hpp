@@ -16,7 +16,7 @@ class SimulationHost
 	WIN_NO_COPY_MOVE(SimulationHost);
 
 public:
-	SimulationHost(std::atomic<bool> &simquit, SyncObjectManager<Renderables, 4> &renderables, SyncObjectManager<Input, 3> &input, win::ConcurrentRingBuffer<char, 20> &textinput);
+	SimulationHost(std::atomic<bool> &simquit, SyncObjectManager<Renderables, 4> &renderables, SyncObjectManager<Input, 3> &input, win::ConcurrentRingBuffer<char, 20> &textinput, win::SimSpeedRegulator simspeed);
 
 	Renderables &get_renderables();
 	void release_renderables(Renderables &renderables);

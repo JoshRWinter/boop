@@ -12,14 +12,13 @@ class FrameTimingCalculator
 	WIN_NO_COPY_MOVE(FrameTimingCalculator);
 
 public:
-	FrameTimingCalculator() = default;
+	explicit FrameTimingCalculator(std::chrono::time_point<std::chrono::high_resolution_clock> beginning);
 
 	bool ready_for_next_frame(float refresh_frequency);
 	float get_lerp_t(std::chrono::time_point<std::chrono::high_resolution_clock> prev, std::chrono::time_point<std::chrono::high_resolution_clock> current, float refresh_frequency, float sim_frequency);
 
 private:
-
-	std::chrono::time_point<std::chrono::high_resolution_clock> beginning = std::chrono::high_resolution_clock::now();
+	std::chrono::time_point<std::chrono::high_resolution_clock> beginning;
 	long long last_vblank_nanos = 0;
 };
 

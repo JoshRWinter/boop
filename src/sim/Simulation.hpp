@@ -7,6 +7,7 @@
 #include <win/Win.hpp>
 #include <win/Utility.hpp>
 #include <win/ConcurrentRingBuffer.hpp>
+#include <win/SimSpeedRegulator.hpp>
 
 #include "../SyncObjectManager.hpp"
 #include "../render/Renderable.hpp"
@@ -18,7 +19,7 @@ class Simulation
 	WIN_NO_COPY_MOVE(Simulation);
 
 public:
-	Simulation(const win::Area<float> &area, bool runbot, DifficultyLevel bot_difficulty);
+	Simulation(const win::Area<float> &area, bool runbot, DifficultyLevel bot_difficulty, win::SimSpeedRegulator simspeed);
 	~Simulation();
 
 	Renderables *get_renderables();
@@ -27,7 +28,7 @@ public:
 	void set_text_input(const std::vector<char> &text);
 
 private:
-	void sim(win::Area<float> area, bool runbot, DifficultyLevel bot_difficulty);
+	void sim(win::Area<float> area, bool runbot, DifficultyLevel bot_difficulty, win::SimSpeedRegulator simspeed);
 
 	SyncObjectManager<Renderables, 4> som_renderables;
 	SyncObjectManager<Input, 3> som_input;

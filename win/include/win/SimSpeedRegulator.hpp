@@ -9,15 +9,13 @@ namespace win
 
 class SimSpeedRegulator
 {
-	WIN_NO_COPY_MOVE(SimSpeedRegulator);
-
 public:
-	SimSpeedRegulator() = default;
+	explicit SimSpeedRegulator(std::chrono::time_point<std::chrono::high_resolution_clock> beginning);
 
 	std::chrono::time_point<std::chrono::high_resolution_clock> sleep(int frequency);
 
 private:
-	std::chrono::time_point<std::chrono::high_resolution_clock> beginning = std::chrono::high_resolution_clock::now();
+	std::chrono::time_point<std::chrono::high_resolution_clock> beginning;
 
 };
 
