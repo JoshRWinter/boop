@@ -17,8 +17,8 @@ std::chrono::time_point<std::chrono::high_resolution_clock> win::SimSpeedRegulat
 	const auto end_of_sim_tick = beginning_of_sim_tick + std::chrono::nanoseconds(tick_length_nanos);
 	const auto end_of_next_sim_tick = end_of_sim_tick + std::chrono::nanoseconds(tick_length_nanos);
 
-	const auto shrink = 10000000.0f;
-	fprintf(stderr, "SIM RELEASE:\nbeginning_of_sim_tick: %.4f\nend_of_sim_tick: %.4f\nend_of_next_sim_tick: %.4f\nnow: %.4f\n\n\n\n", std::chrono::duration<long long, std::nano>(beginning_of_sim_tick - beginning).count() / shrink, std::chrono::duration<long long, std::nano>(end_of_sim_tick - beginning).count() / shrink, std::chrono::duration<long long, std::nano>(end_of_next_sim_tick - beginning).count() / shrink, nanos / shrink);
+	//const auto shrink = 10000000.0f;
+	//fprintf(stderr, "SIM RELEASE:\nbeginning_of_sim_tick: %.4f\nend_of_sim_tick: %.4f\nend_of_next_sim_tick: %.4f\nnow: %.4f\n\n\n\n", std::chrono::duration<long long, std::nano>(beginning_of_sim_tick - beginning).count() / shrink, std::chrono::duration<long long, std::nano>(end_of_sim_tick - beginning).count() / shrink, std::chrono::duration<long long, std::nano>(end_of_next_sim_tick - beginning).count() / shrink, nanos / shrink);
 
 	// sleep until end_of_sim_tick
 	while (true)

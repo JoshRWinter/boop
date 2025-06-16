@@ -33,6 +33,7 @@ private:
 	SyncObjectManager<Renderables, 4> som_renderables;
 	SyncObjectManager<Input, 3> som_input;
 	win::ConcurrentRingBuffer<char, 20> textinput;
+	Renderables *cached = NULL;
 
 	bool bot;
 	std::atomic<bool> quit;

@@ -18,7 +18,44 @@ Simulation::~Simulation()
 
 Renderables *Simulation::get_renderables()
 {
-	return som_renderables.reader_acquire();
+	const auto now = std::chrono::high_resolution_clock::now();
+	auto t = som_renderables.reader_acquire();
+
+	if (t != NULL)
+	{
+		if (t->time <= now)
+		{
+			if (cached != NULL)
+			{
+				som_renderables.reader_release(cached);
+				cached = NULL;
+			}
+
+			return t;
+		}
+		else
+		{
+			if (cached != NULL)
+			{
+				som_renderables.reader_release(cached);
+			}
+
+			cached = t;
+
+			return NULL;
+		}
+	}
+	else
+	{
+		if (cached != NULL && cached->time <= now)
+		{
+				auto tmp = cached;
+				cached = NULL;
+				return tmp;
+		}
+		else
+			return NULL;
+	}
 }
 
 void Simulation::release_renderables(Renderables *renderables)

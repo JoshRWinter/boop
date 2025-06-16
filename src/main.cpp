@@ -143,7 +143,7 @@ int main(int argc, char **argv)
 			}
 
 			const auto lerp_t = ftc.get_lerp_t(prev_renderables->time, current_renderables->time, display.refresh_rate(), 60.0f);
-			//fprintf(stderr, "%.4f\n", lerp_t);
+			fprintf(stderr, "%.4f\n", lerp_t);
 
 			renderer.render(*prev_renderables, *current_renderables, lerp_t, input.y);
 			display.swap();
