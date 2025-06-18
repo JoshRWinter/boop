@@ -37,12 +37,24 @@ Renderables *Simulation::get_renderables()
 		{
 			if (cached != NULL)
 			{
-				som_renderables.reader_release(cached);
+				if (cached->time <= now)
+				{
+					auto tmp = cached;
+					cached = t;
+					return tmp;
+				}
+				else
+				{
+					fprintf(stderr, "Two simstates are ready but future dated. This is supposed to be impossible!!");
+					som_renderables.reader_release(t);
+					return NULL;
+				}
 			}
-
-			cached = t;
-
-			return NULL;
+			else
+			{
+				cached = t;
+				return NULL;
+			}
 		}
 	}
 	else
