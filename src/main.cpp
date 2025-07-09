@@ -129,8 +129,6 @@ int main(int argc, char **argv)
 			}
 #endif
 
-			/*
-			//if (lerp != 0.0f)
 			{
 				static float last_lerp = lerp;
 
@@ -138,13 +136,10 @@ int main(int argc, char **argv)
 				while (l < last_lerp)
 					l += 1.0f;
 
-				if (std::fabs((l - last_lerp) - 0.00) > 0.001f)
-					fprintf(stderr, "%.4f (%.4f)\n", l - last_lerp, lerp);
-				//fprintf(stderr, "%.4f\n", lerp);
+				//fprintf(stderr, "%.4f (%.4f)\n", l - last_lerp, lerp);
 
 				last_lerp = l;
 			}
-			 */
 
 			renderer.render(*prev, *current, lerp, input.y);
 			display.swap();
