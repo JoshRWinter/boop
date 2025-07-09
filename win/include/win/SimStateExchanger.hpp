@@ -112,11 +112,10 @@ public:
 		std::int64_t simstart, simend;
 		get_interval_bounds_nanos(sim_frequency, &simstart, &simend);
 
-		const auto simtime = (double)((1.0 / sim_frequency) * 1'000'000'000);
-		return (current_vblank - prev_simstate->time) / simtime;
+		return (current_vblank - prev_simstate->time) / (float)(current_simstate->time - prev_simstate->time);
 	}
 
-	bool ready_for_next_frame(float refreshrate)
+	bool ready_for_next_frame(float refreshrate) const
 	{
 		std::int64_t current_vblank;
 		get_interval_bounds_nanos(refreshrate, &current_vblank, NULL);
@@ -125,7 +124,7 @@ public:
 	}
 
 private:
-	void get_interval_bounds_nanos(float frequency, std::int64_t *start_nanos, std::int64_t *end_nanos)
+	void get_interval_bounds_nanos(float frequency, std::int64_t *start_nanos, std::int64_t *end_nanos) const
 	{
 		const auto now = std::chrono::high_resolution_clock::now();
 		const auto now_nanos = std::chrono::duration<std::int64_t, std::nano>(now - beginning).count();
