@@ -60,10 +60,9 @@ public:
 
 		exchanger.writer_release(container);
 
-		std::int64_t remaining_nanos;
 		while (true)
 		{
-			remaining_nanos = end - std::chrono::duration<std::int64_t, std::nano>(std::chrono::high_resolution_clock::now() - beginning).count();
+			const auto remaining_nanos = end - std::chrono::duration<std::int64_t, std::nano>(std::chrono::high_resolution_clock::now() - beginning).count();
 
 			if (remaining_nanos <= 0)
 				break;
