@@ -51,9 +51,7 @@ void Game::play(SimulationHost &sim)
 
 		tick(renderables, input);
 
-		sim.release_renderables(renderables);
-
-		sim.sleep();
+		sim.release_renderables_and_sleep(renderables);
 	}
 }
 

@@ -1,7 +1,7 @@
 #include <win/Display.hpp>
 #include <win/AssetRoll.hpp>
 #include <win/gl/GL.hpp>
-#include <win/FrameTimingCalculator.hpp>
+#include <win/SimStateExchanger.hpp>
 
 #include "render/Renderer.hpp"
 #include "sim/Simulation.hpp"
@@ -40,11 +40,10 @@ int main(int argc, char **argv)
 	const win::Dimensions<int> screenres(display.width(), display.height());
 	const win::Area<float> area(-8.0f, 8.0f, -4.5f, 4.5f);
 
-	const auto beginning = std::chrono::high_resolution_clock::now();
+	win::SimStateExchanger<Renderables> simexchanger(60);
 
-	Simulation sim(area, false, DifficultyLevel::easy, win::SimSpeedRegulator(beginning));
+	Simulation sim(area, false, DifficultyLevel::easy, simexchanger);
 	Renderer renderer(roll, screenres, area);
-	win::FrameTimingCalculator ftc(beginning);
 
 	Input input;
 	bool input_available = false;
@@ -93,12 +92,6 @@ int main(int argc, char **argv)
 		input_available = true;
 	});
 
-	Renderables *prev_renderables = NULL;
-	Renderables *current_renderables = NULL;
-
-	while ((prev_renderables = sim.get_renderables()) == NULL) ;
-	while ((current_renderables = sim.get_renderables()) == NULL) ;
-
 	bool cursor_enabled = true;
 
 	while (!quit)
@@ -118,34 +111,42 @@ int main(int argc, char **argv)
 			text_buffer.clear();
 		}
 
-		if (ftc.ready_for_next_frame(display.refresh_rate()))
+		if (simexchanger.ready_for_next_frame(display.refresh_rate()))
 		{
-			auto new_renderables = sim.get_renderables();
-			if (new_renderables != NULL)
-			{
-				sim.release_renderables(prev_renderables);
-
-				prev_renderables = current_renderables;
-				current_renderables = new_renderables;
+			Renderables *prev, *current;
+			const auto lerp = simexchanger.get_simstates(&prev, &current, display.refresh_rate());
 
 #ifndef WINPLAT_LINUX
-				if (current_renderables->menu_renderables.empty() && cursor_enabled)
-				{
-					display.cursor(false);
-					cursor_enabled = false;
-				}
-				else if (!current_renderables->menu_renderables.empty() && !cursor_enabled)
-				{
-					display.cursor(true);
-					cursor_enabled = true;
-				}
-#endif
+			if (current->menu_renderables.empty() && cursor_enabled)
+			{
+				display.cursor(false);
+				cursor_enabled = false;
 			}
+			else if (!current->menu_renderables.empty() && !cursor_enabled)
+			{
+				display.cursor(true);
+				cursor_enabled = true;
+			}
+#endif
 
-			const auto lerp_t = ftc.get_lerp_t(prev_renderables->time, current_renderables->time, display.refresh_rate(), 60.0f);
-			fprintf(stderr, "%.4f\n", lerp_t);
+			/*
+			//if (lerp != 0.0f)
+			{
+				static float last_lerp = lerp;
 
-			renderer.render(*prev_renderables, *current_renderables, lerp_t, input.y);
+				float l = lerp;
+				while (l < last_lerp)
+					l += 1.0f;
+
+				if (std::fabs((l - last_lerp) - 0.00) > 0.001f)
+					fprintf(stderr, "%.4f (%.4f)\n", l - last_lerp, lerp);
+				//fprintf(stderr, "%.4f\n", lerp);
+
+				last_lerp = l;
+			}
+			 */
+
+			renderer.render(*prev, *current, lerp, input.y);
 			display.swap();
 		}
 	}

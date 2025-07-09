@@ -55,6 +55,7 @@ public:
 	void guest_send_data(int guest_paddle_color, float guest_paddle_y);
 
 private:
+	win::SimStateExchanger<Renderables> botsimexchanger;
 	win::Area<float> area;
 	std::unique_ptr<Simulation> botsim;
 

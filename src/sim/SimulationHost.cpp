@@ -3,31 +3,24 @@
 
 #include "SimulationHost.hpp"
 
-SimulationHost::SimulationHost(std::atomic<bool> &simquit, SyncObjectManager<Renderables, 4> &renderables, SyncObjectManager<Input, 3> &input, win::ConcurrentRingBuffer<char, 20> &textinput, win::SimSpeedRegulator simspeed)
+SimulationHost::SimulationHost(std::atomic<bool> &simquit, SyncObjectManager<Input, 3> &input, win::ConcurrentRingBuffer<char, 20> &textinput, win::SimStateExchanger<Renderables> &simexchanger)
 	: simquit(simquit)
-	, renderables(renderables)
 	, input(input)
 	, textinput(textinput)
-	, simspeed(simspeed)
+	, simexchanger(simexchanger)
 { }
 
 Renderables &SimulationHost::get_renderables()
 {
-	Renderables *r;
+	auto &r = simexchanger.prepare_simstate();
 
-	do
-	{
-		r = renderables.writer_acquire();
-	} while (r == NULL);
-
-	r->clear();
-	return *r;
+	r.clear();
+	return r;
 }
 
-void SimulationHost::release_renderables(Renderables &renderables)
+void SimulationHost::release_renderables_and_sleep(Renderables &renderables)
 {
-	renderables.time = end_of_current_sim_tick;
-	this->renderables.writer_release(&renderables);
+	simexchanger.release_simstate_and_sleep(renderables);
 }
 
 Input SimulationHost::get_input()
@@ -54,10 +47,4 @@ void SimulationHost::get_text_input(std::vector<char> &input)
 bool SimulationHost::quit()
 {
 	return simquit.load();
-}
-
-void SimulationHost::sleep()
-{
-	// end of current sim tick AFTER the sleep, that is
-	end_of_current_sim_tick = simspeed.sleep(60);
 }

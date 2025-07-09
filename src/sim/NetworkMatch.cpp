@@ -1,7 +1,8 @@
 #include "NetworkMatch.hpp"
 
 NetworkMatch::NetworkMatch(const win::Area<float> &area)
-	: area(area)
+	: botsimexchanger(60)
+	, area(area)
 {
 	reset();
 }
@@ -28,7 +29,7 @@ void NetworkMatch::start_bot(DifficultyLevel bot_difficulty)
     if (state != MatchState::disconnected && state != MatchState::listening)
     	win::bug("Trying to start bot but in state " + std::to_string((int)state) + " instead");
 
-	botsim.reset(new Simulation(area, true, bot_difficulty, win::SimSpeedRegulator(std::chrono::high_resolution_clock::now())));
+	botsim.reset(new Simulation(area, true, bot_difficulty, botsimexchanger));
 	state = MatchState::listening;
 }
 

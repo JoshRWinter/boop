@@ -96,8 +96,7 @@ MainMenuResult Menu::menu_main(SimulationHost &host, NetworkMatch &match, const 
 		if (errmsg != NULL)
 			renderables.text_renderables.emplace_back(0.0f, 3.8f, true, TextRenderable::Type::smol, win::Color<float>(0.8f, 0.1f, 0.1f, 1.0f), errmsg);
 
-		host.release_renderables(renderables);
-		host.sleep();
+		host.release_renderables_and_sleep(renderables);
 	}
 
 	return MainMenuResult(color, DifficultyLevel::easy);
@@ -153,9 +152,7 @@ bool Menu::menu_choose_difficulty(SimulationHost &host, DifficultyLevel &level)
 		map_renderables(renderables, hard, input.x, input.y);
 		map_renderables(renderables, back, input.x, input.y);
 		renderables.text_renderables.emplace_back(0.0f, 2.0f, true, TextRenderable::Type::smol, textcolor, "Choose difficulty");
-		host.release_renderables(renderables);
-
-		host.sleep();
+		host.release_renderables_and_sleep(renderables);
 	}
 }
 
@@ -189,9 +186,7 @@ bool Menu::menu_host(SimulationHost &host, NetworkMatch &match, NetworkMatch::Er
 		auto &renderables = host.get_renderables();
 		map_renderables(renderables, back, input.x, input.y);
 		renderables.text_renderables.emplace_back(0.0f, 2.0f, true, TextRenderable::Type::smol, textcolor, "Hosting on port 28857");
-		host.release_renderables(renderables);
-
-		host.sleep();
+		host.release_renderables_and_sleep(renderables);
 	}
 
 	return false;
@@ -246,8 +241,7 @@ bool Menu::menu_join(SimulationHost &host, NetworkMatch &match, NetworkMatch::Er
 		renderables.text_renderables.emplace_back(0.0f, 2.0f, true, TextRenderable::Type::smol, textcolor, "Type an IP Address");
 		renderables.text_renderables.emplace_back(0.0f, 1.0f, true, TextRenderable::Type::smol, textcolor, ip_input.c_str());
 
-		host.release_renderables(renderables);
-		host.sleep();
+		host.release_renderables_and_sleep(renderables);
 	}
 
 	return false;
@@ -284,9 +278,7 @@ bool Menu::menu_joining(SimulationHost &host, NetworkMatch &match, NetworkMatch:
 		auto &renderables = host.get_renderables();
 		map_renderables(renderables, back, input.x, input.y);
 		renderables.text_renderables.emplace_back(0.0f, 2.0f, true, TextRenderable::Type::smol, textcolor, "Joining...");
-		host.release_renderables(renderables);
-
-		host.sleep();
+		host.release_renderables_and_sleep(renderables);
 	}
 
 	return false;

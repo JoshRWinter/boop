@@ -5,7 +5,7 @@
 
 #include <win/Win.hpp>
 #include <win/ConcurrentRingBuffer.hpp>
-#include <win/SimSpeedRegulator.hpp>
+#include <win/SimStateExchanger.hpp>
 
 #include "../SyncObjectManager.hpp"
 #include "../render/Renderable.hpp"
@@ -16,25 +16,21 @@ class SimulationHost
 	WIN_NO_COPY_MOVE(SimulationHost);
 
 public:
-	SimulationHost(std::atomic<bool> &simquit, SyncObjectManager<Renderables, 4> &renderables, SyncObjectManager<Input, 3> &input, win::ConcurrentRingBuffer<char, 20> &textinput, win::SimSpeedRegulator simspeed);
+	SimulationHost(std::atomic<bool> &simquit, SyncObjectManager<Input, 3> &input, win::ConcurrentRingBuffer<char, 20> &textinput, win::SimStateExchanger<Renderables> &simexchanger);
 
 	Renderables &get_renderables();
-	void release_renderables(Renderables &renderables);
+	void release_renderables_and_sleep(Renderables &renderables);
 
 	Input get_input();
 	void get_text_input(std::vector<char> &input);
 
 	bool quit();
-	void sleep();
 
 private:
 	std::atomic<bool> &simquit;
-	SyncObjectManager<Renderables, 4> &renderables;
 	SyncObjectManager<Input, 3> &input;
 	win::ConcurrentRingBuffer<char, 20> &textinput;
-	win::SimSpeedRegulator simspeed;
-
-	std::chrono::time_point<std::chrono::high_resolution_clock> end_of_current_sim_tick = std::chrono::high_resolution_clock::now();
+	win::SimStateExchanger<Renderables> &simexchanger;
 
 	Input inputcache;
 };
