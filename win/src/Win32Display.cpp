@@ -5,6 +5,9 @@
 #include <unordered_map>
 #include <iostream>
 
+#include <dxgi.h>
+#include <dxgi1_2.h>
+
 #include <win/Win32Display.hpp>
 
 #ifdef WIN_USE_OPENGL
@@ -160,9 +163,9 @@ void Win32Display::win_init_gl(HWND hwnd)
 	pfd.iLayerType=PFD_MAIN_PLANE;
 
 	const int attribs[] =
-		{
-			WGL_CONTEXT_MAJOR_VERSION_ARB, gl_major, WGL_CONTEXT_MINOR_VERSION_ARB, gl_minor, 0
-		};
+	{
+		WGL_CONTEXT_MAJOR_VERSION_ARB, gl_major, WGL_CONTEXT_MINOR_VERSION_ARB, gl_minor, 0
+	};
 
 	SetPixelFormat(hdc, ChoosePixelFormat(hdc, &pfd), &pfd);
 	HGLRC tmp = wglCreateContext(hdc);
@@ -282,6 +285,8 @@ LRESULT CALLBACK Win32Display::wndproc(HWND hwnd, UINT msg, WPARAM wp, LPARAM lp
 
 Win32Display::Win32Display(const DisplayOptions &options)
 {
+	init_monitor_properties();
+
 	const char *const window_class = "win_window_class";
 
 	gl_major = options.gl_major;
@@ -398,6 +403,86 @@ NativeWindowHandle Win32Display::native_handle()
 	return window;
 }
 
+void Win32Display::init_monitor_properties()
+{
+	monprops.clear();
+
+	IDXGIFactory1 *factory;
+	HRESULT result;
+
+	std::vector<DXGI_MODE_DESC> modes;
+
+	result = CreateDXGIFactory1(__uuidof(IDXGIFactory1), (void**)&factory);
+
+	if (result != S_OK)
+	{
+		fprintf(stderr, "CreateDXGIFactory1 failed: %ld\n", result);
+		return;
+	}
+
+	UINT i = 0;
+	IDXGIAdapter1 *adapter;
+	while (factory->EnumAdapters1(i, &adapter) != DXGI_ERROR_NOT_FOUND)
+	{
+		UINT i2 = 0;
+		IDXGIOutput *output;
+		while (adapter->EnumOutputs(i2, &output) != DXGI_ERROR_NOT_FOUND)
+		{
+			DXGI_OUTPUT_DESC desc;
+			result = output->GetDesc(&desc);
+
+			if (result != S_OK)
+			{
+				fprintf(stderr, "IDXGIOutput::GetDesc failed: %ld\n", result);
+				continue;
+			}
+
+			UINT num = 0;
+			result = output->GetDisplayModeList(DXGI_FORMAT_R8G8B8A8_UNORM, 0, &num, NULL);
+
+			if (result != S_OK)
+			{
+				fprintf(stderr, "IDXGIOutput::GetDisplayModeList failed: %ld\n", result);
+				continue;
+			}
+
+			modes.resize(num);
+			result = output->GetDisplayModeList(DXGI_FORMAT_R8G8B8A8_UNORM, 0, &num, modes.data());
+
+			if (result != S_OK)
+			{
+				fprintf(stderr, "IDXGIOutput::GetDisplayModeList failed: %ld\n", result);
+				continue;
+			}
+
+			for (const auto &mode : modes)
+			{
+				auto &props = monprops.emplace_back();
+
+				static_assert(sizeof(desc.DeviceName) == sizeof(WCHAR) * 32, "DXGI_OUTPUT_DESC::DeviceName must be 32 WCHAR array");
+
+				// Turrible.
+				char name[32];
+				for (int i = 0; i < 32; ++i)
+					name[i] = desc.DeviceName[i];
+
+				props.name = name;
+				props.width = mode.Width;
+				props.height = mode.Height;
+				props.rate = mode.RefreshRate.Numerator / (float)mode.RefreshRate.Denominator;
+			}
+
+			output->Release();
+			++i2;
+		}
+
+		adapter->Release();
+		++i;
+	}
+
+	factory->Release();
+}
+
 void Win32Display::update_refresh_rate()
 {
 	HMONITOR monitor = MonitorFromWindow(window, MONITOR_DEFAULTTONULL);
@@ -429,7 +514,30 @@ void Win32Display::update_refresh_rate()
 		return;
 	}
 
-	rrate = dm.dmDisplayFrequency;
+	const MonitorProperties* closest = NULL;
+
+	// Iterate over monprops to find the closest one.
+	// The alleged refreshrate given in dm.dmDisplayFrequency is often rounded, we are trying to suss out which one it actually is.
+	for (const auto& mode : monprops)
+	{
+		if (mode.name == mi.szDevice && mode.width == dm.dmPelsWidth && mode.height == dm.dmPelsHeight)
+		{
+			if (closest == NULL)
+				closest = &mode;
+			else if (std::fabsf(mode.rate - dm.dmDisplayFrequency) < std::fabs(closest->rate - dm.dmDisplayFrequency))
+				closest = &mode;
+		}
+	}
+
+	if (closest == NULL)
+	{
+		fprintf(stderr, "Couldn't match the display mode.\n");
+		rrate = 60.0f;
+	}
+	else
+	{
+		rrate = closest->rate;
+	}
 }
 
 }

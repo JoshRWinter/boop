@@ -162,6 +162,7 @@ if(WIN32)
 		${OPENGL_LIBRARIES}
 		${DSOUND_LIBRARIES}
 		dxguid.lib
+		dxgi.lib
 		${CMAKE_CURRENT_LIST_DIR}/lib/zlib.lib
 		${CMAKE_CURRENT_LIST_DIR}/lib/freetype.lib
 		${CMAKE_CURRENT_LIST_DIR}/lib/ogg.lib

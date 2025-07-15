@@ -44,12 +44,13 @@ namespace win
 
 }
 
+#ifndef NDEBUG
+
 #include <chrono>
 
 #define WIN_TOKEN_APPEND2(a, b) a##b
 #define WIN_TOKEN_APPEND(a, b) WIN_TOKEN_APPEND2(a, b)
 
-#ifndef NDEBUG
 #define WIN_BENCHMARK(name, x, thresholdms) \
 	const auto WIN_TOKEN_APPEND(win_benchmark_start, __LINE__) = std::chrono::high_resolution_clock::now(); \
 	x; \

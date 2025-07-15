@@ -4,6 +4,8 @@
 
 #ifdef WINPLAT_WINDOWS
 
+#include <vector>
+
 #include <gl/GL.h>
 #include <GL/wglext.h>
 
@@ -15,6 +17,14 @@ namespace win
 class Win32Display : public DisplayBase
 {
 	WIN_NO_COPY_MOVE(Win32Display);
+
+	struct MonitorProperties
+	{
+		std::string name;
+		int width;
+		int height;
+		float rate;
+	};
 
 public:
 	explicit Win32Display(const DisplayOptions &options);
@@ -32,6 +42,10 @@ public:
 	NativeWindowHandle native_handle() override;
 
 private:
+	static LRESULT CALLBACK wndproc(HWND, UINT, WPARAM, LPARAM);
+	void win_init_gl(HWND);
+	void win_term_gl();
+	void init_monitor_properties();
 	void update_refresh_rate();
 
 	HWND window;
@@ -40,11 +54,8 @@ private:
 	int gl_major;
 	int gl_minor;
 	PFNWGLSWAPINTERVALEXTPROC wglSwapIntervalEXT;
+	std::vector<MonitorProperties> monprops;
 	float rrate;
-
-	static LRESULT CALLBACK wndproc(HWND, UINT, WPARAM, LPARAM);
-	void win_init_gl(HWND);
-	void win_term_gl();
 };
 
 }
