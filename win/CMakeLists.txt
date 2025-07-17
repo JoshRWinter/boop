@@ -17,6 +17,8 @@ add_library(win STATIC
 
 	include/win/ObjectExchanger.hpp
 
+	include/win/SimStateExchanger.hpp
+
 	include/win/Utility.hpp
 	src/Utility.cpp
 
@@ -161,7 +163,6 @@ if(WIN32)
 		PRIVATE
 		${OPENGL_LIBRARIES}
 		${DSOUND_LIBRARIES}
-		dxguid.lib
 		dxgi.lib
 		${CMAKE_CURRENT_LIST_DIR}/lib/zlib.lib
 		${CMAKE_CURRENT_LIST_DIR}/lib/freetype.lib
