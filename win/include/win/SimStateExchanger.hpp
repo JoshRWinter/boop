@@ -1,5 +1,9 @@
 #pragma once
 
+#ifdef WINPLAT_WINDOWS
+#include <windows.h>
+#endif
+
 #include <chrono>
 #include <thread>
 #include <cstdint>
@@ -27,7 +31,18 @@ template <typename SimState> class SimStateExchanger
 public:
 	explicit SimStateExchanger(float sim_frequency)
 		: sim_frequency(sim_frequency)
-	{}
+	{
+#ifdef WINPLAT_WINDOWS
+		timer = CreateWaitableTimerExA(NULL, NULL, CREATE_WAITABLE_TIMER_HIGH_RESOLUTION, TIMER_ALL_ACCESS);
+#endif
+	}
+
+	~SimStateExchanger()
+	{
+#ifdef WINPLAT_WINDOWS
+		CloseHandle(timer);
+#endif
+	}
 
 	// Call this from simulation thread
 	SimState &prepare_simstate()
@@ -48,13 +63,6 @@ public:
 		std::int64_t end;
 		get_interval_bounds_nanos(sim_frequency, NULL, &end);
 
-		static auto last_end = end;
-
-		if (end - last_end > (((1.0 / sim_frequency) * 1'000'000'000)) * 1.1)
-			fprintf(stderr, "MISSED A SIM\n");
-
-		last_end = end;
-
 		auto container = (impl::SimStateContainer<SimState>*)&simstate;
 		container->time = end;
 
@@ -67,8 +75,39 @@ public:
 			if (remaining_nanos <= 0)
 				break;
 
-			//std::this_thread::sleep_for(std::chrono::nanoseconds(remaining_nanos));
-			//std::this_thread::sleep_for(std::chrono::nanoseconds(1));
+			const auto cushion = 3 * 1000 * 1000; // x milliseconds in nanoseconds
+
+			if (remaining_nanos > cushion)
+			{
+				const auto sleep_for_nanos = remaining_nanos - cushion;
+
+#ifdef WINPLAT_WINDOWS
+				if (timer != NULL)
+				{
+					LARGE_INTEGER li;
+					li.QuadPart = -sleep_for_nanos / 100.0f;
+
+					if (SetWaitableTimer(timer, &li, 0, NULL, NULL, FALSE))
+					{
+						WaitForSingleObject(timer, INFINITE);
+					}
+					else
+					{
+						Sleep(1);
+					}
+				}
+				else
+				{
+					Sleep(1);
+				}
+#else
+				std::this_thread::sleep_for(std::chrono::nanoseconds(remaining_nanos));
+#endif
+			}
+			else
+			{
+				// continue, busy-wait
+			}
 		}
 	}
 
@@ -139,6 +178,10 @@ private:
 		if (end_nanos)
 			*end_nanos = end;
 	}
+
+#ifdef WINPLAT_WINDOWS
+	HANDLE timer;
+#endif
 
 	const float sim_frequency;
 	const std::chrono::time_point<std::chrono::high_resolution_clock> beginning = std::chrono::high_resolution_clock::now();
