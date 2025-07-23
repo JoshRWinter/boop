@@ -40,17 +40,6 @@ void Renderer::render(const Renderables &prev, const Renderables &current, float
 				lerp(old->emissiveness, r.emissiveness, lerp_t),
 				lerp(old->color, r.color, lerp_t),
 				lerp(old->history_color, r.history_color, lerp_t));
-
-			if (r.texture == Texture::ball)
-			{
-				static float lastx = 0.0f, lasty = 0.0f;
-				const auto moved = std::sqrtf(std::powf(lerped_renderables.back().x - lastx, 2.0f) + std::powf(lerped_renderables.back().y - lasty, 2.0f));
-				const auto moved2 = std::sqrtf(std::powf(r.x - old->x, 2.0f) + std::powf(r.y - old->y, 2.0f));
-				fprintf(stderr, "LERP: %.2f, PREV: (%.2f, %.2f), CURRENT: (%.2f, %.2f), LERPED: (%.2f, %.2f), MOVED: %.2f, MOVED2: %.2f\n", lerp_t, old->x, old->y, r.x, r.y, lerped_renderables.back().x, lerped_renderables.back().y, moved, moved2);
-
-				lastx = lerped_renderables.back().x;
-				lasty = lerped_renderables.back().y;
-			}
 		}
 		else
 		{
