@@ -199,8 +199,18 @@ void Game::process_ball(std::vector<Renderable> &renderables, std::vector<LightR
 		if (ball.xv != networkdata.ball_xv || ball.yv != networkdata.ball_yv)
 			bounce = true;
 
-		ball.x = networkdata.ball_x;
-		ball.y = networkdata.ball_y;
+		if (ball.x == networkdata.ball_x && ball.y == networkdata.ball_y)
+		{
+			// didn't receive an update, simulate one
+			ball.x += ball.xv;
+			ball.y += ball.yv;
+		}
+		else
+		{
+			ball.x = networkdata.ball_x;
+			ball.y = networkdata.ball_y;
+		}
+
 		ball.xv = networkdata.ball_xv;
 		ball.yv = networkdata.ball_yv;
 	}
