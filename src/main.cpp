@@ -141,7 +141,7 @@ int main(int argc, char **argv)
 				last_lerp = l;
 			}
 
-			renderer.render(*prev, *current, lerp, input.y);
+			renderer.render(*prev, *current, lerp, input.y, display.refresh_rate());
 			display.swap();
 		}
 	}

@@ -14,11 +14,9 @@ class GLPostProcessingRenderer
 public:
 	GLPostProcessingRenderer(win::AssetRoll &roll, const win::Dimensions<int> &screenres, const win::Area<float> &gamearea);
 
-	void draw(GLuint fb);
+	void draw(GLuint fb, float fps);
 
 private:
-	void world_to_screen(float x, float y, int &xi, int &yi);
-
 	win::Dimensions<int> screenres;
 	win::Area<float> gamearea;
 
@@ -27,6 +25,7 @@ private:
 	struct
 	{
 		win::GLProgram program;
+		GLint uniform_fade;
 	} histfade;
 
 	struct

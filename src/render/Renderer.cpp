@@ -5,7 +5,7 @@ Renderer::Renderer(win::AssetRoll &roll, const win::Dimensions<int> &screenres, 
 	: backend(new GLRendererBackend(roll, screenres, area))
 {}
 
-void Renderer::render(const Renderables &prev, const Renderables &current, float lerp_t, float mousey)
+void Renderer::render(const Renderables &prev, const Renderables &current, float lerp_t, float mousey, float fps)
 {
 	lerped_renderables.clear();
 	lerped_lights.clear();
@@ -76,7 +76,7 @@ void Renderer::render(const Renderables &prev, const Renderables &current, float
 		}
 	}
 
-	backend->render(lerped_renderables, lerped_lights, current.menu_renderables, current.text_renderables);
+	backend->render(lerped_renderables, lerped_lights, current.menu_renderables, current.text_renderables, fps);
 }
 
 float Renderer::lerp(float a, float b, float t)

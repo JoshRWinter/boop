@@ -36,16 +36,18 @@ GLPostProcessingRenderer::GLPostProcessingRenderer(win::AssetRoll &roll, const w
 	glBindFramebuffer(GL_FRAMEBUFFER, 0);
 
 	histfade.program = win::GLProgram(win::load_gl_shaders(roll["shader/gl/histfade.vert"], roll["shader/gl/histfade.frag"]));
+	histfade.uniform_fade = glGetUniformLocation(histfade.program.get(), "fade");
 
 	win::gl_check_error();
 }
 
-void GLPostProcessingRenderer::draw(GLuint fb)
+void GLPostProcessingRenderer::draw(GLuint fb, float fps)
 {
 	glBindVertexArray(vao.get());
 
 	glColorMaski(0, GL_FALSE, GL_FALSE, GL_FALSE, GL_FALSE);
 	glUseProgram(histfade.program.get());
+	glUniform1f(histfade.uniform_fade, 0.4f / (fps / 60.0f));
 	glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);
 	glColorMaski(0, GL_TRUE, GL_TRUE, GL_TRUE, GL_TRUE);
 

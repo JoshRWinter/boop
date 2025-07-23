@@ -64,7 +64,7 @@ GLRendererBackend::GLRendererBackend(win::AssetRoll &roll, const win::Dimensions
 	win::gl_check_error();
 }
 
-void GLRendererBackend::render(const std::vector<Renderable> &renderables, const std::vector<LightRenderable> &light_renderables, const std::vector<MenuRenderable> &menu_renderables, const std::vector<TextRenderable> &text_renderables)
+void GLRendererBackend::render(const std::vector<Renderable> &renderables, const std::vector<LightRenderable> &light_renderables, const std::vector<MenuRenderable> &menu_renderables, const std::vector<TextRenderable> &text_renderables, float fps)
 {
 	const GLfloat clearcolor[] = { 0.003f, 0.003f, 0.003f, 0.0f };
 	glClearBufferfv(GL_COLOR, 0, clearcolor);
@@ -81,7 +81,7 @@ void GLRendererBackend::render(const std::vector<Renderable> &renderables, const
 */
 
 	glColorMaski(1, GL_TRUE, GL_TRUE, GL_TRUE, GL_TRUE);
-	post_renderer.draw(fb.get());
+	post_renderer.draw(fb.get(), fps);
 
 	win::gl_check_error();
 }
