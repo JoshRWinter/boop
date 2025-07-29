@@ -21,14 +21,14 @@ class Menu
 	Menu() = delete;
 	WIN_NO_COPY_MOVE(Menu);
 
-	static constexpr float button_width = 3.0f;
-	static constexpr float button_height = 0.8f;
+	static constexpr float button_width = 3.5f;
+	static constexpr float button_height = 0.79166f;
 
-	inline static auto textcolor = win::Color<float>(0.8f, 0.6f, 0.6f, 1.0f);
+	inline static auto textcolor = win::Color<float>(0.6f, 0.6f, 0.6f, 1.0f);
 
-	inline static auto color = win::Color<float>(0.8f, 0.4f, 0.4f, 1.0f);
-	inline static auto hover = win::Color<float>(0.6f, 0.2f, 0.2f, 1.0f);
-	inline static auto clicked = win::Color<float>(0.4f, 0.1f, 0.1f, 1.0f);
+	inline static auto color = win::Color<float>(0.075f, 0.075f, 0.075f, 1.0f);
+	inline static auto hover = win::Color<float>(0.4f, 0.05f, 0.05f, 1.0f);
+	inline static auto clicked = win::Color<float>(0.3f, 0.02f, 0.02f, 1.0f);
 
 public:
 	struct Button

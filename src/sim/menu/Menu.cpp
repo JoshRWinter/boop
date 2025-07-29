@@ -300,7 +300,7 @@ bool Menu::menu_joining(SimulationHost &host, NetworkMatch &match, NetworkMatch:
 void Menu::map_renderables(Renderables &renderables, const Button &button, float x, float y)
 {
 	renderables.menu_renderables.emplace_back(MenuTexture::button, button.x, button.y, button.w, button.h, button.click ? clicked : (mouseover(button, x, y) ? hover : color));
-	renderables.text_renderables.emplace_back(button.x + button.w / 2.0f, button.y + 0.2f, true, TextRenderable::Type::smol, win::Color<float>(1.0f, 0.5f, 0.5f, 1.0f), button.text);
+	renderables.text_renderables.emplace_back(button.x + button.w / 2.0f, button.y + 0.2f, true, TextRenderable::Type::smol, textcolor, button.text);
 }
 
 void Menu::map_theme(Renderables &renderables, const win::Area<float> &area, const Input &input, Color color)
