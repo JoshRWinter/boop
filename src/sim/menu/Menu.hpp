@@ -56,15 +56,16 @@ public:
 		win::Color<float> color;
 	};
 
-	static MainMenuResult menu_main(SimulationHost &host, NetworkMatch &match, const char *errmsg);
-	static bool menu_choose_difficulty(SimulationHost &host, DifficultyLevel &level);
-	static bool menu_host(SimulationHost &host, NetworkMatch &match, NetworkMatch::ErrorReason &error);
-	static bool menu_join(SimulationHost &host, NetworkMatch &match, NetworkMatch::ErrorReason &error);
-	static bool menu_joining(SimulationHost &host, NetworkMatch &match, NetworkMatch::ErrorReason &error, const char *ip);
+	static MainMenuResult menu_main(SimulationHost &host, NetworkMatch &match, const win::Area<float> &area, const char *errmsg);
+	static bool menu_choose_difficulty(SimulationHost &host, const win::Area<float> &area, Color color, DifficultyLevel &level);
+	static bool menu_host(SimulationHost &host, NetworkMatch &match, NetworkMatch::ErrorReason &error, const win::Area<float> &area, Color color);
+	static bool menu_join(SimulationHost &host, NetworkMatch &match, NetworkMatch::ErrorReason &error, const win::Area<float> &area, Color color);
+	static bool menu_joining(SimulationHost &host, NetworkMatch &match, NetworkMatch::ErrorReason &error, const win::Area<float> &area, Color color, const char *ip);
 
 private:
 	static void map_renderables(Renderables &renderables, const Button &button, float x, float y);
 	static void map_renderables(Renderables &renderables, const ColorSelect &color, bool selected);
+	static void map_theme(Renderables &renderables, const win::Area<float> &area, const Input &input, Color color);
 	static bool mouseover(const Button &button, float x, float y);
 	static bool mouseover(const ColorSelect &color, float x, float y);
 	static bool button_clicked(const Button &button, bool click, float x, float y);

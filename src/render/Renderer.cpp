@@ -15,12 +15,15 @@ void Renderer::render(const Renderables &prev, const Renderables &current, float
 		const Renderable *old = NULL;
 
 		// find the old one
-		for (const auto &r2 : prev.renderables)
+		if (r.id != 0) // 0 id is for transient objects
 		{
-			if (r2.id == r.id)
+			for (const auto &r2 : prev.renderables)
 			{
-				old = &r2;
-				break;
+				if (r2.id == r.id)
+				{
+					old = &r2;
+					break;
+				}
 			}
 		}
 

@@ -3,7 +3,7 @@
 
 #include "Menu.hpp"
 
-MainMenuResult Menu::menu_main(SimulationHost &host, NetworkMatch &match, const char *errmsg)
+MainMenuResult Menu::menu_main(SimulationHost &host, NetworkMatch &match, const win::Area<float> &area, const char *errmsg)
 {
 	ColorSelect red(-3.0f, 0.8f, 0.75f, 0.75f, get_red());
 	ColorSelect green(-2.0f, 0.8f, 0.75f, 0.75f, get_green());
@@ -14,7 +14,7 @@ MainMenuResult Menu::menu_main(SimulationHost &host, NetworkMatch &match, const 
 
 	ColorSelect *colors[] = {&red, &green, &blue, &yellow, &cyan, &magenta};
 	std::mt19937 mersenne(time(NULL));
-	auto color = (Color) std::uniform_int_distribution<int>(0, 5)(mersenne);
+	auto color = (Color)std::uniform_int_distribution<int>(0, 5)(mersenne);
 
 	Button computer(-button_width / 2.0f, -0.75f, button_width, button_height, "Computer");
 	Button hostgame(-button_width / 2.0f, -1.75f, button_width, button_height, "Host");
@@ -30,11 +30,11 @@ MainMenuResult Menu::menu_main(SimulationHost &host, NetworkMatch &match, const 
 			computer.click = false;
 
 			DifficultyLevel diff;
-			if (menu_choose_difficulty(host, diff))
+			if (menu_choose_difficulty(host, area, color, diff))
 			{
 				match.start_bot(diff);
 				auto error = NetworkMatch::ErrorReason::none;
-				if (menu_host(host, match, error))
+				if (menu_host(host, match, error, area, color))
 					return MainMenuResult(color, diff);
 
 				if (error != NetworkMatch::ErrorReason::none)
@@ -46,10 +46,10 @@ MainMenuResult Menu::menu_main(SimulationHost &host, NetworkMatch &match, const 
 			hostgame.click = false;
 
 			DifficultyLevel diff;
-			if (menu_choose_difficulty(host, diff))
+			if (menu_choose_difficulty(host, area, color, diff))
 			{
 				auto error = NetworkMatch::ErrorReason::none;
-				if (menu_host(host, match, error))
+				if (menu_host(host, match, error, area, color))
 					return MainMenuResult(color, diff);
 
 				if (error != NetworkMatch::ErrorReason::none)
@@ -60,7 +60,7 @@ MainMenuResult Menu::menu_main(SimulationHost &host, NetworkMatch &match, const 
 		{
 			join.click = false;
 			auto error = NetworkMatch::ErrorReason::none;
-			if (menu_join(host, match, error))
+			if (menu_join(host, match, error, area, color))
 				return MainMenuResult(color, DifficultyLevel::easy);
 
 			if (error != NetworkMatch::ErrorReason::none)
@@ -78,6 +78,8 @@ MainMenuResult Menu::menu_main(SimulationHost &host, NetworkMatch &match, const 
 
 		auto &renderables = host.get_renderables();
 
+		map_theme(renderables, area, input, color);
+
 		map_renderables(renderables, computer, input.x, input.y);
 		map_renderables(renderables, hostgame, input.x, input.y);
 		map_renderables(renderables, join, input.x, input.y);
@@ -91,7 +93,7 @@ MainMenuResult Menu::menu_main(SimulationHost &host, NetworkMatch &match, const 
 			map_renderables(renderables, *colors[i], (int) color == i);
 		}
 
-		renderables.text_renderables.emplace_back(0.0f, 2.5f, true, TextRenderable::Type::yuge, colors[(int) color]->color, "boop");
+		renderables.text_renderables.emplace_back(0.0f, 2.5f, true, TextRenderable::Type::yuge, colors[(int)color]->color, "boop");
 
 		if (errmsg != NULL)
 			renderables.text_renderables.emplace_back(0.0f, 3.8f, true, TextRenderable::Type::smol, win::Color<float>(0.8f, 0.1f, 0.1f, 1.0f), errmsg);
@@ -102,7 +104,7 @@ MainMenuResult Menu::menu_main(SimulationHost &host, NetworkMatch &match, const 
 	return MainMenuResult(color, DifficultyLevel::easy);
 }
 
-bool Menu::menu_choose_difficulty(SimulationHost &host, DifficultyLevel &level)
+bool Menu::menu_choose_difficulty(SimulationHost &host, const win::Area<float> &area, Color color, DifficultyLevel &level)
 {
 	Button easy(-button_width / 2.0f, 0.0f, button_width, button_height, "Ezpz");
 	Button medium(-button_width / 2.0f, -1.0f, button_width, button_height, "Medium");
@@ -147,6 +149,8 @@ bool Menu::menu_choose_difficulty(SimulationHost &host, DifficultyLevel &level)
 
 		auto &renderables = host.get_renderables();
 
+		map_theme(renderables, area, input, color);
+
 		map_renderables(renderables, easy, input.x, input.y);
 		map_renderables(renderables, medium, input.x, input.y);
 		map_renderables(renderables, hard, input.x, input.y);
@@ -156,7 +160,7 @@ bool Menu::menu_choose_difficulty(SimulationHost &host, DifficultyLevel &level)
 	}
 }
 
-bool Menu::menu_host(SimulationHost &host, NetworkMatch &match, NetworkMatch::ErrorReason &error)
+bool Menu::menu_host(SimulationHost &host, NetworkMatch &match, NetworkMatch::ErrorReason &error, const win::Area<float> &area, Color color)
 {
 	Button back(-button_width / 2.0f, -3.5f, button_width, button_height, "Back");
 
@@ -184,6 +188,9 @@ bool Menu::menu_host(SimulationHost &host, NetworkMatch &match, NetworkMatch::Er
 		}
 
 		auto &renderables = host.get_renderables();
+
+		map_theme(renderables, area, input, color);
+
 		map_renderables(renderables, back, input.x, input.y);
 		renderables.text_renderables.emplace_back(0.0f, 2.0f, true, TextRenderable::Type::smol, textcolor, "Hosting on port 28857");
 		host.release_renderables_and_sleep(renderables);
@@ -192,7 +199,7 @@ bool Menu::menu_host(SimulationHost &host, NetworkMatch &match, NetworkMatch::Er
 	return false;
 }
 
-bool Menu::menu_join(SimulationHost &host, NetworkMatch &match, NetworkMatch::ErrorReason &error)
+bool Menu::menu_join(SimulationHost &host, NetworkMatch &match, NetworkMatch::ErrorReason &error, const win::Area<float> &area, Color color)
 {
 	Button join(-button_width / 2.0f, -2.5f, button_width, button_height, "Join");
 	Button back(-button_width / 2.0f, -3.5f, button_width, button_height, "Back");
@@ -228,13 +235,16 @@ bool Menu::menu_join(SimulationHost &host, NetworkMatch &match, NetworkMatch::Er
 		{
 			join.click = false;
 			error = NetworkMatch::ErrorReason::none;
-			return menu_joining(host, match, error, ip_input.c_str());
+			return menu_joining(host, match, error, area, color, ip_input.c_str());
 		}
 
 		back.click = mouseover(back, input.x, input.y) && input.click;
 		join.click = mouseover(join, input.x, input.y) && input.click;
 
 		auto &renderables = host.get_renderables();
+
+		map_theme(renderables, area, input, color);
+
 		map_renderables(renderables, back, input.x, input.y);
 		map_renderables(renderables, join, input.x, input.y);
 
@@ -247,7 +257,7 @@ bool Menu::menu_join(SimulationHost &host, NetworkMatch &match, NetworkMatch::Er
 	return false;
 }
 
-bool Menu::menu_joining(SimulationHost &host, NetworkMatch &match, NetworkMatch::ErrorReason &error, const char *ip)
+bool Menu::menu_joining(SimulationHost &host, NetworkMatch &match, NetworkMatch::ErrorReason &error, const win::Area<float> &area, Color color, const char *ip)
 {
 	Button back(-button_width / 2.0f, -3.5f, button_width, button_height, "Back");
 
@@ -276,6 +286,9 @@ bool Menu::menu_joining(SimulationHost &host, NetworkMatch &match, NetworkMatch:
 		}
 
 		auto &renderables = host.get_renderables();
+
+		map_theme(renderables, area, input, color);
+
 		map_renderables(renderables, back, input.x, input.y);
 		renderables.text_renderables.emplace_back(0.0f, 2.0f, true, TextRenderable::Type::smol, textcolor, "Joining...");
 		host.release_renderables_and_sleep(renderables);
@@ -288,6 +301,23 @@ void Menu::map_renderables(Renderables &renderables, const Button &button, float
 {
 	renderables.menu_renderables.emplace_back(MenuTexture::button, button.x, button.y, button.w, button.h, button.click ? clicked : (mouseover(button, x, y) ? hover : color));
 	renderables.text_renderables.emplace_back(button.x + button.w / 2.0f, button.y + 0.2f, true, TextRenderable::Type::smol, win::Color<float>(1.0f, 0.5f, 0.5f, 1.0f), button.text);
+}
+
+void Menu::map_theme(Renderables &renderables, const win::Area<float> &area, const Input &input, Color color)
+{
+	renderables.renderables.emplace_back(
+		0,
+		Texture::background,
+		area.left,
+		area.bottom,
+		area.right - area.left,
+		area.top - area.bottom,
+		0.0f,
+		0.0f,
+		win::Color<float>(1.0f, 1.0f, 1.0f, 1.0f),
+		win::Color<float>(0.0f, 0.0f, 0.0f, 0.0f));
+
+	renderables.light_renderables.emplace_back(0, input.x, input.y, get_color(color), 200.0f);
 }
 
 void Menu::map_renderables(Renderables &renderables, const ColorSelect &color, bool selected)

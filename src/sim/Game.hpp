@@ -75,7 +75,7 @@ private:
 	float get_speed();
 	void get_ball_bounce(const Ball &ball, const Paddle &paddle, float speed, float &xv, float &yv);
 
-	unsigned next_renderable_id = 0;
+	unsigned next_renderable_id = 1;
 	std::mt19937 rand;
 	bool showmenu;
 	bool runbot;

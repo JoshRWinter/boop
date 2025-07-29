@@ -37,7 +37,7 @@ void Game::play(SimulationHost &sim)
 		if (showmenu && !runbot)
 		{
 			showmenu = false;
-			const auto result = Menu::menu_main(sim, match, "");
+			const auto result = Menu::menu_main(sim, match, area, "");
 			paddle_color = result.color;
 			difficulty = result.difficulty;
 

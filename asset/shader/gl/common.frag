@@ -24,7 +24,9 @@ void main()
 {
     vec4 t = texture(tex, ftexcoord);
 
-    vec3 lightcontrib = luminance == 1.0 ? vec3(1.0) : lightcolor * (lightpower / (pow(gl_FragCoord.x - light.x, 2) + pow(gl_FragCoord.y - light.y, 2)));
+    float dist = pow(gl_FragCoord.x - light.x, 2) + pow(gl_FragCoord.y - light.y, 2);
+
+    vec3 lightcontrib = luminance == 1.0 ? vec3(1.0) : lightcolor * (lightpower / (dist + 3000));
 
     frag_main = multiply_color(t, color * vec4(lightcontrib, 1.0));
     frag_hist = multiply_color(t, history_color);
