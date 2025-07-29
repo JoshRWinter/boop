@@ -15,8 +15,8 @@
 
 struct Ball
 {
-	static constexpr float width = 0.24f;
-	static constexpr float height = 0.24f;
+	static constexpr float width = 0.20833f;
+	static constexpr float height = 0.20833f;
 	static constexpr float squishiness = width * 0.3f;
 
 	Ball(unsigned renderable_id, unsigned light_renderable_id) : renderable_id(renderable_id), light_renderable_id(light_renderable_id) {}

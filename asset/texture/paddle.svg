@@ -7,7 +7,7 @@
    viewBox="0 0 9.5813665 31.90806"
    version="1.1"
    id="svg1"
-   inkscape:version="1.4.1 (93de688d07, 2025-03-30)"
+   inkscape:version="1.4.2 (ebf0e940d0, 2025-05-08)"
    sodipodi:docname="paddle.svg"
    xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
    xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
@@ -23,9 +23,9 @@
      inkscape:pagecheckerboard="0"
      inkscape:deskcolor="#505050"
      inkscape:document-units="mm"
-     inkscape:zoom="5.069662"
-     inkscape:cx="40.239369"
-     inkscape:cy="-1.3807627"
+     inkscape:zoom="7.1695848"
+     inkscape:cx="24.269188"
+     inkscape:cy="60.533492"
      inkscape:window-width="2560"
      inkscape:window-height="1413"
      inkscape:window-x="0"
@@ -40,12 +40,12 @@
      id="layer1"
      transform="translate(-72.183395,-132.46049)">
     <rect
-       style="fill:#ffffff;fill-rule:evenodd;stroke-width:1.04987"
+       style="fill:#ffffff;fill-rule:evenodd;stroke-width:0.932986"
        id="rect1"
-       width="3.2339511"
+       width="2.5539505"
        height="31.90806"
        x="72.183395"
        y="132.46049"
-       ry="1.5831877" />
+       ry="1.1847163" />
   </g>
 </svg>
