@@ -3,8 +3,8 @@
 
 <svg
    width="125.71906mm"
-   height="34.879745mm"
-   viewBox="0 0 125.71906 34.879746"
+   height="28.504913mm"
+   viewBox="0 0 125.71906 28.504914"
    version="1.1"
    id="svg1"
    inkscape:version="1.4.2 (ebf0e940d0, 2025-05-08)"
@@ -24,28 +24,29 @@
      inkscape:deskcolor="#505050"
      inkscape:document-units="mm"
      inkscape:zoom="2.1582265"
-     inkscape:cx="194.14089"
-     inkscape:cy="79.695066"
+     inkscape:cx="194.14088"
+     inkscape:cy="55.601208"
      inkscape:window-width="2560"
      inkscape:window-height="1413"
      inkscape:window-x="0"
      inkscape:window-y="0"
      inkscape:window-maximized="0"
-     inkscape:current-layer="layer1" />
+     inkscape:current-layer="layer1"
+     showgrid="false" />
   <defs
      id="defs1" />
   <g
      inkscape:label="Layer 1"
      inkscape:groupmode="layer"
      id="layer1"
-     transform="translate(-51.270901,-81.006546)">
+     transform="translate(-51.270901,-87.381386)">
     <rect
-       style="fill:#ffffff;fill-opacity:1;fill-rule:evenodd;stroke-width:2.93031"
+       style="fill:#ffffff;fill-opacity:1;fill-rule:evenodd;stroke-width:2.64903"
        id="rect1"
        width="125.71906"
-       height="34.879745"
+       height="28.504913"
        x="51.270901"
-       y="81.006546"
-       ry="17.439873" />
+       y="87.381386"
+       ry="14.252457" />
   </g>
 </svg>
