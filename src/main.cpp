@@ -42,7 +42,7 @@ int main(int argc, char **argv)
 
 	win::SimStateExchanger<Renderables> simexchanger(60);
 
-	Simulation sim(area, false, DifficultyLevel::easy, simexchanger);
+	Simulation sim(&roll, area, false, DifficultyLevel::easy, simexchanger);
 	Renderer renderer(roll, screenres, area);
 
 	Input input;
