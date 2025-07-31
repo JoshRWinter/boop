@@ -5,7 +5,7 @@
 #include "Game.hpp"
 #include "menu/Menu.hpp"
 
-Game::Game(const win::Area<float> &area, bool runbot, DifficultyLevel bot_difficulty)
+Game::Game(win::AssetRoll *roll, const win::Area<float> &area, bool runbot, DifficultyLevel bot_difficulty)
 	: rand(time(NULL))
 	, showmenu(true)
 	, runbot(runbot)
@@ -25,10 +25,17 @@ Game::Game(const win::Area<float> &area, bool runbot, DifficultyLevel bot_diffic
 		difficulty = bot_difficulty;
 		while (!match.join("::1")) std::this_thread::sleep_for(std::chrono::milliseconds(100));
 	}
+	else
+	{
+		sounds.emplace(*roll);
+	}
 }
 
 void Game::play(SimulationHost &sim)
 {
+	if (sounds)
+		sounds->play("sound/music1.ogg", 10, 0.0f, 1.0f, 1.0f, true, false);
+
 	std::vector<char> textinput(20);
 	textinput.clear();
 
@@ -37,7 +44,7 @@ void Game::play(SimulationHost &sim)
 		if (showmenu && !runbot)
 		{
 			showmenu = false;
-			const auto result = Menu::menu_main(sim, match, area, "");
+			const auto result = Menu::menu_main(sim, sounds.value(), match, area, "");
 			paddle_color = result.color;
 			difficulty = result.difficulty;
 
@@ -149,6 +156,16 @@ void Game::process_ball(std::vector<Renderable> &renderables, std::vector<LightR
 				bounce = true;
 				ball.x = (host.x - Ball::width) + Ball::squishiness;
 				get_ball_bounce(ball, host, get_speed(), ball.xv, ball.yv);
+
+				if (sounds)
+				{
+					const bool rightside = ball.x > 0.0f;
+					const float left = rightside ? 0.2f : 0.3f;
+					const float right = rightside ? 0.3f : 0.2f;
+
+					sounds->play("sound/hit2.ogg", 0, 1.0f, left, right, false, true);
+				}
+
 				break;
 			}
 			else if (collide(ball, guest))
@@ -157,12 +174,26 @@ void Game::process_ball(std::vector<Renderable> &renderables, std::vector<LightR
 				ball.x = (guest.x + Paddle::width) - Ball::squishiness;
 				ball.xv = -ball.xv;
 				get_ball_bounce(ball, guest, get_speed(), ball.xv, ball.yv);
+
+				if (sounds)
+				{
+					const bool rightside = ball.x > 0.0f;
+					const float left = rightside ? 0.2f : 0.3f;
+					const float right = rightside ? 0.3f : 0.2f;
+
+					sounds->play("sound/hit2.ogg", 0, 1.0f, left, right, false, true);
+				}
+
 				break;
 			}
 
 			// check for collision with area boundaries
 			if (ball.x > area.right * 5.0f)
 			{
+				if (sounds)
+				{
+					sounds->play("sound/wompwomp.ogg", 0, 1.0f, 1.0f, 1.0f, false, true);
+				}
 				reset_serve(false);
 				++networkdata.guest_score;
 				break;
@@ -178,6 +209,14 @@ void Game::process_ball(std::vector<Renderable> &renderables, std::vector<LightR
 				bounce = true;
 				ball.y = (area.top - Ball::height) + Ball::squishiness;
 				ball.yv = -ball.yv;
+
+				if (sounds && ball.x > area.left && ball.x < area.right)
+				{
+					float left, right;
+					get_left_right(left, right);
+					sounds->play("sound/hit1.ogg", 0, 1.0f, left, right, false, true);
+				}
+
 				break;
 			}
 			else if (ball.y + Ball::squishiness < area.bottom)
@@ -185,6 +224,14 @@ void Game::process_ball(std::vector<Renderable> &renderables, std::vector<LightR
 				bounce = true;
 				ball.y = area.bottom - Ball::squishiness;
 				ball.yv = -ball.yv;
+
+				if (sounds && ball.x > area.left && ball.x < area.right)
+				{
+					float left, right;
+					get_left_right(left, right);
+					sounds->play("sound/hit1.ogg", 0, 1.0f, left, right, false, true);
+				}
+
 				break;
 			}
 		}
@@ -449,3 +496,14 @@ void Game::get_ball_bounce(const Ball &ball, const Paddle &paddle, float speed, 
 	yv = std::sinf(angle) * speed;
 }
 
+void Game::get_left_right(float &left, float &right) const
+{
+	const float halfwidth = (area.right - area.left) / 2.0f;
+	const float x = ball.x + (Ball::width / 2.0f);
+
+	const float leftness = (halfwidth - (x - area.left)) / halfwidth;
+	const float rightness = (halfwidth - (area.right - x)) / halfwidth;
+
+	left = std::max(0.3f, std::min(0.4f, leftness));
+	right = std::max(0.3f, std::min(0.4f, rightness));
+}

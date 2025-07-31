@@ -8,6 +8,7 @@
 #include <win/Utility.hpp>
 #include <win/ConcurrentRingBuffer.hpp>
 #include <win/SimStateExchanger.hpp>
+#include <win/AssetRoll.hpp>
 
 #include "../SyncObjectManager.hpp"
 #include "../render/Renderable.hpp"
@@ -19,14 +20,14 @@ class Simulation
 	WIN_NO_COPY_MOVE(Simulation);
 
 public:
-	Simulation(const win::Area<float> &area, bool runbot, DifficultyLevel bot_difficulty, win::SimStateExchanger<Renderables> &simexchanger);
+	Simulation(win::AssetRoll *roll, const win::Area<float> &area, bool runbot, DifficultyLevel bot_difficulty, win::SimStateExchanger<Renderables> &simexchanger);
 	~Simulation();
 
 	void set_input(const Input &input);
 	void set_text_input(const std::vector<char> &text);
 
 private:
-	void sim(win::Area<float> area, bool runbot, DifficultyLevel bot_difficulty, win::SimStateExchanger<Renderables> &simexchanger);
+	void sim(win::AssetRoll *roll, win::Area<float> area, bool runbot, DifficultyLevel bot_difficulty, win::SimStateExchanger<Renderables> &simexchanger);
 
 	SyncObjectManager<Renderables, 4> som_renderables;
 	SyncObjectManager<Input, 3> som_input;

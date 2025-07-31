@@ -3,11 +3,11 @@
 #include "Simulation.hpp"
 #include "Game.hpp"
 
-Simulation::Simulation(const win::Area<float> &area, bool runbot, DifficultyLevel bot_difficulty, win::SimStateExchanger<Renderables> &simexchanger)
+Simulation::Simulation(win::AssetRoll *roll, const win::Area<float> &area, bool runbot, DifficultyLevel bot_difficulty, win::SimStateExchanger<Renderables> &simexchanger)
 	: bot(runbot)
 	, quit(false)
 {
-	simthread = std::thread([area, runbot, bot_difficulty, &simexchanger, this]{ sim(area, runbot, bot_difficulty, simexchanger); });
+	simthread = std::thread([roll, area, runbot, bot_difficulty, &simexchanger, this]{ sim(roll, area, runbot, bot_difficulty, simexchanger); });
 }
 
 Simulation::~Simulation()
@@ -33,9 +33,9 @@ void Simulation::set_text_input(const std::vector<char> &text)
     	written += textinput.write(text.data() + written, text.size() - written);
 }
 
-void Simulation::sim(win::Area<float> area, bool runbot, DifficultyLevel bot_difficulty, win::SimStateExchanger<Renderables> &simexchanger)
+void Simulation::sim(win::AssetRoll *roll, win::Area<float> area, bool runbot, DifficultyLevel bot_difficulty, win::SimStateExchanger<Renderables> &simexchanger)
 {
 	SimulationHost host(quit, som_input, textinput, simexchanger);
-	Game game(area, runbot, bot_difficulty);
+	Game game(roll, area, runbot, bot_difficulty);
 	game.play(host);
 }

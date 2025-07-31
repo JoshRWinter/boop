@@ -9,6 +9,12 @@ shader/gl/histfade.frag
 
 font/Comicy.ttf
 
+sound/music1.ogg
+sound/hit1.ogg
+sound/hit2.ogg
+sound/wompwomp.ogg
+sound/click.ogg
+
 svg2tga {
     texture/background.svg 1920 1080 exclude
     texture/ball.svg 29 29 exclude

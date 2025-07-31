@@ -4,6 +4,9 @@
 
 #include <win/Win.hpp>
 #include <win/Utility.hpp>
+#include <win/AssetRoll.hpp>
+#include <win/sound/SoundEngine.hpp>
+#include <optional>
 
 #include "../Colors.hpp"
 #include "../render/Renderable.hpp"
@@ -59,7 +62,7 @@ class Game
 	};
 
 public:
-	Game(const win::Area<float> &area, bool runbot, DifficultyLevel bot_difficulty);
+	Game(win::AssetRoll *roll, const win::Area<float> &area, bool runbot, DifficultyLevel bot_difficulty);
 
 	void play(SimulationHost &host);
 
@@ -74,6 +77,7 @@ private:
 	float get_paddle_height();
 	float get_speed();
 	void get_ball_bounce(const Ball &ball, const Paddle &paddle, float speed, float &xv, float &yv);
+	void get_left_right(float &left, float &right) const;
 
 	unsigned next_renderable_id = 1;
 	std::mt19937 rand;
@@ -94,6 +98,7 @@ private:
 	win::Area<float> area;
 	NetworkMatch match;
 	NetworkData networkdata;
+	std::optional<win::SoundEngine> sounds;
 
 	std::vector<win::Pair<float>> bounces;
 };
