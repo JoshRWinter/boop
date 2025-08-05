@@ -34,7 +34,7 @@ Game::Game(win::AssetRoll *roll, const win::Area<float> &area, bool runbot, Diff
 void Game::play(SimulationHost &sim)
 {
 	if (sounds)
-		sounds->play("sound/music1.ogg", 10, 0.0f, 1.0f, 1.0f, true, false);
+		sounds->play("sound/music1.ogg", 10, 0.0f, 0.7f, 0.7f, true, false);
 
 	std::vector<char> textinput(20);
 	textinput.clear();
@@ -192,7 +192,7 @@ void Game::process_ball(std::vector<Renderable> &renderables, std::vector<LightR
 			{
 				if (sounds)
 				{
-					sounds->play("sound/wompwomp.ogg", 0, 1.0f, 1.0f, 1.0f, false, true);
+					sounds->play("sound/wompwomp.ogg", 0, 1.0f, 0.5f, 0.5f, false, true);
 				}
 				reset_serve(false);
 				++networkdata.guest_score;
