@@ -312,7 +312,7 @@ Win32Display::Win32Display(const DisplayOptions &options)
 	if(options.fullscreen)
 		window = CreateWindowEx(0, window_class, "", WS_POPUP, 0, 0, GetSystemMetrics(SM_CXSCREEN), GetSystemMetrics(SM_CYSCREEN), NULL, NULL, GetModuleHandle(NULL), this);
 	else
-		window = CreateWindowEx(0, window_class, options.caption.c_str(), WS_SYSMENU | WS_MINIMIZEBOX, CW_USEDEFAULT, CW_USEDEFAULT, options.width, options.height, NULL, NULL, GetModuleHandle(NULL), this);
+		window = CreateWindowEx(0, window_class, options.caption.c_str(), WS_SYSMENU | WS_MINIMIZEBOX | WS_CAPTION, CW_USEDEFAULT, CW_USEDEFAULT, options.width, options.height, NULL, NULL, GetModuleHandle(NULL), this);
 	if(window == NULL)
 		win::bug("Could not create window");
 
@@ -332,6 +332,9 @@ Win32Display::Win32Display(const DisplayOptions &options)
 	UpdateWindow(window);
 
 	update_refresh_rate();
+
+	default_width = options.width;
+	default_height = options.height;
 }
 
 Win32Display::~Win32Display()
@@ -391,6 +394,26 @@ float Win32Display::refresh_rate()
 void Win32Display::cursor(bool show)
 {
 	ShowCursor(show);
+}
+
+void Win32Display::set_fullscreen(bool fullscreen)
+{
+	if (fullscreen)
+	{
+		SetWindowLongPtrA(window, GWL_STYLE, WS_POPUP);
+		SetWindowPos(window, HWND_TOPMOST, CW_USEDEFAULT, CW_USEDEFAULT, GetSystemMetrics(SM_CXSCREEN), GetSystemMetrics(SM_CYSCREEN), SWP_NOMOVE | SWP_FRAMECHANGED);
+	}
+	else
+	{
+		SetWindowLongPtrA(window, GWL_STYLE, WS_SYSMENU | WS_MINIMIZEBOX | WS_CAPTION);
+		SetWindowPos(window, HWND_TOPMOST, CW_USEDEFAULT, CW_USEDEFAULT, default_width, default_height, SWP_NOMOVE | SWP_FRAMECHANGED);
+
+		RECT rect;
+		GetClientRect(window, &rect);
+		SetWindowPos(window, HWND_TOPMOST, 0, 0, default_width + (default_width - rect.right), default_height + (default_height - rect.bottom), SWP_SHOWWINDOW);
+	}
+
+	ShowWindow(window, SW_SHOWDEFAULT);
 }
 
 void Win32Display::vsync(bool on)

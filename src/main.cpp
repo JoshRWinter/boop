@@ -34,6 +34,7 @@ int main(int argc, char **argv)
 	win::Display display(display_options);
 	display.vsync(true);
 	//display.cursor(false);
+	bool fullscreen = display_options.fullscreen;
 
 	win::load_gl_functions();
 
@@ -52,7 +53,7 @@ int main(int argc, char **argv)
 	bool text_available = false;
 
 	bool quit = false;
-	display.register_button_handler([&quit, &input_available, &input, &text_buffer, &text_available](win::Button button, bool press)
+	display.register_button_handler([&quit, &input_available, &input, &text_buffer, &text_available, &display, &fullscreen](win::Button button, bool press)
 	{
 		switch (button)
 		{
@@ -69,6 +70,13 @@ int main(int argc, char **argv)
 				{
 					text_buffer.push_back('\b');
 					text_available = true;
+				}
+				break;
+			case win::Button::f11:
+				if (press)
+				{
+					fullscreen = !fullscreen;
+					display.set_fullscreen(fullscreen);
 				}
 				break;
 

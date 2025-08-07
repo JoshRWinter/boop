@@ -38,6 +38,7 @@ public:
 	int screen_height() override;
 	float refresh_rate() override;
 	void cursor(bool show) override;
+	void set_fullscreen(bool fullscreen) override;
 	void vsync(bool on) override;
 	NativeWindowHandle native_handle() override;
 
@@ -56,6 +57,7 @@ private:
 	PFNWGLSWAPINTERVALEXTPROC wglSwapIntervalEXT;
 	std::vector<MonitorProperties> monprops;
 	float rrate;
+	int default_width, default_height;
 };
 
 }

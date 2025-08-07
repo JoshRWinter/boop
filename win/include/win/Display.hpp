@@ -35,6 +35,7 @@ public:
 	int screen_height() { return inner->screen_height(); }
 	float refresh_rate() { return inner->refresh_rate(); }
 	void cursor(bool show) { inner->cursor(show); }
+	void set_fullscreen(bool fullscreen) { inner->set_fullscreen(fullscreen); }
 	void vsync(bool on) { inner->vsync(on); }
 	NativeWindowHandle native_handle() { return inner->native_handle(); }
 

@@ -21,23 +21,16 @@ typedef Window* NativeWindowHandle;
 struct DisplayOptions
 {
 	DisplayOptions()
-		: fullscreen(false)
-		  , width(800)
-		  , height(600)
-		  , gl_major(0)
-		  , gl_minor(0)
-		  , debug(false)
-		  , parent(NULL)
 	{}
 
 	std::string caption;
-	bool fullscreen;
-	int width;
-	int height;
-	int gl_major;
-	int gl_minor;
-	bool debug;
-	NativeWindowHandle parent;
+	bool fullscreen = false;
+	int width = 800;
+	int height = 600;
+	int gl_major = 0;
+	int gl_minor = 0;
+	bool debug = false;
+	NativeWindowHandle parent = NULL;
 };
 
 class DisplayBase
@@ -66,6 +59,7 @@ public:
 	virtual int screen_height() = 0;
 	virtual float refresh_rate() = 0;
 	virtual void cursor(bool) = 0;
+	virtual void set_fullscreen(bool fullscreen) = 0;
 	virtual void vsync(bool) = 0;
 	virtual NativeWindowHandle native_handle() = 0;
 
