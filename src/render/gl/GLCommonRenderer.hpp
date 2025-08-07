@@ -17,6 +17,7 @@ public:
 	virtual ~GLCommonRenderer()	= default;
 
 	void draw(const std::vector<Renderable> &renderables, const std::vector<LightRenderable> &lights);
+	void set_resolution(const win::Dimensions<int> &res);
 
 private:
 	void world_to_screen(float x, float y, int &xi, int &yi);

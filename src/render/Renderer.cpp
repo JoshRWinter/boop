@@ -82,6 +82,11 @@ void Renderer::render(const Renderables &prev, const Renderables &current, float
 	backend->render(lerped_renderables, lerped_lights, current.menu_renderables, current.text_renderables, fps);
 }
 
+void Renderer::set_resolution(const win::Dimensions<int> &dims)
+{
+	backend->set_resolution(dims);
+}
+
 float Renderer::lerp(float a, float b, float t)
 {
 	return ((b - a) * t) + a;

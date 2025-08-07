@@ -12,14 +12,12 @@ class GLPostProcessingRenderer
 	WIN_NO_COPY_MOVE(GLPostProcessingRenderer);
 
 public:
-	GLPostProcessingRenderer(win::AssetRoll &roll, const win::Dimensions<int> &screenres, const win::Area<float> &gamearea);
+	GLPostProcessingRenderer(win::AssetRoll &roll, const win::Dimensions<int> &screenres);
 
 	void draw(GLuint fb, float fps);
+	void set_resolution(const win::Dimensions<int> &res);
 
 private:
-	win::Dimensions<int> screenres;
-	win::Area<float> gamearea;
-
 	win::GLVertexArray vao;
 
 	struct

@@ -38,7 +38,7 @@ int main(int argc, char **argv)
 
 	win::load_gl_functions();
 
-	const win::Dimensions<int> screenres(display.width(), display.height());
+	win::Dimensions<int> screenres(display.width(), display.height());
 	const win::Area<float> area(-8.0f, 8.0f, -4.5f, 4.5f);
 
 	win::SimStateExchanger<Renderables> simexchanger(60);
@@ -53,7 +53,17 @@ int main(int argc, char **argv)
 	bool text_available = false;
 
 	bool quit = false;
-	display.register_button_handler([&quit, &input_available, &input, &text_buffer, &text_available, &display, &fullscreen](win::Button button, bool press)
+	display.register_button_handler([
+		&quit,
+		&input_available,
+		&input,
+		&text_buffer,
+		&text_available,
+		&display,
+		&fullscreen,
+		&screenres,
+		&renderer
+	](win::Button button, bool press)
 	{
 		switch (button)
 		{
@@ -77,6 +87,9 @@ int main(int argc, char **argv)
 				{
 					fullscreen = !fullscreen;
 					display.set_fullscreen(fullscreen);
+					screenres.width = display.width();
+					screenres.height = display.height();
+					renderer.set_resolution(screenres);
 				}
 				break;
 

@@ -93,6 +93,11 @@ void GLCommonRenderer::draw(const std::vector<Renderable> &renderables, const st
 	}
 }
 
+void GLCommonRenderer::set_resolution(const win::Dimensions<int> &res)
+{
+	screenres = res;
+}
+
 void GLCommonRenderer::world_to_screen(float x, float y, int &xi, int &yi)
 {
 	xi = ((x / (area.right - area.left)) * screenres.width) + (screenres.width / 2.0f);

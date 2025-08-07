@@ -12,9 +12,7 @@ static GLint get_uniform(const win::GLProgram &program, const char *name)
 	return loc;
 }
 
-GLPostProcessingRenderer::GLPostProcessingRenderer(win::AssetRoll &roll, const win::Dimensions<int> &screenres, const win::Area<float> &gamearea)
-	: screenres(screenres)
-	, gamearea(gamearea)
+GLPostProcessingRenderer::GLPostProcessingRenderer(win::AssetRoll &roll, const win::Dimensions<int> &screenres)
 {
 	post.program = win::GLProgram(win::load_gl_shaders(roll["shader/gl/post.vert"], roll["shader/gl/post.frag"]));
 	glUseProgram(post.program.get());
@@ -69,4 +67,12 @@ void GLPostProcessingRenderer::draw(GLuint fb, float fps)
 	glBindFramebuffer(GL_FRAMEBUFFER, fb);
 
 	win::gl_check_error();
+}
+
+void GLPostProcessingRenderer::set_resolution(const win::Dimensions<int> &res)
+{
+	glBindFramebuffer(GL_FRAMEBUFFER, post.fbo.get());
+	glActiveTexture(GLConstants::BLUR_COLOR_ATTACHMENT_TEXTURE_UNIT);
+	glBindTexture(GL_TEXTURE_2D, post.tex.get());
+	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB16, res.width, res.height, 0, GL_RGB, GL_UNSIGNED_SHORT, NULL);
 }

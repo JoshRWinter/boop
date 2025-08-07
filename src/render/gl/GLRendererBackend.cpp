@@ -18,7 +18,7 @@ GLRendererBackend::GLRendererBackend(win::AssetRoll &roll, const win::Dimensions
 	, menufont_big(screenres, area, 1.0f, roll["font/Comicy.ttf"])
 	, common_renderer(roll, glm::ortho(area.left, area.right, area.bottom, area.top), screenres, area)
 	, menu_renderer(roll, text_renderer, menufont_small, menufont_big, glm::ortho(area.left, area.right, area.bottom, area.top))
-	, post_renderer(roll, screenres, area)
+	, post_renderer(roll, screenres)
 {
 	/*
 	glEnable(GL_DEBUG_OUTPUT);
@@ -81,6 +81,24 @@ void GLRendererBackend::render(const std::vector<Renderable> &renderables, const
 	post_renderer.draw(fb.get(), fps);
 
 	win::gl_check_error();
+}
+
+void GLRendererBackend::set_resolution(const win::Dimensions<int> &dims)
+{
+	glViewport(0, 0, dims.width, dims.height);
+
+	glBindFramebuffer(GL_FRAMEBUFFER, fb.get());
+
+	glActiveTexture(GLConstants::MAIN_COLOR_ATTACHMENT_TEXTURE_UNIT);
+	glBindTexture(GL_TEXTURE_2D, fb_main.get());
+	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB16, dims.width, dims.height, 0, GL_RGB, GL_UNSIGNED_SHORT, NULL);
+
+	glActiveTexture(GLConstants::HISTORY_COLOR_ATTACHMENT_TEXTURE_UNIT);
+	glBindTexture(GL_TEXTURE_2D, fb_history.get());
+	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB16, dims.width, dims.height, 0, GL_RGB, GL_UNSIGNED_SHORT, NULL);
+
+	common_renderer.set_resolution(dims);
+	post_renderer.set_resolution(dims);
 }
 
 void GLRendererBackend::drawfps()
