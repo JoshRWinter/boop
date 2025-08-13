@@ -6,7 +6,6 @@
 #include <iostream>
 
 #include <dxgi.h>
-#include <dxgi1_2.h>
 
 #include <win/Win32Display.hpp>
 
@@ -285,6 +284,7 @@ LRESULT CALLBACK Win32Display::wndproc(HWND hwnd, UINT msg, WPARAM wp, LPARAM lp
 
 Win32Display::Win32Display(const DisplayOptions &options)
 {
+	SetProcessDPIAware();
 	init_monitor_properties();
 
 	const char *const window_class = "win_window_class";
@@ -309,10 +309,25 @@ Win32Display::Win32Display(const DisplayOptions &options)
 	if(!RegisterClassEx(&wc))
 		win::bug("Could not register window class");
 
+	HMONITOR monitor = MonitorFromWindow(NULL, MONITOR_DEFAULTTOPRIMARY);
+	if (monitor == NULL)
+		win::bug("MonitorFromWindow failure");
+
+	MONITORINFOEX mi;
+	mi.cbSize = sizeof(mi);
+	if (!GetMonitorInfo(monitor, &mi))
+		win::bug("GetMonitorInfo failure");
+
+	DEVMODE dm;
+	dm.dmSize = sizeof(dm);
+	if (!EnumDisplaySettings(mi.szDevice, ENUM_CURRENT_SETTINGS, &dm))
+		win::bug("EnumDisplaySettings failure");
+
 	if(options.fullscreen)
-		window = CreateWindowEx(0, window_class, "", WS_POPUP, 0, 0, GetSystemMetrics(SM_CXSCREEN), GetSystemMetrics(SM_CYSCREEN), NULL, NULL, GetModuleHandle(NULL), this);
+		window = CreateWindowEx(0, window_class, "", WS_POPUP, mi.rcMonitor.left, mi.rcMonitor.top, dm.dmPelsWidth, dm.dmPelsHeight, NULL, NULL, GetModuleHandle(NULL), this);
 	else
 		window = CreateWindowEx(0, window_class, options.caption.c_str(), WS_SYSMENU | WS_MINIMIZEBOX | WS_CAPTION, CW_USEDEFAULT, CW_USEDEFAULT, options.width, options.height, NULL, NULL, GetModuleHandle(NULL), this);
+
 	if(window == NULL)
 		win::bug("Could not create window");
 
@@ -320,14 +335,18 @@ Win32Display::Win32Display(const DisplayOptions &options)
 
 	ShowWindow(window, SW_SHOWDEFAULT);
 
-	if(!options.fullscreen)
+	if (!options.fullscreen)
 	{
 		RECT rect;
 		GetClientRect(window, &rect);
-		SetWindowPos(window, NULL, 0, 0, options.width + (options.width - rect.right), options.height + (options.height - rect.bottom), SWP_SHOWWINDOW);
+		SetWindowPos(window, NULL, 0, 0, options.width + (options.width - rect.right), options.height + (options.height - rect.bottom), SWP_NOMOVE | SWP_SHOWWINDOW);
 	}
 
-	glViewport(0, 0, width(), height());
+	RECT rect;
+	if (!GetClientRect(window, &rect))
+		win::bug("GetClientRect failure");
+
+	glViewport(0, 0, rect.right, rect.bottom);
 
 	UpdateWindow(window);
 
@@ -400,17 +419,31 @@ void Win32Display::set_fullscreen(bool fullscreen)
 {
 	if (fullscreen)
 	{
+		HMONITOR monitor = MonitorFromWindow(window, MONITOR_DEFAULTTONULL);
+		if (monitor == NULL)
+			win::bug("MonitorFromWindow failure");
+
+		MONITORINFOEX mi;
+		mi.cbSize = sizeof(mi);
+		if (!GetMonitorInfo(monitor, &mi))
+			win::bug("GetMonitorInfo failure");
+
+		DEVMODE dm;
+		dm.dmSize = sizeof(dm);
+		if (!EnumDisplaySettings(mi.szDevice, ENUM_CURRENT_SETTINGS, &dm))
+			win::bug("EnumDisplaySettings failure");
+
 		SetWindowLongPtrA(window, GWL_STYLE, WS_POPUP);
-		SetWindowPos(window, HWND_TOPMOST, CW_USEDEFAULT, CW_USEDEFAULT, GetSystemMetrics(SM_CXSCREEN), GetSystemMetrics(SM_CYSCREEN), SWP_NOMOVE | SWP_FRAMECHANGED);
+		SetWindowPos(window, HWND_TOP, mi.rcMonitor.left, mi.rcMonitor.top, dm.dmPelsWidth, dm.dmPelsHeight, SWP_FRAMECHANGED);
 	}
 	else
 	{
 		SetWindowLongPtrA(window, GWL_STYLE, WS_SYSMENU | WS_MINIMIZEBOX | WS_CAPTION);
-		SetWindowPos(window, HWND_TOPMOST, CW_USEDEFAULT, CW_USEDEFAULT, default_width, default_height, SWP_NOMOVE | SWP_FRAMECHANGED);
+		SetWindowPos(window, HWND_TOP, CW_USEDEFAULT, CW_USEDEFAULT, default_width, default_height, SWP_NOMOVE | SWP_FRAMECHANGED);
 
 		RECT rect;
 		GetClientRect(window, &rect);
-		SetWindowPos(window, HWND_TOPMOST, 0, 0, default_width + (default_width - rect.right), default_height + (default_height - rect.bottom), SWP_SHOWWINDOW);
+		SetWindowPos(window, HWND_TOP, 0, 0, default_width + (default_width - rect.right), default_height + (default_height - rect.bottom), SWP_NOMOVE | SWP_SHOWWINDOW);
 	}
 
 	ShowWindow(window, SW_SHOWDEFAULT);
@@ -485,9 +518,11 @@ void Win32Display::init_monitor_properties()
 				static_assert(sizeof(desc.DeviceName) == sizeof(WCHAR) * 32, "DXGI_OUTPUT_DESC::DeviceName must be 32 WCHAR array");
 
 				// Turrible.
-				char name[32];
-				for (int i = 0; i < 32; ++i)
-					name[i] = desc.DeviceName[i];
+				char name[33];
+				for (int j = 0; j < 32; ++j)
+					name[j] = desc.DeviceName[j];
+
+				name[32] = 0;
 
 				props.name = name;
 				props.width = mode.Width;
