@@ -15,6 +15,7 @@ static Atom atom_delete_window;
 static Atom atom_fullscreen;
 static ::Display *xdisplay;
 static XkbDescPtr xkb_desc;
+
 static struct x_init_helper
 {
 	x_init_helper()
@@ -37,7 +38,6 @@ static struct x_init_helper
 
 		// fullscreen atom
 		atom_fullscreen = XInternAtom(xdisplay, "_NET_WM_STATE_FULLSCREEN", False);
-
 	}
 
 	~x_init_helper()
@@ -253,7 +253,7 @@ X11Display::X11Display(const DisplayOptions &options)
 	// window settings
 	XSetWindowAttributes xswa;
 	xswa.colormap = XCreateColormap(xdisplay, RootWindow(xdisplay, xvi->screen), xvi->visual, AllocNone);
-	xswa.event_mask = KeyPressMask | KeyReleaseMask | ButtonPressMask | ButtonReleaseMask | PointerMotionMask;
+	xswa.event_mask = KeyPressMask | KeyReleaseMask | ButtonPressMask | ButtonReleaseMask | PointerMotionMask | StructureNotifyMask;
 
 	// create da window
 	window = XCreateWindow(xdisplay, RootWindow(xdisplay, xvi->screen), 0, 0, options.fullscreen ? WidthOfScreen(ScreenOfDisplay(xdisplay, 0)) : options.width, options.fullscreen ? HeightOfScreen(ScreenOfDisplay(xdisplay, 0)) : options.height, 0, xvi->depth, InputOutput, xvi->visual, CWColormap | CWEventMask, &xswa);
@@ -311,48 +311,51 @@ void X11Display::process()
 
 		switch(xevent.type)
 		{
-		case ClientMessage:
-			window_handler(win::WindowEvent::close);
-			break;
-		case KeyPress:
-		{
-			button_handler(keystring_to_button(xkb_desc->names->keys[xevent.xkey.keycode].name), true);
-			const KeySym sym = x_get_keysym(&xevent.xkey);
-			if(sym)
-				character_handler(sym);
-			break;
-		}
-		case KeyRelease:
-		{
-			XEvent e;
-			if(XPending(xdisplay))
+			case ClientMessage:
+				window_handler(win::WindowEvent::close);
+				break;
+			case ConfigureNotify:
+				update_refresh_rate();
+				break;
+			case KeyPress:
 			{
-				XPeekEvent(xdisplay, &e);
-				if(e.xany.window == xevent.xany.window && xevent.xkey.keycode == e.xkey.keycode && e.type == KeyPress)
-					break;
+				button_handler(keystring_to_button(xkb_desc->names->keys[xevent.xkey.keycode].name), true);
+				const KeySym sym = x_get_keysym(&xevent.xkey);
+				if(sym)
+					character_handler(sym);
+				break;
 			}
+			case KeyRelease:
+			{
+				XEvent e;
+				if(XPending(xdisplay))
+				{
+					XPeekEvent(xdisplay, &e);
+					if(e.xany.window == xevent.xany.window && xevent.xkey.keycode == e.xkey.keycode && e.type == KeyPress)
+						break;
+				}
 
-			button_handler(keystring_to_button(xkb_desc->names->keys[xevent.xkey.keycode].name), false);
-			break;
-		}
-		case MotionNotify:
-			mouse_handler(xevent.xmotion.x, xevent.xmotion.y);
-			break;
-		case ButtonPress:
-		case ButtonRelease:
-			switch(xevent.xbutton.button)
-			{
-			case 1:
-				button_handler(Button::mouse_left, xevent.type == ButtonPress);
-				break;
-			case 2:
-				button_handler(Button::mouse_middle, xevent.type == ButtonPress);
-				break;
-			case 3:
-				button_handler(Button::mouse_right, xevent.type == ButtonPress);
+				button_handler(keystring_to_button(xkb_desc->names->keys[xevent.xkey.keycode].name), false);
 				break;
 			}
-			break;
+			case MotionNotify:
+				mouse_handler(xevent.xmotion.x, xevent.xmotion.y);
+				break;
+			case ButtonPress:
+			case ButtonRelease:
+				switch(xevent.xbutton.button)
+				{
+					case 1:
+						button_handler(Button::mouse_left, xevent.type == ButtonPress);
+						break;
+					case 2:
+						button_handler(Button::mouse_middle, xevent.type == ButtonPress);
+						break;
+					case 3:
+						button_handler(Button::mouse_right, xevent.type == ButtonPress);
+						break;
+				}
+				break;
 		}
 	}
 }
@@ -404,7 +407,7 @@ int X11Display::screen_height()
 
 float X11Display::refresh_rate()
 {
-	return rrate;
+	return rrate_cache.rrate;
 }
 
 void X11Display::cursor(bool show)
@@ -433,6 +436,10 @@ void X11Display::vsync(bool on)
 	glXSwapIntervalEXT(xdisplay, window, on);
 }
 
+void X11Display::set_fullscreen(bool fullscreen)
+{
+}
+
 NativeWindowHandle X11Display::native_handle()
 {
 	return &window;
@@ -440,11 +447,67 @@ NativeWindowHandle X11Display::native_handle()
 
 void X11Display::update_refresh_rate()
 {
-	const auto info = XRRGetScreenInfo(xdisplay, window);
-	rrate = XRRConfigCurrentRate(info);
-	XRRFreeScreenConfigInfo(info);
-}
+	auto contains_point = [](int monitorx, int monitory, int monitorw, int monitorh, int x, int y)
+	{
+		return x >= monitorx && x < monitorx + monitorw && y >= monitory && y < monitory + monitorh;
+	};
 
+	Window root;
+
+	int x, y;
+	unsigned w, h, b, d;
+
+	XGetGeometry(xdisplay, window, &root, &x, &y, &w, &h, &b, &d);
+
+	if (rrate_cache.lastx == x && rrate_cache.lasty == y && rrate_cache.lastwidth == w && rrate_cache.lastheight == h)
+		return;
+
+	rrate_cache.lastx = x;
+	rrate_cache.lasty = y;
+	rrate_cache.lastwidth = w;
+	rrate_cache.lastheight = h;
+
+	fprintf(stderr, "Updatng rrate\n");
+
+	auto resources = XRRGetScreenResources(xdisplay, window);
+
+	for (int i = 0; i < resources->noutput; ++i)
+	{
+		auto info = XRRGetOutputInfo(xdisplay, resources, resources->outputs[i]);
+		auto crtc = XRRGetCrtcInfo(xdisplay, resources, info->crtc);
+
+		if (!contains_point(crtc->x, crtc->y, crtc->width, crtc->height, x + (w / 2), y + (h / 2)))
+		{
+			continue;
+		}
+
+		XRRModeInfo *mode = NULL;
+		for (int j = 0; j < resources->nmode; ++j)
+		{
+			if (resources->modes[j].id == crtc->mode)
+			{
+				mode = &resources->modes[j];
+				break;
+			}
+		}
+
+		if (mode != NULL)
+		{
+			rrate_cache.rrate = mode->dotClock / ((double)mode->hTotal * mode->vTotal);
+		}
+		else
+		{
+			fprintf(stderr, "Couldn't find mode\n");
+			rrate_cache.rrate = 60;
+		}
+
+		XRRFreeCrtcInfo(crtc);
+		XRRFreeOutputInfo(info);
+	}
+
+
+	XRRFreeScreenResources(resources);
+}
 }
 
 #endif

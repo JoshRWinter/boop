@@ -29,6 +29,7 @@ public:
 	float refresh_rate() override;
 	void cursor(bool show) override;
 	void vsync(bool on) override;
+	void set_fullscreen(bool fulscreen) override;
 	NativeWindowHandle native_handle() override;
 
 private:
@@ -37,7 +38,13 @@ private:
 	Window window;
 	GLXContext context;
 	PFNGLXSWAPINTERVALEXTPROC glXSwapIntervalEXT;
-	float rrate = -1.0f;
+
+	struct
+	{
+		int lastx = 0, lasty = 0;
+		unsigned lastwidth = 0, lastheight = 0;
+		float rrate = 60.0f;
+	} rrate_cache;
 };
 
 }
