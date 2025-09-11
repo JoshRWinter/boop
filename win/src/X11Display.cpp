@@ -13,6 +13,7 @@ typedef GLXContext (*glXCreateContextAttribsARBProc)(::Display*, GLXFBConfig, GL
 
 static Atom atom_delete_window;
 static Atom atom_fullscreen;
+static Atom atom_wm_state;
 static ::Display *xdisplay;
 static XkbDescPtr xkb_desc;
 
@@ -38,6 +39,9 @@ static struct x_init_helper
 
 		// fullscreen atom
 		atom_fullscreen = XInternAtom(xdisplay, "_NET_WM_STATE_FULLSCREEN", False);
+
+		// wm state atom
+		atom_wm_state = XInternAtom(xdisplay, "_NET_WM_STATE", False);
 	}
 
 	~x_init_helper()
@@ -220,6 +224,7 @@ namespace win
 {
 
 X11Display::X11Display(const DisplayOptions &options)
+	: options(options)
 {
 	if (options.width < 1 || options.height < 1)
 		win::bug("Invalid window dimensions");
@@ -255,14 +260,50 @@ X11Display::X11Display(const DisplayOptions &options)
 	xswa.colormap = XCreateColormap(xdisplay, RootWindow(xdisplay, xvi->screen), xvi->visual, AllocNone);
 	xswa.event_mask = KeyPressMask | KeyReleaseMask | ButtonPressMask | ButtonReleaseMask | PointerMotionMask | StructureNotifyMask;
 
+	int primary_x, primary_y;
+	unsigned primary_width, primary_height;
+
+	{
+		auto root = RootWindow(xdisplay, DefaultScreen(xdisplay));
+		auto res = XRRGetScreenResources(xdisplay, root);
+		auto outputid = XRRGetOutputPrimary(xdisplay, root);
+		if (outputid == 0)
+			outputid = res->outputs[0];
+		auto output = XRRGetOutputInfo(xdisplay, res, outputid);
+		auto crtc = XRRGetCrtcInfo(xdisplay, res, output->crtc);
+
+		primary_x = crtc->x;
+		primary_y = crtc->y;
+		primary_width = crtc->width;
+		primary_height = crtc->height;
+
+		XRRFreeCrtcInfo(crtc);
+		XRRFreeOutputInfo(output);
+		XRRFreeScreenResources(res);
+	}
+
 	// create da window
-	window = XCreateWindow(xdisplay, RootWindow(xdisplay, xvi->screen), 0, 0, options.fullscreen ? WidthOfScreen(ScreenOfDisplay(xdisplay, 0)) : options.width, options.fullscreen ? HeightOfScreen(ScreenOfDisplay(xdisplay, 0)) : options.height, 0, xvi->depth, InputOutput, xvi->visual, CWColormap | CWEventMask, &xswa);
+	window = XCreateWindow(
+		xdisplay,
+		RootWindow(xdisplay, xvi->screen),
+		options.fullscreen ? 0 : (primary_x + (primary_width / 2)) - (options.width / 2),
+		options.fullscreen ? 0 : (primary_y + (primary_height / 2)) - (options.height / 2),
+		options.fullscreen ? primary_width : options.width,
+		options.fullscreen ? primary_height : options.height,
+		0,
+		xvi->depth,
+		InputOutput,
+		xvi->visual,
+		CWColormap | CWEventMask,
+		&xswa
+	);
+
 	XMapWindow(xdisplay, window);
 	XStoreName(xdisplay, window, options.caption.c_str());
 
 	// fullscreen
 	if(options.fullscreen)
-		XChangeProperty(xdisplay, window, XInternAtom(xdisplay, "_NET_WM_STATE", False), XA_ATOM, 32, PropModeReplace, (const unsigned char*)&atom_fullscreen, 1);
+		XChangeProperty(xdisplay, window, atom_wm_state, XA_ATOM, 32, PropModeReplace, (const unsigned char*)&atom_fullscreen, 1);
 
 	glXCreateContextAttribsARBProc glXCreateContextAttribsARB = (glXCreateContextAttribsARBProc)glXGetProcAddress((unsigned char*)"glXCreateContextAttribsARB");
 	if(glXCreateContextAttribsARB == NULL)
@@ -279,7 +320,7 @@ X11Display::X11Display(const DisplayOptions &options)
 	// create opengl context
 	context = glXCreateContextAttribsARB(xdisplay, fbconfig[0], NULL, true, context_attributes);
 	if(context == None)
-		win::bug("Could not create an OpenGL " + std::to_string(context_attributes[1]) + "." + std::to_string(context_attributes[3])  + " context");
+		win::bug("Could not create an OpenGL " + std::to_string(context_attributes[1]) + "." + std::to_string(context_attributes[3]) + " context");
 	glXMakeCurrent(xdisplay, window, context);
 
 	// set up delete window protocol
@@ -315,8 +356,26 @@ void X11Display::process()
 				window_handler(win::WindowEvent::close);
 				break;
 			case ConfigureNotify:
-				update_refresh_rate();
-				break;
+			{
+				Window root;
+				int x, y;
+				unsigned w, h, b, d;
+				XGetGeometry(xdisplay, window, &root, &x, &y, &w, &h, &b, &d);
+
+
+				if (x != window_prop_cache.x || y != window_prop_cache.y || w != window_prop_cache.w || h != window_prop_cache.h)
+				{
+					window_prop_cache.x = x;
+					window_prop_cache.y = y;
+					window_prop_cache.w = w;
+					window_prop_cache.h = h;
+
+					update_refresh_rate();
+
+					resize_handler(w, h);
+				}
+			}
+			break;
 			case KeyPress:
 			{
 				button_handler(keystring_to_button(xkb_desc->names->keys[xevent.xkey.keycode].name), true);
@@ -407,7 +466,7 @@ int X11Display::screen_height()
 
 float X11Display::refresh_rate()
 {
-	return rrate_cache.rrate;
+	return rrate;
 }
 
 void X11Display::cursor(bool show)
@@ -438,6 +497,19 @@ void X11Display::vsync(bool on)
 
 void X11Display::set_fullscreen(bool fullscreen)
 {
+	int monx, mony, monw, monh;
+	float monrate;
+	get_current_monitor_props(monx, mony, monw, monh, monrate);
+
+	XMoveResizeWindow(
+		xdisplay,
+		window,
+		fullscreen ? monx : ((monx + (monw / 2)) - (options.width / 2)),
+		fullscreen ? mony : ((mony + (monh / 2)) - (options.height / 2)),
+		fullscreen ? monw : options.width,
+		fullscreen ? monh : options.height);
+
+	XChangeProperty(xdisplay, window, atom_wm_state, XA_ATOM, 32, PropModeReplace, (const unsigned char *)&atom_fullscreen, fullscreen);
 }
 
 NativeWindowHandle X11Display::native_handle()
@@ -447,27 +519,28 @@ NativeWindowHandle X11Display::native_handle()
 
 void X11Display::update_refresh_rate()
 {
-	auto contains_point = [](int monitorx, int monitory, int monitorw, int monitorh, int x, int y)
-	{
-		return x >= monitorx && x < monitorx + monitorw && y >= monitory && y < monitory + monitorh;
-	};
+	int x, y, w, h;
+	float rr;
+
+	get_current_monitor_props(x, y, w, h, rr);
+
+	rrate = rr;
+}
+
+void X11Display::get_current_monitor_props(int &x, int &y, int &w, int &h, float &rr)
+{
+	x = 0;
+	y = 0;
+	w = 0;
+	h = 0;
+	rr = 0;
 
 	Window root;
 
-	int x, y;
-	unsigned w, h, b, d;
+	int windowx, windowy;
+	unsigned windoww, windowh, b, d;
 
-	XGetGeometry(xdisplay, window, &root, &x, &y, &w, &h, &b, &d);
-
-	if (rrate_cache.lastx == x && rrate_cache.lasty == y && rrate_cache.lastwidth == w && rrate_cache.lastheight == h)
-		return;
-
-	rrate_cache.lastx = x;
-	rrate_cache.lasty = y;
-	rrate_cache.lastwidth = w;
-	rrate_cache.lastheight = h;
-
-	fprintf(stderr, "Updatng rrate\n");
+	XGetGeometry(xdisplay, window, &root, &windowx, &windowy, &windoww, &windowh, &b, &d);
 
 	auto resources = XRRGetScreenResources(xdisplay, window);
 
@@ -476,38 +549,54 @@ void X11Display::update_refresh_rate()
 		auto info = XRRGetOutputInfo(xdisplay, resources, resources->outputs[i]);
 		auto crtc = XRRGetCrtcInfo(xdisplay, resources, info->crtc);
 
-		if (!contains_point(crtc->x, crtc->y, crtc->width, crtc->height, x + (w / 2), y + (h / 2)))
+		if (contains_point(crtc->x, crtc->y, crtc->width, crtc->height, windowx + (windoww / 2), windowy + (windowh / 2)))
 		{
-			continue;
-		}
-
-		XRRModeInfo *mode = NULL;
-		for (int j = 0; j < resources->nmode; ++j)
-		{
-			if (resources->modes[j].id == crtc->mode)
+			XRRModeInfo *mode = NULL;
+			for (int j = 0; j < resources->nmode; ++j)
 			{
-				mode = &resources->modes[j];
+				if (resources->modes[j].id == crtc->mode)
+				{
+					mode = &resources->modes[j];
+					break;
+				}
+			}
+
+			if (mode != NULL)
+			{
+				mon_props_cache.x = crtc->x;
+				mon_props_cache.y = crtc->y;
+				mon_props_cache.w = crtc->width;
+				mon_props_cache.h = crtc->height;
+				mon_props_cache.rate = mode->dotClock / ((double)mode->hTotal * mode->vTotal);
+
+				//fprintf(stderr, "Updated refresh rate (%.4f)\n", rr);
+
 				break;
 			}
-		}
-
-		if (mode != NULL)
-		{
-			rrate_cache.rrate = mode->dotClock / ((double)mode->hTotal * mode->vTotal);
-		}
-		else
-		{
-			fprintf(stderr, "Couldn't find mode\n");
-			rrate_cache.rrate = 60;
+			else
+			{
+				fprintf(stderr, "Couldn't find mode\n");
+			}
 		}
 
 		XRRFreeCrtcInfo(crtc);
 		XRRFreeOutputInfo(info);
 	}
 
-
 	XRRFreeScreenResources(resources);
+
+	x = mon_props_cache.x;
+	y = mon_props_cache.y;
+	w = mon_props_cache.w;
+	h = mon_props_cache.h;
+	rr = mon_props_cache.rate;
 }
+
+bool X11Display::contains_point(int monitorx, int monitory, int monitorw, int monitorh, int x, int y)
+{
+	return x >= monitorx && x < monitorx + monitorw && y >= monitory && y < monitory + monitorh;
+}
+
 }
 
 #endif

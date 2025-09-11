@@ -40,6 +40,7 @@ public:
 	NativeWindowHandle native_handle() { return inner->native_handle(); }
 
 	void register_window_handler(DisplayBase::WindowHandler handler) { inner->register_window_handler(std::move(handler)); }
+	void register_resize_handler(DisplayBase::ResizeHandler handler) { inner->register_resize_handler(std::move(handler)); }
 	void register_button_handler(DisplayBase::ButtonHandler handler) { inner->register_button_handler(std::move(handler)); }
 	void register_character_handler(DisplayBase::CharacterHandler handler) { inner->register_character_handler(std::move(handler)); }
 	void register_mouse_handler(DisplayBase::MouseHandler handler) { inner->register_mouse_handler(std::move(handler)); }
