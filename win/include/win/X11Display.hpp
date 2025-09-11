@@ -24,8 +24,7 @@ public:
 	void swap() override;
 	int width() override;
 	int height() override;
-	int screen_width() override;
-	int screen_height() override;
+	void resize(int w, int h) override;
 	float refresh_rate() override;
 	void cursor(bool show) override;
 	void vsync(bool on) override;

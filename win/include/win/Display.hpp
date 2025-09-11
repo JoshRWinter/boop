@@ -31,8 +31,7 @@ public:
 	void swap() { inner->swap(); }
 	int width() { return inner->width(); }
 	int height() { return inner->height(); }
-	int screen_width() { return inner->screen_width(); }
-	int screen_height() { return inner->screen_height(); }
+	void resize(int w, int h) { inner->resize(w, h); }
 	float refresh_rate() { return inner->refresh_rate(); }
 	void cursor(bool show) { inner->cursor(show); }
 	void set_fullscreen(bool fullscreen) { inner->set_fullscreen(fullscreen); }

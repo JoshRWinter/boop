@@ -362,18 +362,19 @@ void X11Display::process()
 				unsigned w, h, b, d;
 				XGetGeometry(xdisplay, window, &root, &x, &y, &w, &h, &b, &d);
 
+				const bool resized = w != window_prop_cache.w || h != window_prop_cache.h;
+				const bool moved = x != window_prop_cache.x || y != window_prop_cache.y;
 
-				if (x != window_prop_cache.x || y != window_prop_cache.y || w != window_prop_cache.w || h != window_prop_cache.h)
-				{
-					window_prop_cache.x = x;
-					window_prop_cache.y = y;
-					window_prop_cache.w = w;
-					window_prop_cache.h = h;
-
+				if (moved || resized)
 					update_refresh_rate();
 
+				if (resized)
 					resize_handler(w, h);
-				}
+
+				window_prop_cache.x = x;
+				window_prop_cache.y = y;
+				window_prop_cache.w = w;
+				window_prop_cache.h = h;
 			}
 			break;
 			case KeyPress:
@@ -454,14 +455,9 @@ int X11Display::height()
 	return height;
 }
 
-int X11Display::screen_width()
+void X11Display::resize(int w, int h)
 {
-	return WidthOfScreen(ScreenOfDisplay(xdisplay, 0));
-}
-
-int X11Display::screen_height()
-{
-	return HeightOfScreen(ScreenOfDisplay(xdisplay, 0));
+	XResizeWindow(xdisplay, window, w, h);
 }
 
 float X11Display::refresh_rate()

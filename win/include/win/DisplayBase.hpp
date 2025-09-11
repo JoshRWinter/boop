@@ -57,8 +57,7 @@ public:
 	virtual void swap() = 0;
 	virtual int width() = 0;
 	virtual int height() = 0;
-	virtual int screen_width() = 0;
-	virtual int screen_height() = 0;
+	virtual void resize(int w, int h) = 0;
 	virtual float refresh_rate() = 0;
 	virtual void cursor(bool) = 0;
 	virtual void set_fullscreen(bool fullscreen) = 0;
