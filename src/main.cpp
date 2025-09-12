@@ -60,9 +60,7 @@ int main(int argc, char **argv)
 		&text_buffer,
 		&text_available,
 		&display,
-		&fullscreen,
-		&screenres,
-		&renderer
+		&fullscreen
 	](win::Button button, bool press)
 	{
 		switch (button)
@@ -95,10 +93,10 @@ int main(int argc, char **argv)
 
 	bool resize = false;
 	std::chrono::time_point<std::chrono::high_resolution_clock> last_resize;
-	display.register_resize_handler([&screenres, &display, &renderer, &resize, &last_resize](int w, int h)
+	display.register_resize_handler([&screenres, &renderer, &resize, &last_resize](int w, int h)
 	{
-		screenres.width = display.width();
-		screenres.height = display.height();
+		screenres.width = w;
+		screenres.height = h;
 		renderer.set_resolution(screenres);
 
 		resize = true;
@@ -125,10 +123,14 @@ int main(int argc, char **argv)
 
 	while (!quit)
 	{
-		if (resize && std::chrono::duration<float>(std::chrono::high_resolution_clock::now() - last_resize).count() > 0.1f)
+		if (resize && std::chrono::duration<float>(std::chrono::high_resolution_clock::now() - last_resize).count() > 0.3f)
 		{
 			resize = false;
-			display.resize(display.width(), display.width() / (1600.0 / 900));
+
+			const int w = display.width();
+			const int h = display.height();
+			if (h != w / (16 / 9.0))
+				display.resize(w, h / (16 / 9.0));
 		}
 
 		display.process();
