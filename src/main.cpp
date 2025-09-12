@@ -87,14 +87,22 @@ int main(int argc, char **argv)
 				{
 					fullscreen = !fullscreen;
 					display.set_fullscreen(fullscreen);
-					screenres.width = display.width();
-					screenres.height = display.height();
-					renderer.set_resolution(screenres);
 				}
 				break;
-
 			default: break;
 		}
+	});
+
+	bool resize = false;
+	std::chrono::time_point<std::chrono::high_resolution_clock> last_resize;
+	display.register_resize_handler([&screenres, &display, &renderer, &resize, &last_resize](int w, int h)
+	{
+		screenres.width = display.width();
+		screenres.height = display.height();
+		renderer.set_resolution(screenres);
+
+		resize = true;
+		last_resize = std::chrono::high_resolution_clock::now();
 	});
 
 	display.register_character_handler([&text_buffer, &text_available](int c)
@@ -117,6 +125,12 @@ int main(int argc, char **argv)
 
 	while (!quit)
 	{
+		if (resize && std::chrono::duration<float>(std::chrono::high_resolution_clock::now() - last_resize).count() > 0.1f)
+		{
+			resize = false;
+			display.resize(display.width(), display.width() / (1600.0 / 900));
+		}
+
 		display.process();
 
 		if (input_available)
