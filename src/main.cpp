@@ -123,14 +123,16 @@ int main(int argc, char **argv)
 
 	while (!quit)
 	{
-		if (resize && std::chrono::duration<float>(std::chrono::high_resolution_clock::now() - last_resize).count() > 0.3f)
+		if (!fullscreen && resize && std::chrono::duration<float>(std::chrono::high_resolution_clock::now() - last_resize).count() > 0.3f)
 		{
 			resize = false;
 
 			const int w = display.width();
 			const int h = display.height();
-			if (h != w / (16 / 9.0))
-				display.resize(w, h / (16 / 9.0));
+			const int corrected_h = std::round(w / (16 / 9.0));
+
+			if (h != corrected_h)
+				display.resize(w, corrected_h);
 		}
 
 		display.process();

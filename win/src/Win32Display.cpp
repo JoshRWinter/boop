@@ -163,7 +163,7 @@ void Win32Display::win_init_gl(HWND hwnd)
 
 	const int attribs[] =
 	{
-		WGL_CONTEXT_MAJOR_VERSION_ARB, gl_major, WGL_CONTEXT_MINOR_VERSION_ARB, gl_minor, 0
+		WGL_CONTEXT_MAJOR_VERSION_ARB, options.gl_major, WGL_CONTEXT_MINOR_VERSION_ARB, options.gl_minor, 0
 	};
 
 	SetPixelFormat(hdc, ChoosePixelFormat(hdc, &pfd), &pfd);
@@ -176,7 +176,7 @@ void Win32Display::win_init_gl(HWND hwnd)
 	if(context == NULL)
 	{
 		ReleaseDC(hwnd, hdc);
-		MessageBox(NULL, ("This software requires support for at least Opengl " + std::to_string(gl_major) + "." + std::to_string(gl_minor)).c_str(), "Fatal Error", MB_ICONEXCLAMATION);
+		MessageBox(NULL, ("This software requires support for at least Opengl " + std::to_string(options.gl_major) + "." + std::to_string(options.gl_minor)).c_str(), "Fatal Error", MB_ICONEXCLAMATION);
 		std::abort();
 	}
 
@@ -272,9 +272,24 @@ LRESULT CALLBACK Win32Display::wndproc(HWND hwnd, UINT msg, WPARAM wp, LPARAM lp
 			return 0;
 		case WM_ERASEBKGND:
 			return 0;
-		case WM_WINDOWPOSCHANGED:
+		case WM_EXITSIZEMOVE:
+		{
 			display.update_refresh_rate();
+
+			RECT rect;
+			if (!GetClientRect(display.window, &rect))
+				win::bug("GetClientRect failure");
+
+			if (display.window_prop_cache.w != rect.right || display.window_prop_cache.h != rect.bottom)
+			{
+				display.window_prop_cache.w = rect.right;
+				display.window_prop_cache.h = rect.bottom;
+
+				display.resize_handler(rect.right, rect.bottom);
+			}
+
 			return 0;
+		}
 		default:
 			return DefWindowProc(hwnd, msg, wp, lp);
 	}
@@ -283,14 +298,12 @@ LRESULT CALLBACK Win32Display::wndproc(HWND hwnd, UINT msg, WPARAM wp, LPARAM lp
 }
 
 Win32Display::Win32Display(const DisplayOptions &options)
+	: options(options)
 {
-	SetProcessDPIAware();
+	SetProcessDpiAwarenessContext(DPI_AWARENESS_CONTEXT_PER_MONITOR_AWARE);
 	init_monitor_properties();
 
 	const char *const window_class = "win_window_class";
-
-	gl_major = options.gl_major;
-	gl_minor = options.gl_minor;
 
 	WNDCLASSEX wc;
 	wc.cbSize = sizeof(wc);
@@ -323,10 +336,28 @@ Win32Display::Win32Display(const DisplayOptions &options)
 	if (!EnumDisplaySettings(mi.szDevice, ENUM_CURRENT_SETTINGS, &dm))
 		win::bug("EnumDisplaySettings failure");
 
-	if(options.fullscreen)
-		window = CreateWindowEx(0, window_class, "", WS_POPUP, mi.rcMonitor.left, mi.rcMonitor.top, dm.dmPelsWidth, dm.dmPelsHeight, NULL, NULL, GetModuleHandle(NULL), this);
-	else
-		window = CreateWindowEx(0, window_class, options.caption.c_str(), WS_SYSMENU | WS_MINIMIZEBOX | WS_CAPTION, CW_USEDEFAULT, CW_USEDEFAULT, options.width, options.height, NULL, NULL, GetModuleHandle(NULL), this);
+	RECT rect;
+	rect.left = 0;
+	rect.top = 0;
+	rect.right = options.fullscreen ? dm.dmPelsWidth : options.width;
+	rect.bottom = options.fullscreen ? dm.dmPelsHeight : options.height;
+
+	if (!AdjustWindowRectEx(&rect, options.fullscreen ? fullscreen_style : windowed_style, FALSE, 0))
+		win::bug("AdjustWindowRectExFailure");
+
+	window = CreateWindowEx(
+		0,
+		window_class,
+		options.caption.c_str(),
+		options.fullscreen ? fullscreen_style : windowed_style,
+		options.fullscreen ? mi.rcMonitor.left : CW_USEDEFAULT,
+		options.fullscreen ? mi.rcMonitor.top : CW_USEDEFAULT,
+		rect.right - rect.left,
+		rect.bottom - rect.top,
+		options.parent,
+		NULL,
+		GetModuleHandle(NULL),
+		this);
 
 	if(window == NULL)
 		win::bug("Could not create window");
@@ -335,25 +366,12 @@ Win32Display::Win32Display(const DisplayOptions &options)
 
 	ShowWindow(window, SW_SHOWDEFAULT);
 
-	if (!options.fullscreen)
-	{
-		RECT rect;
-		GetClientRect(window, &rect);
-		SetWindowPos(window, NULL, 0, 0, options.width + (options.width - rect.right), options.height + (options.height - rect.bottom), SWP_NOMOVE | SWP_SHOWWINDOW);
-	}
-
-	RECT rect;
 	if (!GetClientRect(window, &rect))
 		win::bug("GetClientRect failure");
 
 	glViewport(0, 0, rect.right, rect.bottom);
 
-	UpdateWindow(window);
-
 	update_refresh_rate();
-
-	default_width = options.width;
-	default_height = options.height;
 }
 
 Win32Display::~Win32Display()
@@ -395,14 +413,25 @@ int Win32Display::height()
 	return rect.bottom;
 }
 
-int Win32Display::screen_width()
+void Win32Display::resize(int w, int h)
 {
-	return GetSystemMetrics(SM_CXSCREEN);
-}
+	const auto style = GetWindowLongA(window, GWL_STYLE);
 
-int Win32Display::screen_height()
-{
-	return GetSystemMetrics(SM_CYSCREEN);
+	RECT rect;
+	rect.left = 0;
+	rect.top = 0;
+	rect.right = w;
+	rect.bottom = h;
+
+	const auto s = style & WS_MINIMIZEBOX ? windowed_style : fullscreen_style;
+
+	if (!AdjustWindowRectEx(&rect, s, FALSE, 0))
+		win::bug("AdjustWindowRectEx failure");
+
+	if (!SetWindowPos(window, HWND_TOP, CW_USEDEFAULT, CW_USEDEFAULT, rect.right - rect.left, rect.bottom - rect.top, SWP_NOMOVE | SWP_FRAMECHANGED))
+		win::bug("SetWindowPos failure");
+
+	PostMessage(window, WM_EXITSIZEMOVE, 0, 0);
 }
 
 float Win32Display::refresh_rate()
@@ -433,20 +462,38 @@ void Win32Display::set_fullscreen(bool fullscreen)
 		if (!EnumDisplaySettings(mi.szDevice, ENUM_CURRENT_SETTINGS, &dm))
 			win::bug("EnumDisplaySettings failure");
 
-		SetWindowLongPtrA(window, GWL_STYLE, WS_POPUP);
-		SetWindowPos(window, HWND_TOP, mi.rcMonitor.left, mi.rcMonitor.top, dm.dmPelsWidth, dm.dmPelsHeight, SWP_FRAMECHANGED);
+		SetWindowLongPtrA(window, GWL_STYLE, fullscreen_style);
+
+		RECT rect;
+		rect.left = 0;
+		rect.top = 0;
+		rect.right = dm.dmPelsWidth;
+		rect.bottom = dm.dmPelsHeight;
+
+		if (!AdjustWindowRectEx(&rect, fullscreen_style, FALSE, 0))
+			win::bug("AdjustWindowRectEx failure");
+
+		SetWindowPos(window, HWND_TOP, mi.rcMonitor.left, mi.rcMonitor.top, rect.right - rect.left, rect.bottom - rect.top, SWP_FRAMECHANGED);
 	}
 	else
 	{
-		SetWindowLongPtrA(window, GWL_STYLE, WS_SYSMENU | WS_MINIMIZEBOX | WS_CAPTION);
-		SetWindowPos(window, HWND_TOP, CW_USEDEFAULT, CW_USEDEFAULT, default_width, default_height, SWP_NOMOVE | SWP_FRAMECHANGED);
+		SetWindowLongPtrA(window, GWL_STYLE, windowed_style);
 
 		RECT rect;
-		GetClientRect(window, &rect);
-		SetWindowPos(window, HWND_TOP, 0, 0, default_width + (default_width - rect.right), default_height + (default_height - rect.bottom), SWP_NOMOVE | SWP_SHOWWINDOW);
+		rect.left = 0;
+		rect.top = 0;
+		rect.right = options.width;
+		rect.bottom = options.height;
+
+		if (!AdjustWindowRectEx(&rect, windowed_style, FALSE, 0))
+			win::bug("AdjustWindowRectEx failure");
+
+		SetWindowPos(window, HWND_TOP, CW_USEDEFAULT, CW_USEDEFAULT, rect.right - rect.left, rect.bottom - rect.top, SWP_NOMOVE | SWP_FRAMECHANGED);
 	}
 
 	ShowWindow(window, SW_SHOWDEFAULT);
+
+	PostMessage(window, WM_EXITSIZEMOVE, 0, 0);
 }
 
 void Win32Display::vsync(bool on)

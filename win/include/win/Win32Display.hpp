@@ -18,6 +18,9 @@ class Win32Display : public DisplayBase
 {
 	WIN_NO_COPY_MOVE(Win32Display);
 
+	constexpr static DWORD windowed_style = WS_SYSMENU | WS_MINIMIZEBOX | WS_CAPTION | WS_SIZEBOX;
+	constexpr static DWORD fullscreen_style = WS_POPUP;
+
 	struct MonitorProperties
 	{
 		std::string name;
@@ -34,8 +37,7 @@ public:
 	void swap() override;
 	int width() override;
 	int height() override;
-	int screen_width() override;
-	int screen_height() override;
+	void resize(int w, int h) override;
 	float refresh_rate() override;
 	void cursor(bool show) override;
 	void set_fullscreen(bool fullscreen) override;
@@ -52,12 +54,11 @@ private:
 	HWND window;
 	HDC hdc;
 	HGLRC context;
-	int gl_major;
-	int gl_minor;
 	PFNWGLSWAPINTERVALEXTPROC wglSwapIntervalEXT;
 	std::vector<MonitorProperties> monprops;
 	float rrate;
-	int default_width, default_height;
+	const win::DisplayOptions options;
+	struct { int w = 0, h = 0; } window_prop_cache;
 };
 
 }
