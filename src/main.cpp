@@ -1,3 +1,5 @@
+#include <cmath>
+
 #include <win/Display.hpp>
 #include <win/AssetRoll.hpp>
 #include <win/gl/GL.hpp>
