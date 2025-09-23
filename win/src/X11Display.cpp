@@ -334,6 +334,9 @@ X11Display::X11Display(const DisplayOptions &options)
 	XFree(fbconfig);
 
 	update_refresh_rate();
+
+	window_prop_cache.w = options.fullscreen ? primary_width : options.width;
+	window_prop_cache.h = options.fullscreen ? primary_height : options.height;
 }
 
 X11Display::~X11Display()
