@@ -13,7 +13,7 @@ public:
 	Renderer(win::AssetRoll &roll, const win::Dimensions<int> &screen_area, const win::Area<float> &area);
 
 	void render(const Renderables &prev, const Renderables &current, float lerp_t, float mousey, float fps);
-	void set_resolution(const win::Dimensions<int> &dims);
+	void set_resolution(const win::Dimensions<int> &dims, win::AssetRoll &roll);
 
 private:
 	static float lerp(float a, float b, float t);

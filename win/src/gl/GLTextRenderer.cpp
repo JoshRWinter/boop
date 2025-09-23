@@ -151,11 +151,6 @@ GLTextRenderer::GLTextRenderer(const Dimensions<int> &screen_pixel_dimensions, c
 	object_data = std::move(GLMappedRingBuffer<ObjectBytes>(instances_mem, object_data_length));
 }
 
-GLFont GLTextRenderer::create_font(float size, win::Stream data)
-{
-	return std::move(GLFont(screen_pixel_dimensions, screen_area, size, std::move(data)));
-}
-
 void GLTextRenderer::draw(const GLFont &font, const char *text, float xpos, float ypos, bool centered)
 {
 	draw(font, text, xpos, ypos, Color<float>(), centered);

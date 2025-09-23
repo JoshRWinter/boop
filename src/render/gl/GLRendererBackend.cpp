@@ -16,6 +16,7 @@ GLRendererBackend::GLRendererBackend(win::AssetRoll &roll, const win::Dimensions
 	, menufont_tiny(screenres, area, 0.125f, roll["font/Comicy.ttf"])
 	, menufont_small(screenres, area, 0.5f, roll["font/Comicy.ttf"])
 	, menufont_big(screenres, area, 1.0f, roll["font/Comicy.ttf"])
+	, area(area)
 	, common_renderer(roll, glm::ortho(area.left, area.right, area.bottom, area.top), screenres, area)
 	, menu_renderer(roll, text_renderer, menufont_small, menufont_big, glm::ortho(area.left, area.right, area.bottom, area.top))
 	, post_renderer(roll, screenres)
@@ -83,9 +84,15 @@ void GLRendererBackend::render(const std::vector<Renderable> &renderables, const
 	win::gl_check_error();
 }
 
-void GLRendererBackend::set_resolution(const win::Dimensions<int> &dims)
+void GLRendererBackend::set_resolution(const win::Dimensions<int> &dims, win::AssetRoll &roll)
 {
 	glViewport(0, 0, dims.width, dims.height);
+
+	menufont_tiny = win::GLFont(dims, area, 0.125f, roll["font/Comicy.ttf"]);
+	menufont_small = win::GLFont(dims, area, 0.5f, roll["font/Comicy.ttf"]);
+	menufont_big = win::GLFont(dims, area, 1.0f, roll["font/Comicy.ttf"]);
+
+	text_renderer.resize(dims);
 
 	glBindFramebuffer(GL_FRAMEBUFFER, fb.get());
 

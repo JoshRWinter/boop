@@ -95,11 +95,11 @@ int main(int argc, char **argv)
 
 	bool resize = false;
 	std::chrono::time_point<std::chrono::high_resolution_clock> last_resize;
-	display.register_resize_handler([&screenres, &renderer, &resize, &last_resize](int w, int h)
+	display.register_resize_handler([&screenres, &renderer, &resize, &last_resize, &roll](int w, int h)
 	{
 		screenres.width = w;
 		screenres.height = h;
-		renderer.set_resolution(screenres);
+		renderer.set_resolution(screenres, roll);
 
 		resize = true;
 		last_resize = std::chrono::high_resolution_clock::now();

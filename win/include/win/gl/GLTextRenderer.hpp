@@ -16,15 +16,13 @@ namespace win
 
 class GLTextRenderer : public TextRenderer
 {
-	WIN_NO_COPY(GLTextRenderer);
+	WIN_NO_COPY_MOVE(GLTextRenderer);
 	friend class Font;
 
 	constexpr static int object_data_length = 2048;
 
 public:
 	GLTextRenderer(const Dimensions<int> &screen_pixel_dimensions, const Area<float> &screen_area, GLenum texture_unit, bool texture_unit_owned, GLuint shader_storage_block_binding, bool shader_storage_block_binding_owned);
-
-	GLFont create_font(float size, Stream data);
 
 	void draw(const GLFont &font, const char *text, float xpos, float ypos, bool centered = false);
 	void draw(const GLFont &font, const char *text, float xpos, float ypos, const Color<float> &color, bool centered = false);
@@ -39,7 +37,7 @@ private:
 	GLuint shader_storage_block_binding;
 	bool shader_storage_block_binding_owned;
 
-	const GLFont *current_font;
+	const void *current_font;
 	win::Color<float> current_color;
 
 	GLProgram program;

@@ -34,7 +34,10 @@ struct TextRendererString
 
 class TextRenderer
 {
+	WIN_NO_COPY_MOVE(TextRenderer);
+
 public:
+	void resize(const Dimensions<int> &screen_pixel_dimensions);
 	const Dimensions<int> &dimensions() { return screen_pixel_dimensions; }
 	const Area<float> &area() { return screen_area; }
 
