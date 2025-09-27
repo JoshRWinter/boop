@@ -371,6 +371,9 @@ Win32Display::Win32Display(const DisplayOptions &options)
 
 	glViewport(0, 0, rect.right, rect.bottom);
 
+	window_prop_cache.w = rect.right - rect.left;
+	window_prop_cache.h = rect.bottom - rect.top;
+
 	update_refresh_rate();
 }
 
