@@ -24,6 +24,8 @@ class GLTextRenderer : public TextRenderer
 public:
 	GLTextRenderer(const Dimensions<int> &screen_pixel_dimensions, const Area<float> &screen_area, GLenum texture_unit, bool texture_unit_owned, GLuint shader_storage_block_binding, bool shader_storage_block_binding_owned);
 
+	void resize(const Dimensions<int> &screen_pixel_dimensions, const Area<float> &screen_area);
+
 	void draw(const GLFont &font, const char *text, float xpos, float ypos, bool centered = false);
 	void draw(const GLFont &font, const char *text, float xpos, float ypos, const Color<float> &color, bool centered = false);
 
@@ -31,6 +33,13 @@ public:
 
 private:
 	void send();
+
+	float alignw(float x) const;
+	float alignh(float y) const;
+	static float align(float f, int pixels, float scale);
+
+	Dimensions<int> screen_pixel_dimensions;
+	Area<float> screen_area;
 
 	GLenum texture_unit;
 	bool texture_unit_owned;

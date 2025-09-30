@@ -82,9 +82,9 @@ void Renderer::render(const Renderables &prev, const Renderables &current, float
 	backend->render(lerped_renderables, lerped_lights, current.menu_renderables, current.text_renderables, fps);
 }
 
-void Renderer::set_resolution(const win::Dimensions<int> &dims, win::AssetRoll &roll)
+void Renderer::set_resolution(const win::Dimensions<int> &dims, const win::Area<float> &area, win::AssetRoll &roll)
 {
-	backend->set_resolution(dims, roll);
+	backend->set_resolution(dims, area, roll);
 }
 
 float Renderer::lerp(float a, float b, float t)

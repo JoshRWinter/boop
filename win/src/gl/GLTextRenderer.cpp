@@ -59,7 +59,8 @@ namespace win
 {
 
 GLTextRenderer::GLTextRenderer(const Dimensions<int> &screen_pixel_dimensions, const Area<float> &screen_area, GLenum texture_unit, bool texture_unit_owned, GLuint shader_storage_block_binding, bool shader_storage_block_binding_owned)
-	: TextRenderer(screen_pixel_dimensions, screen_area)
+	: screen_pixel_dimensions(screen_pixel_dimensions)
+	, screen_area(screen_area)
 	, texture_unit(texture_unit)
 	, texture_unit_owned(texture_unit_owned)
 	, shader_storage_block_binding(shader_storage_block_binding)
@@ -151,6 +152,16 @@ GLTextRenderer::GLTextRenderer(const Dimensions<int> &screen_pixel_dimensions, c
 	object_data = std::move(GLMappedRingBuffer<ObjectBytes>(instances_mem, object_data_length));
 }
 
+void GLTextRenderer::resize(const Dimensions<int> &screen_pixel_dimensions, const Area<float> &screen_area)
+{
+	this->screen_pixel_dimensions = screen_pixel_dimensions;
+	this->screen_area = screen_area;
+
+	glUseProgram(program.get());
+	const auto projection = glm::ortho(screen_area.left, screen_area.right, screen_area.bottom, screen_area.top);
+	glUniformMatrix4fv(uniform_projection, 1, GL_FALSE, glm::value_ptr(projection));
+}
+
 void GLTextRenderer::draw(const GLFont &font, const char *text, float xpos, float ypos, bool centered)
 {
 	draw(font, text, xpos, ypos, Color<float>(), centered);
@@ -209,10 +220,10 @@ void GLTextRenderer::flush()
 			const TextRendererCharacter &c = *it;
 			const auto &cmetric = font.character_metric(c.c);
 
-			const float xpos = c.xpos + (cmetric.width / 2.0f);
-			const float ypos = (c.ypos + (cmetric.height / 2.0f));
-			const std::uint16_t width_pct = (cmetric.width / metric.max_width) * std::numeric_limits<std::uint16_t>::max();
-			const std::uint16_t height_pct = (cmetric.height / metric.max_height) * std::numeric_limits<std::uint16_t>::max();
+			const float xpos = alignw(c.xpos) + (cmetric.width / 2.0f);
+			const float ypos = alignh(c.ypos) + (cmetric.height / 2.0f);
+			const std::uint16_t width_pct = std::roundf((cmetric.width / metric.max_width) * std::numeric_limits<std::uint16_t>::max());
+			const std::uint16_t height_pct = std::roundf((cmetric.height / metric.max_height) * std::numeric_limits<std::uint16_t>::max());
 			const std::uint32_t dims = (width_pct << 16) | height_pct;
 			const float index = c.c - Font::char_low;
 
@@ -246,6 +257,23 @@ void GLTextRenderer::send()
 	object_data.lock(range);
 
 	object_data_prebuf.clear();
+}
+
+float GLTextRenderer::alignw(float x) const
+{
+	return align(x, screen_pixel_dimensions.width, screen_area.right - screen_area.left);
+}
+
+float GLTextRenderer::alignh(float y) const
+{
+	return align(y, screen_pixel_dimensions.height, screen_area.top - screen_area.bottom);
+}
+
+float GLTextRenderer::align(float f, int pixels, float scale)
+{
+	const int pixelized = std::roundf((f / scale) * pixels);
+	const auto aligned = (pixelized / (float)pixels) * scale;
+	return aligned;
 }
 
 }

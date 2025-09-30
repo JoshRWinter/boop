@@ -41,7 +41,7 @@ int main(int argc, char **argv)
 	win::load_gl_functions();
 
 	win::Dimensions<int> screenres(display.width(), display.height());
-	const win::Area<float> area(-8.0f, 8.0f, -4.5f, 4.5f);
+	win::Area<float> area(-8.0f, 8.0f, -4.5f, 4.5f);
 
 	win::SimStateExchanger<Renderables> simexchanger(60);
 
@@ -95,11 +95,15 @@ int main(int argc, char **argv)
 
 	bool resize = false;
 	std::chrono::time_point<std::chrono::high_resolution_clock> last_resize;
-	display.register_resize_handler([&screenres, &renderer, &resize, &last_resize, &roll](int w, int h)
+	display.register_resize_handler([&screenres, &area, &renderer, &resize, &last_resize, &roll](int w, int h)
 	{
 		screenres.width = w;
 		screenres.height = h;
-		renderer.set_resolution(screenres, roll);
+
+		const auto adjustment = (screenres.height / (float)screenres.width) * (area.right - area.left);
+		area.top = adjustment / 2.0f;
+		area.bottom = -adjustment / 2.0f;
+		renderer.set_resolution(screenres, area, roll);
 
 		resize = true;
 		last_resize = std::chrono::high_resolution_clock::now();
