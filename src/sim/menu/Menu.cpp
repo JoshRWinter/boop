@@ -3,7 +3,7 @@
 
 #include "Menu.hpp"
 
-MainMenuResult Menu::menu_main(SimulationHost &host, win::SoundEngine &sounds, NetworkMatch &match, const win::Area<float> &area, const char *errmsg)
+MainMenuResult Menu::menu_main(SimulationHost &host, SoundManager &sounds, NetworkMatch &match, const win::Area<float> &area, const char *errmsg)
 {
 	ColorSelect red(-3.0f, 0.8f, 0.75f, 0.75f, get_red());
 	ColorSelect green(-2.0f, 0.8f, 0.75f, 0.75f, get_green());
@@ -29,7 +29,7 @@ MainMenuResult Menu::menu_main(SimulationHost &host, win::SoundEngine &sounds, N
 		{
 			computer.click = false;
 
-			sounds.play("sound/click.ogg", 0, 0.0f, 1.0f, 1.0f, false, true);
+			sounds.play_menu_click();
 
 			DifficultyLevel diff;
 			if (menu_choose_difficulty(host, sounds, area, color, diff))
@@ -47,7 +47,7 @@ MainMenuResult Menu::menu_main(SimulationHost &host, win::SoundEngine &sounds, N
 		{
 			hostgame.click = false;
 
-			sounds.play("sound/click.ogg", 0, 0.0f, 1.0f, 1.0f, false, true);
+			sounds.play_menu_click();
 
 			DifficultyLevel diff;
 			if (menu_choose_difficulty(host, sounds, area, color, diff))
@@ -64,7 +64,7 @@ MainMenuResult Menu::menu_main(SimulationHost &host, win::SoundEngine &sounds, N
 		{
 			join.click = false;
 
-			sounds.play("sound/click.ogg", 0, 0.0f, 1.0f, 1.0f, false, true);
+			sounds.play_menu_click();
 
 			auto error = NetworkMatch::ErrorReason::none;
 			if (menu_join(host, sounds, match, error, area, color))
@@ -77,7 +77,7 @@ MainMenuResult Menu::menu_main(SimulationHost &host, win::SoundEngine &sounds, N
 		{
 			quit.click = false;
 
-			sounds.play("sound/click.ogg", 0, 0.0f, 1.0f, 1.0f, false, true);
+			sounds.play_menu_click();
 		}
 
 		computer.click = mouseover(computer, input.x, input.y) && input.click;
@@ -113,7 +113,7 @@ MainMenuResult Menu::menu_main(SimulationHost &host, win::SoundEngine &sounds, N
 	return MainMenuResult(color, DifficultyLevel::easy);
 }
 
-bool Menu::menu_choose_difficulty(SimulationHost &host, win::SoundEngine &sounds, const win::Area<float> &area, Color color, DifficultyLevel &level)
+bool Menu::menu_choose_difficulty(SimulationHost &host, SoundManager &sounds, const win::Area<float> &area, Color color, DifficultyLevel &level)
 {
 	Button easy(-button_width / 2.0f, 0.0f, button_width, button_height, "Ezpz");
 	Button medium(-button_width / 2.0f, -1.0f, button_width, button_height, "Medium");
@@ -132,7 +132,7 @@ bool Menu::menu_choose_difficulty(SimulationHost &host, win::SoundEngine &sounds
 		{
 			easy.click = false;
 
-			sounds.play("sound/click.ogg", 0, 0.0f, 1.0f, 1.0f, false, true);
+			sounds.play_menu_click();
 
 			level = DifficultyLevel::easy;
 			return true;
@@ -142,7 +142,7 @@ bool Menu::menu_choose_difficulty(SimulationHost &host, win::SoundEngine &sounds
 		{
 			medium.click = false;
 
-			sounds.play("sound/click.ogg", 0, 0.0f, 1.0f, 1.0f, false, true);
+			sounds.play_menu_click();
 
 			level = DifficultyLevel::med;
 			return true;
@@ -152,7 +152,7 @@ bool Menu::menu_choose_difficulty(SimulationHost &host, win::SoundEngine &sounds
 		{
 			hard.click = false;
 
-			sounds.play("sound/click.ogg", 0, 0.0f, 1.0f, 1.0f, false, true);
+			sounds.play_menu_click();
 
 			level = DifficultyLevel::hard;
 			return true;
@@ -162,7 +162,7 @@ bool Menu::menu_choose_difficulty(SimulationHost &host, win::SoundEngine &sounds
 		{
 			back.click = false;
 
-			sounds.play("sound/click.ogg", 0, 0.0f, 1.0f, 1.0f, false, true);
+			sounds.play_menu_click();
 
 			return false;
 		}
@@ -185,7 +185,7 @@ bool Menu::menu_choose_difficulty(SimulationHost &host, win::SoundEngine &sounds
 	}
 }
 
-bool Menu::menu_host(SimulationHost &host, win::SoundEngine &sounds, NetworkMatch &match, NetworkMatch::ErrorReason &error, const win::Area<float> &area, Color color)
+bool Menu::menu_host(SimulationHost &host, SoundManager &sounds, NetworkMatch &match, NetworkMatch::ErrorReason &error, const win::Area<float> &area, Color color)
 {
 	Button back(-button_width / 2.0f, -3.5f, button_width, button_height, "Back");
 
@@ -197,7 +197,7 @@ bool Menu::menu_host(SimulationHost &host, win::SoundEngine &sounds, NetworkMatc
 		{
 			back.click = false;
 
-			sounds.play("sound/click.ogg", 0, 0.0f, 1.0f, 1.0f, false, true);
+			sounds.play_menu_click();
 
 			error = NetworkMatch::ErrorReason::none;
 			back.click = false;
@@ -228,7 +228,7 @@ bool Menu::menu_host(SimulationHost &host, win::SoundEngine &sounds, NetworkMatc
 	return false;
 }
 
-bool Menu::menu_join(SimulationHost &host, win::SoundEngine &sounds, NetworkMatch &match, NetworkMatch::ErrorReason &error, const win::Area<float> &area, Color color)
+bool Menu::menu_join(SimulationHost &host, SoundManager &sounds, NetworkMatch &match, NetworkMatch::ErrorReason &error, const win::Area<float> &area, Color color)
 {
 	Button join(-button_width / 2.0f, -2.5f, button_width, button_height, "Join");
 	Button back(-button_width / 2.0f, -3.5f, button_width, button_height, "Back");
@@ -257,7 +257,7 @@ bool Menu::menu_join(SimulationHost &host, win::SoundEngine &sounds, NetworkMatc
 		{
 			back.click = false;
 
-			sounds.play("sound/click.ogg", 0, 0.0f, 1.0f, 1.0f, false, true);
+			sounds.play_menu_click();
 
 			match.reset();
 			error = NetworkMatch::ErrorReason::none;
@@ -267,7 +267,7 @@ bool Menu::menu_join(SimulationHost &host, win::SoundEngine &sounds, NetworkMatc
 		{
 			join.click = false;
 
-			sounds.play("sound/click.ogg", 0, 0.0f, 1.0f, 1.0f, false, true);
+			sounds.play_menu_click();
 
 			error = NetworkMatch::ErrorReason::none;
 			return menu_joining(host, sounds, match, error, area, color, ip_input.c_str());
@@ -292,7 +292,7 @@ bool Menu::menu_join(SimulationHost &host, win::SoundEngine &sounds, NetworkMatc
 	return false;
 }
 
-bool Menu::menu_joining(SimulationHost &host, win::SoundEngine &sounds, NetworkMatch &match, NetworkMatch::ErrorReason &error, const win::Area<float> &area, Color color, const char *ip)
+bool Menu::menu_joining(SimulationHost &host, SoundManager &sounds, NetworkMatch &match, NetworkMatch::ErrorReason &error, const win::Area<float> &area, Color color, const char *ip)
 {
 	Button back(-button_width / 2.0f, -3.5f, button_width, button_height, "Back");
 
@@ -304,7 +304,7 @@ bool Menu::menu_joining(SimulationHost &host, win::SoundEngine &sounds, NetworkM
 		{
 			back.click = false;
 
-			sounds.play("sound/click.ogg", 0, 0.0f, 1.0f, 1.0f, false, true);
+			sounds.play_menu_click();
 
 			match.reset();
 			return false;

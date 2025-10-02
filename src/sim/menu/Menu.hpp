@@ -1,8 +1,8 @@
 #pragma once
 
 #include <win/Win.hpp>
-#include <win/sound/SoundEngine.hpp>
 
+#include "../SoundManager.hpp"
 #include "../SimulationHost.hpp"
 #include "../NetworkMatch.hpp"
 #include "../../Colors.hpp"
@@ -57,11 +57,11 @@ public:
 		win::Color<float> color;
 	};
 
-	static MainMenuResult menu_main(SimulationHost &host, win::SoundEngine &sounds, NetworkMatch &match, const win::Area<float> &area, const char *errmsg);
-	static bool menu_choose_difficulty(SimulationHost &host, win::SoundEngine &sounds, const win::Area<float> &area, Color color, DifficultyLevel &level);
-	static bool menu_host(SimulationHost &host, win::SoundEngine &sounds, NetworkMatch &match, NetworkMatch::ErrorReason &error, const win::Area<float> &area, Color color);
-	static bool menu_join(SimulationHost &host, win::SoundEngine &sounds, NetworkMatch &match, NetworkMatch::ErrorReason &error, const win::Area<float> &area, Color color);
-	static bool menu_joining(SimulationHost &host, win::SoundEngine &sounds, NetworkMatch &match, NetworkMatch::ErrorReason &error, const win::Area<float> &area, Color color, const char *ip);
+	static MainMenuResult menu_main(SimulationHost &host, SoundManager &sounds, NetworkMatch &match, const win::Area<float> &area, const char *errmsg);
+	static bool menu_choose_difficulty(SimulationHost &host, SoundManager &sounds, const win::Area<float> &area, Color color, DifficultyLevel &level);
+	static bool menu_host(SimulationHost &host, SoundManager &sounds, NetworkMatch &match, NetworkMatch::ErrorReason &error, const win::Area<float> &area, Color color);
+	static bool menu_join(SimulationHost &host, SoundManager &sounds, NetworkMatch &match, NetworkMatch::ErrorReason &error, const win::Area<float> &area, Color color);
+	static bool menu_joining(SimulationHost &host, SoundManager &sounds, NetworkMatch &match, NetworkMatch::ErrorReason &error, const win::Area<float> &area, Color color, const char *ip);
 
 private:
 	static void map_renderables(Renderables &renderables, const Button &button, float x, float y);

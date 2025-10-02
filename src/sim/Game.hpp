@@ -1,13 +1,13 @@
 #pragma once
 
 #include <random>
+#include <optional>
 
 #include <win/Win.hpp>
 #include <win/Utility.hpp>
 #include <win/AssetRoll.hpp>
-#include <win/sound/SoundEngine.hpp>
-#include <optional>
 
+#include "SoundManager.hpp"
 #include "../Colors.hpp"
 #include "../render/Renderable.hpp"
 #include "../Input.hpp"
@@ -77,7 +77,6 @@ private:
 	float get_paddle_height();
 	float get_speed();
 	void get_ball_bounce(const Ball &ball, const Paddle &paddle, float speed, float &xv, float &yv);
-	void get_left_right(float &left, float &right) const;
 
 	unsigned next_renderable_id = 1;
 	std::mt19937 rand;
@@ -98,7 +97,7 @@ private:
 	win::Area<float> area;
 	NetworkMatch match;
 	NetworkData networkdata;
-	std::optional<win::SoundEngine> sounds;
+	std::optional<SoundManager> sounds;
 
 	std::vector<win::Pair<float>> bounces;
 };

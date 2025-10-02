@@ -27,14 +27,14 @@ Game::Game(win::AssetRoll *roll, const win::Area<float> &area, bool runbot, Diff
 	}
 	else
 	{
-		sounds.emplace(*roll);
+		sounds.emplace(*roll, area.left, area.right);
 	}
 }
 
 void Game::play(SimulationHost &sim)
 {
 	if (sounds)
-		sounds->play("sound/music1.ogg", 10, 0.0f, 0.7f, 0.7f, true, false);
+		sounds->play_music();
 
 	std::vector<char> textinput(20);
 	textinput.clear();
@@ -163,7 +163,7 @@ void Game::process_ball(std::vector<Renderable> &renderables, std::vector<LightR
 					const float left = rightside ? 0.2f : 0.3f;
 					const float right = rightside ? 0.3f : 0.2f;
 
-					sounds->play("sound/hit2.ogg", 0, 1.0f, left, right, false, true);
+					sounds->play_ball_paddle(ball.x + (Ball::width / 2.0f));
 				}
 
 				break;
@@ -181,7 +181,7 @@ void Game::process_ball(std::vector<Renderable> &renderables, std::vector<LightR
 					const float left = rightside ? 0.2f : 0.3f;
 					const float right = rightside ? 0.3f : 0.2f;
 
-					sounds->play("sound/hit2.ogg", 0, 1.0f, left, right, false, true);
+					sounds->play_ball_paddle(ball.x + (Ball::width / 2.0f));
 				}
 
 				break;
@@ -192,7 +192,7 @@ void Game::process_ball(std::vector<Renderable> &renderables, std::vector<LightR
 			{
 				if (sounds)
 				{
-					sounds->play("sound/wompwomp.ogg", 0, 1.0f, 0.5f, 0.5f, false, true);
+					sounds->play_wompwomp();
 				}
 				reset_serve(false);
 				++networkdata.guest_score;
@@ -212,9 +212,7 @@ void Game::process_ball(std::vector<Renderable> &renderables, std::vector<LightR
 
 				if (sounds && ball.x > area.left && ball.x < area.right)
 				{
-					float left, right;
-					get_left_right(left, right);
-					sounds->play("sound/hit1.ogg", 0, 1.0f, left, right, false, true);
+					sounds->play_ball_bounce(ball.x + (Ball::width / 2.0f));
 				}
 
 				break;
@@ -227,9 +225,7 @@ void Game::process_ball(std::vector<Renderable> &renderables, std::vector<LightR
 
 				if (sounds && ball.x > area.left && ball.x < area.right)
 				{
-					float left, right;
-					get_left_right(left, right);
-					sounds->play("sound/hit1.ogg", 0, 1.0f, left, right, false, true);
+					sounds->play_ball_bounce(ball.x + (Ball::width / 2.0f));
 				}
 
 				break;
@@ -494,16 +490,4 @@ void Game::get_ball_bounce(const Ball &ball, const Paddle &paddle, float speed, 
 
 	xv = std::cosf(angle) * speed;
 	yv = std::sinf(angle) * speed;
-}
-
-void Game::get_left_right(float &left, float &right) const
-{
-	const float halfwidth = (area.right - area.left) / 2.0f;
-	const float x = ball.x + (Ball::width / 2.0f);
-
-	const float leftness = (halfwidth - (x - area.left)) / halfwidth;
-	const float rightness = (halfwidth - (area.right - x)) / halfwidth;
-
-	left = std::max(0.3f, std::min(0.4f, leftness));
-	right = std::max(0.3f, std::min(0.4f, rightness));
 }
