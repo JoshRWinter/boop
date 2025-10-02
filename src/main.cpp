@@ -95,16 +95,8 @@ int main(int argc, char **argv)
 
 	bool resize = false;
 	std::chrono::time_point<std::chrono::high_resolution_clock> last_resize;
-	display.register_resize_handler([&screenres, &area, &renderer, &resize, &last_resize, &roll](int w, int h)
+	display.register_resize_handler([&resize, &last_resize](int, int)
 	{
-		screenres.width = w;
-		screenres.height = h;
-
-		const auto adjustment = (screenres.height / (float)screenres.width) * (area.right - area.left);
-		area.top = adjustment / 2.0f;
-		area.bottom = -adjustment / 2.0f;
-		renderer.set_resolution(screenres, area, roll);
-
 		resize = true;
 		last_resize = std::chrono::high_resolution_clock::now();
 	});
@@ -137,7 +129,17 @@ int main(int argc, char **argv)
 			const int h = display.height();
 			const int corrected_h = std::round(w / (16 / 9.0));
 
-			if (h != corrected_h)
+			if (h == corrected_h)
+			{
+				screenres.width = display.width();
+				screenres.height = display.height();
+
+				const auto adjustment = (screenres.height / (float)screenres.width) * (area.right - area.left);
+				area.top = adjustment / 2.0f;
+				area.bottom = -adjustment / 2.0f;
+				renderer.set_resolution(screenres, area, roll);
+			}
+			else if (h != corrected_h)
 				display.resize(w, corrected_h);
 		}
 
