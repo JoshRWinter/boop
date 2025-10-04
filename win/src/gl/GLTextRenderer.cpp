@@ -152,6 +152,12 @@ GLTextRenderer::GLTextRenderer(const Dimensions<int> &screen_pixel_dimensions, c
 	object_data = std::move(GLMappedRingBuffer<ObjectBytes>(instances_mem, object_data_length));
 }
 
+GLFont GLTextRenderer::create_font(float font_size, Stream data) const
+{
+	glActiveTexture(texture_unit);
+	return GLFont(screen_pixel_dimensions, screen_area, font_size, std::move(data));
+}
+
 void GLTextRenderer::resize(const Dimensions<int> &screen_pixel_dimensions, const Area<float> &screen_area)
 {
 	this->screen_pixel_dimensions = screen_pixel_dimensions;

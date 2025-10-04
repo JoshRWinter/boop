@@ -13,9 +13,9 @@ using namespace win::gl;
 
 GLRendererBackend::GLRendererBackend(win::AssetRoll &roll, const win::Dimensions<int> &screenres, const win::Area<float> &area)
 	: text_renderer(screenres, area, GLConstants::FONT_TEXTURE_UNIT, true, GLConstants::TEXT_RENDERER_SHADER_STORAGE_BLOCK_BINDING, true)
-	, menufont_tiny(screenres, area, 0.125f, roll["font/Comicy.ttf"])
-	, menufont_small(screenres, area, 0.5f, roll["font/Comicy.ttf"])
-	, menufont_big(screenres, area, 1.0f, roll["font/Comicy.ttf"])
+	, menufont_tiny(text_renderer.create_font(0.125f, roll["font/Comicy.ttf"]))
+	, menufont_small(text_renderer.create_font(0.5f, roll["font/Comicy.ttf"]))
+	, menufont_big(text_renderer.create_font(1.0f, roll["font/Comicy.ttf"]))
 	, common_renderer(roll, glm::ortho(area.left, area.right, area.bottom, area.top), screenres, area)
 	, menu_renderer(roll, text_renderer, menufont_small, menufont_big, glm::ortho(area.left, area.right, area.bottom, area.top))
 	, post_renderer(roll, screenres)
@@ -87,11 +87,11 @@ void GLRendererBackend::set_resolution(const win::Dimensions<int> &dims, const w
 {
 	glViewport(0, 0, dims.width, dims.height);
 
-	menufont_tiny = win::GLFont(dims, area, 0.125f, roll["font/Comicy.ttf"]);
-	menufont_small = win::GLFont(dims, area, 0.5f, roll["font/Comicy.ttf"]);
-	menufont_big = win::GLFont(dims, area, 1.0f, roll["font/Comicy.ttf"]);
-
 	text_renderer.resize(dims, area);
+
+	menufont_tiny = text_renderer.create_font(0.125f, roll["font/Comicy.ttf"]);
+	menufont_small = text_renderer.create_font(0.5f, roll["font/Comicy.ttf"]);
+	menufont_big = text_renderer.create_font(1.0f, roll["font/Comicy.ttf"]);
 
 	glBindFramebuffer(GL_FRAMEBUFFER, fb.get());
 

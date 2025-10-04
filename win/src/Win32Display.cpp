@@ -272,20 +272,21 @@ LRESULT CALLBACK Win32Display::wndproc(HWND hwnd, UINT msg, WPARAM wp, LPARAM lp
 			return 0;
 		case WM_ERASEBKGND:
 			return 0;
-		case WM_EXITSIZEMOVE:
+		case WM_WINDOWPOSCHANGED:
+			return DefWindowProc(hwnd, msg, wp, lp);
+		case WM_SIZE:
 		{
+			const auto w = LOWORD(lp);
+			const auto h = HIWORD(lp);
+
 			display.update_refresh_rate();
 
-			RECT rect;
-			if (!GetClientRect(display.window, &rect))
-				win::bug("GetClientRect failure");
-
-			if (display.window_prop_cache.w != rect.right || display.window_prop_cache.h != rect.bottom)
+			if (display.window_prop_cache.w != w || display.window_prop_cache.h != h)
 			{
-				display.window_prop_cache.w = rect.right;
-				display.window_prop_cache.h = rect.bottom;
+				display.window_prop_cache.w = w;
+				display.window_prop_cache.h = h;
 
-				display.resize_handler(rect.right, rect.bottom);
+				display.resize_handler(w, h);
 			}
 
 			return 0;

@@ -95,7 +95,7 @@ int main(int argc, char **argv)
 
 	bool resize = false;
 	std::chrono::time_point<std::chrono::high_resolution_clock> last_resize;
-	display.register_resize_handler([&resize, &last_resize](int, int)
+	display.register_resize_handler([&resize, &last_resize](int w, int h)
 	{
 		resize = true;
 		last_resize = std::chrono::high_resolution_clock::now();
@@ -121,13 +121,13 @@ int main(int argc, char **argv)
 
 	while (!quit)
 	{
-		if (!fullscreen && resize && std::chrono::duration<float>(std::chrono::high_resolution_clock::now() - last_resize).count() > 0.3f)
+		if (resize && std::chrono::duration<float>(std::chrono::high_resolution_clock::now() - last_resize).count() > 0.3f)
 		{
 			resize = false;
 
 			const int w = display.width();
 			const int h = display.height();
-			const int corrected_h = std::round(w / (16 / 9.0));
+			const int corrected_h = fullscreen ? h : std::round(w / (16 / 9.0));
 
 			if (h == corrected_h)
 			{

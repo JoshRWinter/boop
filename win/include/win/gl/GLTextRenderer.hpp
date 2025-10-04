@@ -24,6 +24,7 @@ class GLTextRenderer : public TextRenderer
 public:
 	GLTextRenderer(const Dimensions<int> &screen_pixel_dimensions, const Area<float> &screen_area, GLenum texture_unit, bool texture_unit_owned, GLuint shader_storage_block_binding, bool shader_storage_block_binding_owned);
 
+	GLFont create_font(float font_size, Stream data) const;
 	void resize(const Dimensions<int> &screen_pixel_dimensions, const Area<float> &screen_area);
 
 	void draw(const GLFont &font, const char *text, float xpos, float ypos, bool centered = false);
