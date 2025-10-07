@@ -56,6 +56,8 @@ void SoundManager::mute(bool m)
 	else if (muted && !m)
 		sounds.resume(music);
 
+	sounds.save();
+
 	muted = m;
 }
 

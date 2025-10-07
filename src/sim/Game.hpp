@@ -94,6 +94,7 @@ private:
 	BallTailItem tails[BallTailItem::tails];
 	Paddle host;
 	Paddle guest;
+	int host_score = 0, guest_score = 0;
 	win::Area<float> area;
 	NetworkMatch match;
 	NetworkData networkdata;

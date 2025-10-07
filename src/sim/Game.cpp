@@ -97,10 +97,31 @@ void Game::tick(Renderables &renderables, const Input &input)
 
 	renderables.player_controlled_id = match.hosting() ? host.renderable_id : guest.renderable_id;
 
+	if (sounds)
+	{
+		if (networkdata.host_score > host_score)
+		{
+			if (match.hosting())
+				;//sounds->play_yipee();
+			else
+				sounds->play_wompwomp();
+		}
+		else if (networkdata.guest_score > guest_score)
+		{
+			if (match.hosting())
+				sounds->play_wompwomp();
+			else
+				;//sounds->play_yipee();
+		}
+	}
+
+	host_score = networkdata.host_score;
+	guest_score = networkdata.guest_score;
+
 	char scoretext[10];
-	snprintf(scoretext, sizeof(scoretext), "%d", networkdata.guest_score);
+	snprintf(scoretext, sizeof(scoretext), "%d", guest_score);
 	renderables.text_renderables.emplace_back(-4.0f, 3.0f, true, TextRenderable::Type::smol, win::Color<float>(0.6f, 0.6f, 0.6f, 1.0f), scoretext);
-	snprintf(scoretext, sizeof(scoretext), "%d", networkdata.host_score);
+	snprintf(scoretext, sizeof(scoretext), "%d", host_score);
 	renderables.text_renderables.emplace_back(4.0f, 3.0f, true, TextRenderable::Type::smol, win::Color<float>(0.6f, 0.6f, 0.6f, 1.0f), scoretext);
 
 	if (match.hosting())
@@ -190,10 +211,6 @@ void Game::process_ball(std::vector<Renderable> &renderables, std::vector<LightR
 			// check for collision with area boundaries
 			if (ball.x > area.right * 5.0f)
 			{
-				if (sounds)
-				{
-					sounds->play_wompwomp();
-				}
 				reset_serve(false);
 				++networkdata.guest_score;
 				break;
@@ -239,9 +256,6 @@ void Game::process_ball(std::vector<Renderable> &renderables, std::vector<LightR
 	}
 	else
 	{
-		if (ball.xv != networkdata.ball_xv || ball.yv != networkdata.ball_yv)
-			bounce = true;
-
 		if (ball.x == networkdata.ball_x && ball.y == networkdata.ball_y)
 		{
 			// didn't receive an update, simulate one
@@ -252,6 +266,24 @@ void Game::process_ball(std::vector<Renderable> &renderables, std::vector<LightR
 		{
 			ball.x = networkdata.ball_x;
 			ball.y = networkdata.ball_y;
+		}
+
+		if (ball.xv != networkdata.ball_xv)
+		{
+			bounce = true;
+
+			// the ball is near the left or right side of the screen, but not completely off the screen
+			if (sounds && (ball.x > 4.0f || ball.x < -4.0f))
+				sounds->play_ball_paddle(ball.x + (Ball::width / 2.0f));
+		}
+
+		if (ball.yv != networkdata.ball_yv)
+		{
+			bounce = true;
+
+			// if the ball is near the top or bottom of the screen
+			if (sounds && (ball.y > 2.0f || ball.y < -2.0f) && ball.x > area.left && ball.x < area.right)
+				sounds->play_ball_bounce(ball.x + (Ball::width / 2.0f));
 		}
 
 		ball.xv = networkdata.ball_xv;
