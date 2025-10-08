@@ -69,7 +69,7 @@ void Game::tick(Renderables &renderables, const Input &input)
 	if (match.hosting())
 		match.host_get_data(networkdata.guest_paddle_color, networkdata.guest_paddle_y);
 	else
-		match.guest_get_data(networkdata.host_paddle_color, networkdata.host_paddle_y, networkdata.paddle_height, networkdata.ball_x, networkdata.ball_y, networkdata.ball_xv, networkdata.ball_yv, networkdata.host_score, networkdata.guest_score);
+		match.guest_get_data(networkdata.winstate, networkdata.host_paddle_color, networkdata.host_paddle_y, networkdata.paddle_height, networkdata.ball_x, networkdata.ball_y, networkdata.ball_xv, networkdata.ball_yv, networkdata.host_score, networkdata.guest_score);
 
 	const auto reason = match.errored();
 	if (reason != NetworkMatch::ErrorReason::none)
@@ -77,6 +77,63 @@ void Game::tick(Renderables &renderables, const Input &input)
 		match.reset();
 		showmenu = true;
 		return;
+	}
+
+	// win-state logic
+
+	if (match.hosting())
+	{
+		if (winstate == WinState::playing)
+		{
+			if (host_score == 10)
+			{
+				wintimer = 300;
+				winstate = WinState::hostwin;
+			}
+			else if (guest_score == 10)
+			{
+				wintimer = 300;
+				winstate = WinState::guestwin;
+			}
+		}
+
+		if (winstate != WinState::playing)
+		{
+			if (wintimer == 0)
+				reset();
+			else
+				--wintimer;
+		}
+	}
+
+	// give the guest a chance to play some scoring sounds
+	if (!match.hosting())
+	{
+		winstate = networkdata.winstate;
+
+		if (sounds)
+		{
+			if (networkdata.host_score > host_score)
+			{
+				sounds->play_wompwomp();
+			}
+			else if (networkdata.guest_score > guest_score)
+			{
+				//sounds->play_yipee();
+			}
+		}
+
+		host_score = networkdata.host_score;
+		guest_score = networkdata.guest_score;
+	}
+
+	if ((winstate == WinState::hostwin && match.hosting()) || (winstate == WinState::guestwin && !match.hosting()))
+	{
+		renderables.text_renderables.emplace_back(0.0f, 2.0f, true, TextRenderable::Type::yuge, win::Color(0.5f, 0.1f, 0.1f, 1.0f), "YOU WIN");
+	}
+	else if ((winstate == WinState::hostwin && !match.hosting()) || (winstate == WinState::guestwin && match.hosting()))
+	{
+		renderables.text_renderables.emplace_back(0.0f, 2.0f, true, TextRenderable::Type::yuge, win::Color(0.5f, 0.1f, 0.1f, 1.0f), "YOU SUCK");
 	}
 
 	renderables.renderables.emplace_back(
@@ -97,35 +154,23 @@ void Game::tick(Renderables &renderables, const Input &input)
 
 	renderables.player_controlled_id = match.hosting() ? host.renderable_id : guest.renderable_id;
 
-	if (sounds)
-	{
-		if (networkdata.host_score > host_score)
-		{
-			if (match.hosting())
-				;//sounds->play_yipee();
-			else
-				sounds->play_wompwomp();
-		}
-		else if (networkdata.guest_score > guest_score)
-		{
-			if (match.hosting())
-				sounds->play_wompwomp();
-			else
-				;//sounds->play_yipee();
-		}
-	}
-
-	host_score = networkdata.host_score;
-	guest_score = networkdata.guest_score;
-
 	char scoretext[10];
 	snprintf(scoretext, sizeof(scoretext), "%d", guest_score);
 	renderables.text_renderables.emplace_back(-4.0f, 3.0f, true, TextRenderable::Type::smol, win::Color<float>(0.6f, 0.6f, 0.6f, 1.0f), scoretext);
 	snprintf(scoretext, sizeof(scoretext), "%d", host_score);
 	renderables.text_renderables.emplace_back(4.0f, 3.0f, true, TextRenderable::Type::smol, win::Color<float>(0.6f, 0.6f, 0.6f, 1.0f), scoretext);
 
+	// send out network data
+
 	if (match.hosting())
-		match.host_send_data(networkdata.host_paddle_color, networkdata.host_paddle_y, networkdata.paddle_height, networkdata.ball_x, networkdata.ball_y, networkdata.ball_xv, networkdata.ball_yv, networkdata.host_score, networkdata.guest_score);
+	{
+		networkdata.winstate = winstate;
+		networkdata.host_score = host_score;
+		networkdata.guest_score = guest_score;
+	}
+
+	if (match.hosting())
+		match.host_send_data(networkdata.winstate, networkdata.host_paddle_color, networkdata.host_paddle_y, networkdata.paddle_height, networkdata.ball_x, networkdata.ball_y, networkdata.ball_xv, networkdata.ball_yv, networkdata.host_score, networkdata.guest_score);
 	else
 		match.guest_send_data(networkdata.guest_paddle_color, networkdata.guest_paddle_y);
 
@@ -162,14 +207,18 @@ void Game::process_ball(std::vector<Renderable> &renderables, std::vector<LightR
 	}
 
 	bool bounce = false;
+	bool hideball = false;
 
 	if (match.hosting())
 	{
 		for (int i = 0; i < 5; ++i)
 		{
-			const float slowdown = match_time > 20 ? 1.0f : match_time / 20.0f;
-			ball.x += ball.xv * slowdown * 0.2f;
-			ball.y += ball.yv * slowdown * 0.2f;
+			if (winstate == WinState::playing)
+			{
+				const float slowdown = match_time > 20 ? 1.0f : match_time / 20.0f;
+				ball.x += ball.xv * slowdown * 0.2f;
+				ball.y += ball.yv * slowdown * 0.2f;
+			}
 
 			// check for collision with paddles
 			if (collide(ball, host))
@@ -179,13 +228,7 @@ void Game::process_ball(std::vector<Renderable> &renderables, std::vector<LightR
 				get_ball_bounce(ball, host, get_speed(), ball.xv, ball.yv);
 
 				if (sounds)
-				{
-					const bool rightside = ball.x > 0.0f;
-					const float left = rightside ? 0.2f : 0.3f;
-					const float right = rightside ? 0.3f : 0.2f;
-
 					sounds->play_ball_paddle(ball.x + (Ball::width / 2.0f));
-				}
 
 				break;
 			}
@@ -197,13 +240,7 @@ void Game::process_ball(std::vector<Renderable> &renderables, std::vector<LightR
 				get_ball_bounce(ball, guest, get_speed(), ball.xv, ball.yv);
 
 				if (sounds)
-				{
-					const bool rightside = ball.x > 0.0f;
-					const float left = rightside ? 0.2f : 0.3f;
-					const float right = rightside ? 0.3f : 0.2f;
-
 					sounds->play_ball_paddle(ball.x + (Ball::width / 2.0f));
-				}
 
 				break;
 			}
@@ -211,14 +248,17 @@ void Game::process_ball(std::vector<Renderable> &renderables, std::vector<LightR
 			// check for collision with area boundaries
 			if (ball.x > area.right * 5.0f)
 			{
+				sounds->play_wompwomp();
 				reset_serve(false);
-				++networkdata.guest_score;
+				++guest_score;
+				hideball = true;
 				break;
 			}
 			else if (ball.x < area.left * 5.0f)
 			{
 				reset_serve(true);
-				++networkdata.host_score;
+				++host_score;
+				hideball = true;
 				break;
 			}
 			if ((ball.y + Ball::height) - Ball::squishiness > area.top)
@@ -303,65 +343,68 @@ void Game::process_ball(std::vector<Renderable> &renderables, std::vector<LightR
 		return std::sqrtf(std::powf(x2 - x1, 2) + std::powf(y2 - y1, 2));
 	};
 
-	// position ball tail
-	const float trail_distance = 0.09f;
-	for (int i = 0; i < BallTailItem::tails; ++i)
+	if (winstate == WinState::playing && !hideball)
 	{
-		float dist = trail_distance + (trail_distance * i);
-		float x = ball.x, y = ball.y;
-
-		for (const auto &bounce_point : bounces)
+		// position ball tail
+		const float trail_distance = 0.09f;
+		for (int i = 0; i < BallTailItem::tails; ++i)
 		{
-			const auto d = distance(x, y, bounce_point.x, bounce_point.y);
-			if (dist > d)
+			float dist = trail_distance + (trail_distance * i);
+			float x = ball.x, y = ball.y;
+
+			for (const auto &bounce_point : bounces)
 			{
-				x = bounce_point.x;
-				y = bounce_point.y;
-				dist = dist - d;
-			}
-			else
-			{
-				const float angle = std::atan2f(bounce_point.y - y, bounce_point.x - x);
+				const auto d = distance(x, y, bounce_point.x, bounce_point.y);
+				if (dist > d)
+				{
+					x = bounce_point.x;
+					y = bounce_point.y;
+					dist = dist - d;
+				}
+				else
+				{
+					const float angle = std::atan2f(bounce_point.y - y, bounce_point.x - x);
 
-				tails[i].x = x + (std::cosf(angle) * dist);
-				tails[i].y = y + (std::sinf(angle) * dist);
+					tails[i].x = x + (std::cosf(angle) * dist);
+					tails[i].y = y + (std::sinf(angle) * dist);
 
-				renderables.emplace_back(
-					tails[i].renderable_id,
-					Texture::ball,
-					tails[i].x,
-					tails[i].y,
-					Ball::width,
-					Ball::height,
-					0.0f,
-					1.0f,
-					ball_color,
-					ball_color);
+					renderables.emplace_back(
+						tails[i].renderable_id,
+						Texture::ball,
+						tails[i].x,
+						tails[i].y,
+						Ball::width,
+						Ball::height,
+						0.0f,
+						1.0f,
+						ball_color,
+						ball_color);
 
-				break;
+					break;
+				}
 			}
 		}
+
+		// emit renderables
+		renderables.emplace_back(
+			ball.renderable_id,
+			Texture::ball,
+			ball.x,
+			ball.y,
+			Ball::width,
+			Ball::height,
+			0.0f,
+			1.0f,
+			ball_color,
+			ball_color);
+
+		light_renderables.emplace_back(
+			ball.light_renderable_id,
+			ball.x + (Ball::width / 2.0f),
+			ball.y + (Ball::height / 2.0f),
+			ball_color,
+			220);
 	}
-
-	// emit renderables
-	renderables.emplace_back(
-		ball.renderable_id,
-		Texture::ball,
-		ball.x,
-		ball.y,
-		Ball::width,
-		Ball::height,
-		0.0f,
-		1.0f,
-		ball_color,
-		ball_color);
-
-	light_renderables.emplace_back(
-		ball.light_renderable_id,
-		ball.x + (Ball::width / 2.0f),
-		ball.y + (Ball::height / 2.0f),
-		ball_color,
-		220);
 }
 
 Renderable Game::process_player_paddle(const Input &input)
@@ -464,6 +507,11 @@ void Game::reset_serve(bool towards_host)
 void Game::reset()
 {
 	reset_serve(true);
+
+	winstate = WinState::playing;
+
+	host_score = 0;
+	guest_score = 0;
 
 	host.x = (area.right - (Paddle::width / 2.0f)) - 0.3f;
 	host.y = 0.0f;

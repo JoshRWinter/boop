@@ -26,6 +26,7 @@ set(sources
 	src/sim/SoundManager.cpp
 	src/sim/Bot.hpp
 	src/sim/Bot.cpp
+	src/sim/WinState.hpp
 	src/sim/Difficulty.hpp
 	src/sim/Difficulty.cpp
 	src/sim/NetworkMatch.hpp

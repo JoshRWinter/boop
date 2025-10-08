@@ -15,6 +15,7 @@
 #include "SimulationHost.hpp"
 #include "Difficulty.hpp"
 #include "Bot.hpp"
+#include "WinState.hpp"
 
 struct Ball
 {
@@ -53,6 +54,7 @@ class Game
 
 	struct NetworkData
 	{
+		WinState winstate = WinState::playing;
 		int host_paddle_color = 0, guest_paddle_color = 0;
 		float host_paddle_y = 0.0f, guest_paddle_y = 0.0f;
 		float paddle_height = 0.0f;
@@ -90,6 +92,8 @@ private:
 	Color current_ball_color;
 	Color target_ball_color;
 	float ball_color_switch_pct = 0.0f;
+	WinState winstate = WinState::playing;
+	int wintimer = 0;
 	Ball ball;
 	BallTailItem tails[BallTailItem::tails];
 	Paddle host;

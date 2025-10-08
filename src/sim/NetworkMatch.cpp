@@ -91,7 +91,8 @@ bool NetworkMatch::join(const char *ip)
 
 	int dummy1;
 	float dummy2;
-	if (guest_get_data(dummy1, dummy2, dummy2, dummy2, dummy2, dummy2, dummy2, dummy1, dummy1))
+	WinState dummy3;
+	if (guest_get_data(dummy3, dummy1, dummy2, dummy2, dummy2, dummy2, dummy2, dummy2, dummy1, dummy1))
 	{
 		state = MatchState::joined;
 		return true;
@@ -157,7 +158,7 @@ bool NetworkMatch::host_get_data(int &guest_paddle_color, float &guest_paddle_y)
 	return true;
 }
 
-void NetworkMatch::host_send_data(int host_paddle_color, float host_paddle_y, float paddle_height, float ball_x, float ball_y, float ball_xv, float ball_yv, int host_score, int guest_score)
+void NetworkMatch::host_send_data(WinState winstate, int host_paddle_color, float host_paddle_y, float paddle_height, float ball_x, float ball_y, float ball_xv, float ball_yv, int host_score, int guest_score)
 {
 	if (state != MatchState::hosting && state != MatchState::listening)
 		win::bug("Trying to host but in state " + std::to_string((int)state) + " instead");
@@ -172,7 +173,7 @@ void NetworkMatch::host_send_data(int host_paddle_color, float host_paddle_y, fl
 		return;
 	}
 
-	unsigned char payload[31];
+	unsigned char payload[32];
 	unsigned char c;
 
 	++host_counter;
@@ -189,11 +190,13 @@ void NetworkMatch::host_send_data(int host_paddle_color, float host_paddle_y, fl
 	memcpy(payload + 29, &c, sizeof(c));
 	c = host_paddle_color;
 	memcpy(payload + 30, &c, sizeof(c));
+	c = (unsigned char)winstate;
+	memcpy(payload + 31, &c, sizeof(c));
 
 	server.send(payload, sizeof(payload), guestid);
 }
 
-bool NetworkMatch::guest_get_data(int &host_paddle_color, float &host_paddle_y, float &paddle_height, float &ball_x, float &ball_y, float &ball_xv, float &ball_yv, int &host_score, int &guest_score)
+bool NetworkMatch::guest_get_data(WinState &winstate, int &host_paddle_color, float &host_paddle_y, float &paddle_height, float &ball_x, float &ball_y, float &ball_xv, float &ball_yv, int &host_score, int &guest_score)
 {
 	if (state != MatchState::joined && state != MatchState::joining)
 		win::bug("Trying to be joined but in state " + std::to_string((int)state) + " instead");
@@ -215,8 +218,8 @@ bool NetworkMatch::guest_get_data(int &host_paddle_color, float &host_paddle_y, 
 		return false;
 	}
 
-	unsigned char payload[31];
-	unsigned char receiving[31];
+	unsigned char payload[32];
+	unsigned char receiving[32];
 
 	bool received = false;
 
@@ -264,6 +267,9 @@ bool NetworkMatch::guest_get_data(int &host_paddle_color, float &host_paddle_y, 
 
 	memcpy(&c, payload + 30, sizeof(c));
 	host_paddle_color = c;
+
+	memcpy(&c, payload + 31, sizeof(c));
+	winstate = (WinState)c;
 
 	last_receive_time = std::chrono::steady_clock::now();
 
