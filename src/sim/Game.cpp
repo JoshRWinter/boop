@@ -47,6 +47,7 @@ void Game::play(SimulationHost &sim)
 			const auto result = Menu::menu_main(sim, sounds.value(), match, area, "");
 			paddle_color = result.color;
 			difficulty = result.difficulty;
+			mode = result.mode;
 
 			if (sim.quit())
 				return;
@@ -85,15 +86,31 @@ void Game::tick(Renderables &renderables, const Input &input)
 	{
 		if (winstate == WinState::playing)
 		{
-			if (host_score == 10)
+			if (mode == GameMode::ten)
 			{
-				wintimer = 300;
-				winstate = WinState::hostwin;
+				if (host_score == 10)
+				{
+					wintimer = 300;
+					winstate = WinState::hostwin;
+				}
+				else if (guest_score == 10)
+				{
+					wintimer = 300;
+					winstate = WinState::guestwin;
+				}
 			}
-			else if (guest_score == 10)
+			else if (mode == GameMode::twos)
 			{
-				wintimer = 300;
-				winstate = WinState::guestwin;
+				if (host_score_inarow == 2)
+				{
+					wintimer = 300;
+					winstate = WinState::hostwin;
+				}
+				else if (guest_score_inarow == 2)
+				{
+					wintimer = 300;
+					winstate = WinState::guestwin;
+				}
 			}
 		}
 
@@ -251,6 +268,8 @@ void Game::process_ball(std::vector<Renderable> &renderables, std::vector<LightR
 				sounds->play_wompwomp();
 				reset_serve(false);
 				++guest_score;
+				host_score_inarow = 0;
+				++guest_score_inarow;
 				hideball = true;
 				break;
 			}
@@ -258,6 +277,8 @@ void Game::process_ball(std::vector<Renderable> &renderables, std::vector<LightR
 			{
 				reset_serve(true);
 				++host_score;
+				++host_score_inarow;
+				guest_score_inarow = 0;
 				hideball = true;
 				break;
 			}
@@ -512,6 +533,8 @@ void Game::reset()
 
 	host_score = 0;
 	guest_score = 0;
+	host_score_inarow = 0;
+	guest_score_inarow = 0;
 
 	host.x = (area.right - (Paddle::width / 2.0f)) - 0.3f;
 	host.y = 0.0f;

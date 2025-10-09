@@ -16,6 +16,7 @@
 #include "Difficulty.hpp"
 #include "Bot.hpp"
 #include "WinState.hpp"
+#include "GameMode.hpp"
 
 struct Ball
 {
@@ -93,12 +94,15 @@ private:
 	Color target_ball_color;
 	float ball_color_switch_pct = 0.0f;
 	WinState winstate = WinState::playing;
+	GameMode mode = GameMode::ten;
 	int wintimer = 0;
 	Ball ball;
 	BallTailItem tails[BallTailItem::tails];
 	Paddle host;
 	Paddle guest;
 	int host_score = 0, guest_score = 0;
+	int host_score_inarow = 0;
+	int guest_score_inarow = 0;
 	win::Area<float> area;
 	NetworkMatch match;
 	NetworkData networkdata;
