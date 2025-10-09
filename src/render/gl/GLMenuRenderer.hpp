@@ -17,7 +17,7 @@ class GLMenuRenderer
 	WIN_NO_COPY_MOVE(GLMenuRenderer);
 
 public:
-	GLMenuRenderer(win::AssetRoll &roll, win::GLTextRenderer &text_renderer, win::GLFont &menufont_small, win::GLFont &menufont_big, const glm::mat4 &projection);
+	GLMenuRenderer(win::AssetRoll &roll, win::GLTextRenderer &text_renderer, win::GLFont &menufont_teeny, win::GLFont &menufont_small, win::GLFont &menufont_big, const glm::mat4 &projection);
 
 	void draw(const std::vector<MenuRenderable> &menu_renderables, const std::vector<TextRenderable> &text_renderables);
 
@@ -27,7 +27,7 @@ private:
 	glm::mat4 projection;
 
 	win::GLTextRenderer &text_renderer;
-	win::GLFont &menufont_small, &menufont_big;
+	win::GLFont &menufont_teeny, &menufont_small, &menufont_big;
 
 	win::GLProgram program;
 	int uniform_transform;

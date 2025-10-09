@@ -38,7 +38,7 @@ struct Renderable
 
 struct TextRenderable
 {
-	enum class Type { smol, yuge };
+	enum class Type { teeny, smol, yuge };
 
 	TextRenderable(float x, float y, bool centered, Type texttype, const win::Color<float> &color, const char *text)
 		: x(x)

@@ -31,16 +31,20 @@ MainMenuResult Menu::menu_main(SimulationHost &host, SoundManager &sounds, Netwo
 
 			sounds.play_menu_click();
 
-			DifficultyLevel diff;
-			if (menu_choose_difficulty(host, sounds, area, color, diff))
+			GameMode mode;
+			if (menu_choose_gamemode(host, sounds, area, color, mode))
 			{
-				match.start_bot(diff);
-				auto error = NetworkMatch::ErrorReason::none;
-				if (menu_host(host, sounds, match, error, area, color))
-					return MainMenuResult(color, diff);
+				DifficultyLevel diff;
+				if (menu_choose_difficulty(host, sounds, area, color, diff))
+				{
+					match.start_bot(diff);
+					auto error = NetworkMatch::ErrorReason::none;
+					if (menu_host(host, sounds, match, error, area, color))
+						return MainMenuResult(color, diff, mode);
 
-				if (error != NetworkMatch::ErrorReason::none)
-					errmsg = "Hosting error";
+					if (error != NetworkMatch::ErrorReason::none)
+						errmsg = "Hosting error";
+				}
 			}
 		}
 		else if (button_clicked(hostgame, input.click, input.x, input.y))
@@ -49,15 +53,19 @@ MainMenuResult Menu::menu_main(SimulationHost &host, SoundManager &sounds, Netwo
 
 			sounds.play_menu_click();
 
-			DifficultyLevel diff;
-			if (menu_choose_difficulty(host, sounds, area, color, diff))
+			GameMode mode;
+			if (menu_choose_gamemode(host, sounds, area, color, mode))
 			{
-				auto error = NetworkMatch::ErrorReason::none;
-				if (menu_host(host, sounds, match, error, area, color))
-					return MainMenuResult(color, diff);
+				DifficultyLevel diff;
+				if (menu_choose_difficulty(host, sounds, area, color, diff))
+				{
+					auto error = NetworkMatch::ErrorReason::none;
+					if (menu_host(host, sounds, match, error, area, color))
+						return MainMenuResult(color, diff, mode);
 
-				if (error != NetworkMatch::ErrorReason::none)
-					errmsg = "Hosting error";
+					if (error != NetworkMatch::ErrorReason::none)
+						errmsg = "Hosting error";
+				}
 			}
 		}
 		else if (button_clicked(join, input.click, input.x, input.y))
@@ -68,7 +76,8 @@ MainMenuResult Menu::menu_main(SimulationHost &host, SoundManager &sounds, Netwo
 
 			auto error = NetworkMatch::ErrorReason::none;
 			if (menu_join(host, sounds, match, error, area, color))
-				return MainMenuResult(color, DifficultyLevel::easy);
+				// the difficulty and mode settings here are ignored, since the host actually controls that, and we are the guest
+				return MainMenuResult(color, DifficultyLevel::easy, GameMode::endless);
 
 			if (error != NetworkMatch::ErrorReason::none)
 				errmsg = "Joining error";
@@ -97,9 +106,9 @@ MainMenuResult Menu::menu_main(SimulationHost &host, SoundManager &sounds, Netwo
 		for (int i = 0; i < 6; ++i)
 		{
 			if (mouseover(*colors[i], input.x, input.y))
-				color = (Color) i;
+				color = (Color)i;
 
-			map_renderables(renderables, *colors[i], (int) color == i);
+			map_renderables(renderables, *colors[i], (int)color == i);
 		}
 
 		renderables.text_renderables.emplace_back(0.0f, 2.5f, true, TextRenderable::Type::yuge, colors[(int)color]->color, "boop");
@@ -110,7 +119,8 @@ MainMenuResult Menu::menu_main(SimulationHost &host, SoundManager &sounds, Netwo
 		host.release_renderables_and_sleep(renderables);
 	}
 
-	return MainMenuResult(color, DifficultyLevel::easy);
+	// the difficulty and mode settings here are ignored, because if we are in this spot, the game is trying to exit and the function just needs to return _something_
+	return MainMenuResult(color, DifficultyLevel::easy, GameMode::endless);
 }
 
 bool Menu::menu_choose_difficulty(SimulationHost &host, SoundManager &sounds, const win::Area<float> &area, Color color, DifficultyLevel &level)
@@ -181,6 +191,94 @@ bool Menu::menu_choose_difficulty(SimulationHost &host, SoundManager &sounds, co
 		map_renderables(renderables, hard, input.x, input.y);
 		map_renderables(renderables, back, input.x, input.y);
 		renderables.text_renderables.emplace_back(0.0f, 2.0f, true, TextRenderable::Type::smol, textcolor, "Choose difficulty");
+
+		host.release_renderables_and_sleep(renderables);
+	}
+}
+
+bool Menu::menu_choose_gamemode(SimulationHost &host, SoundManager &sounds, const win::Area<float> &area, Color color, GameMode &mode)
+{
+	Button ten(-button_width / 2.0f, 0.0f, button_width, button_height, "Ten");
+	Button twos(-button_width / 2.0f, -1.0f, button_width, button_height, "Twos");
+	Button endless(-button_width / 2.0f, -2.0f, button_width, button_height, "Endless");
+
+	Button back(-button_width / 2.0f, -3.5f, button_width, button_height, "Back");
+
+	while (true)
+	{
+		if (host.quit())
+			return false;
+
+		const auto input = host.get_input();
+
+		if (button_clicked(ten, input.click, input.x, input.y))
+		{
+			ten.click = false;
+
+			sounds.play_menu_click();
+
+			mode = GameMode::ten;
+			return true;
+		}
+
+		if (button_clicked(twos, input.click, input.x, input.y))
+		{
+			twos.click = false;
+
+			sounds.play_menu_click();
+
+			mode = GameMode::twos;
+			return true;
+		}
+
+		if (button_clicked(endless, input.click, input.x, input.y))
+		{
+			endless.click = false;
+
+			sounds.play_menu_click();
+
+			mode = GameMode::endless;
+			return true;
+		}
+
+		if (button_clicked(back, input.click, input.x, input.y))
+		{
+			back.click = false;
+
+			sounds.play_menu_click();
+
+			return false;
+		}
+
+		ten.click = mouseover(ten, input.x, input.y) && input.click;
+		twos.click = mouseover(twos, input.x, input.y) && input.click;
+		endless.click = mouseover(endless, input.x, input.y) && input.click;
+		back.click = mouseover(back, input.x, input.y) && input.click;
+
+		auto &renderables = host.get_renderables();
+
+		map_theme(renderables, area, input, color);
+
+		map_renderables(renderables, ten, input.x, input.y);
+		map_renderables(renderables, twos, input.x, input.y);
+		map_renderables(renderables, endless, input.x, input.y);
+		map_renderables(renderables, back, input.x, input.y);
+		renderables.text_renderables.emplace_back(0.0f, 2.0f, true, TextRenderable::Type::smol, textcolor, "Choose game mode");
+
+		const char *description = NULL;
+
+		if (mouseover(ten, input.x, input.y))
+			description = "First to 10 points wins";
+		else if (mouseover(twos, input.x, input.y))
+			description = "First to score 2 points\nin a row wins";
+		else if (mouseover(endless, input.x, input.y))
+			description = "Play foreverr";
+		else if (mouseover(back, input.x, input.y))
+			description = "Be a party pooper and don't play";
+
+		if (description != NULL)
+			renderables.text_renderables.emplace_back(5.0f, -1.0f, true, TextRenderable::Type::teeny, textcolor, description);
+
 		host.release_renderables_and_sleep(renderables);
 	}
 }

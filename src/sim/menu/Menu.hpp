@@ -7,14 +7,16 @@
 #include "../NetworkMatch.hpp"
 #include "../../Colors.hpp"
 #include "../Difficulty.hpp"
+#include "../GameMode.hpp"
 
 struct MainMenuResult
 {
-	MainMenuResult(Color color, DifficultyLevel difficulty)
-		: color(color), difficulty(difficulty) {}
+	MainMenuResult(Color color, DifficultyLevel difficulty, GameMode mode)
+		: color(color), difficulty(difficulty), mode(mode) {}
 
 	Color color;
 	DifficultyLevel difficulty;
+	GameMode mode;
 };
 
 class Menu
@@ -59,6 +61,7 @@ public:
 
 	static MainMenuResult menu_main(SimulationHost &host, SoundManager &sounds, NetworkMatch &match, const win::Area<float> &area, const char *errmsg);
 	static bool menu_choose_difficulty(SimulationHost &host, SoundManager &sounds, const win::Area<float> &area, Color color, DifficultyLevel &level);
+	static bool menu_choose_gamemode(SimulationHost &host, SoundManager &sounds, const win::Area<float> &area, Color color, GameMode &mode);
 	static bool menu_host(SimulationHost &host, SoundManager &sounds, NetworkMatch &match, NetworkMatch::ErrorReason &error, const win::Area<float> &area, Color color);
 	static bool menu_join(SimulationHost &host, SoundManager &sounds, NetworkMatch &match, NetworkMatch::ErrorReason &error, const win::Area<float> &area, Color color);
 	static bool menu_joining(SimulationHost &host, SoundManager &sounds, NetworkMatch &match, NetworkMatch::ErrorReason &error, const win::Area<float> &area, Color color, const char *ip);

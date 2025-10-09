@@ -20,7 +20,7 @@ private:
 	void drawfps();
 
 	win::GLTextRenderer text_renderer;
-	win::GLFont menufont_tiny, menufont_small, menufont_big;
+	win::GLFont menufont_tiny, menufont_smaller, menufont_small, menufont_big;
 
 	GLCommonRenderer common_renderer;
 	GLMenuRenderer menu_renderer;

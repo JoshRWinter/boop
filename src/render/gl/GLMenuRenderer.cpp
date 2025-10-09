@@ -15,9 +15,10 @@ static int get_uniform(win::GLProgram &program, const char *name)
 	return loc;
 }
 
-GLMenuRenderer::GLMenuRenderer(win::AssetRoll &roll, win::GLTextRenderer &text_renderer, win::GLFont &menufont_small, win::GLFont &menufont_big, const glm::mat4 &projection)
+GLMenuRenderer::GLMenuRenderer(win::AssetRoll &roll, win::GLTextRenderer &text_renderer, win::GLFont &menufont_teeny, win::GLFont &menufont_small, win::GLFont &menufont_big, const glm::mat4 &projection)
 	: projection(projection)
 	, text_renderer(text_renderer)
+	, menufont_teeny(menufont_teeny)
 	, menufont_small(menufont_small)
 	, menufont_big(menufont_big)
 	, program(win::load_gl_shaders(roll["shader/gl/menu.vert"], roll["shader/gl/menu.frag"]))
@@ -69,7 +70,9 @@ void GLMenuRenderer::draw(const std::vector<MenuRenderable> &menu_renderables, c
 	for (const auto &r : text_renderables)
 	{
 		const win::GLFont *f;
-		if (r.texttype == TextRenderable::Type::smol)
+		if (r.texttype == TextRenderable::Type::teeny)
+			f = &menufont_teeny;
+		else if (r.texttype == TextRenderable::Type::smol)
 			f = &menufont_small;
 		else
 			f = &menufont_big;

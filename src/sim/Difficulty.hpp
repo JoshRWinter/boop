@@ -1,6 +1,6 @@
 #pragma once
 
-enum DifficultyLevel
+enum class DifficultyLevel
 {
 	easy,
 	med,

@@ -27,6 +27,7 @@ set(sources
 	src/sim/Bot.hpp
 	src/sim/Bot.cpp
 	src/sim/WinState.hpp
+	src/sim/GameMode.hpp
 	src/sim/Difficulty.hpp
 	src/sim/Difficulty.cpp
 	src/sim/NetworkMatch.hpp
