@@ -25,7 +25,7 @@ int main(int argc, char **argv)
 	display_options.height = 900;
 	display_options.debug = false;
 #else
-	display_options.caption = "Darktimes";
+	display_options.caption = "Boop";
 	display_options.fullscreen = true;
 	display_options.width = 1600;
 	display_options.height = 900;
