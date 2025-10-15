@@ -87,6 +87,7 @@ MainMenuResult Menu::menu_main(SimulationHost &host, SoundManager &sounds, Netwo
 			quit.click = false;
 
 			sounds.play_menu_click();
+			host.stop();
 		}
 
 		computer.click = mouseover(computer, input.x, input.y) && input.click;

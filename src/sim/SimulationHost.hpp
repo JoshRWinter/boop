@@ -25,6 +25,7 @@ public:
 	void get_text_input(std::vector<char> &input);
 
 	bool quit();
+	void stop();
 
 private:
 	std::atomic<bool> &simquit;

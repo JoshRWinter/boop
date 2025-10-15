@@ -25,6 +25,7 @@ public:
 
 	void set_input(const Input &input);
 	void set_text_input(const std::vector<char> &text);
+	bool should_quit();
 
 private:
 	void sim(win::AssetRoll *roll, win::Area<float> area, bool runbot, DifficultyLevel bot_difficulty, win::SimStateExchanger<Renderables> &simexchanger);

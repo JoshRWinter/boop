@@ -48,3 +48,8 @@ bool SimulationHost::quit()
 {
 	return simquit.load();
 }
+
+void SimulationHost::stop()
+{
+	simquit.store(true);
+}

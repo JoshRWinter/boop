@@ -119,7 +119,7 @@ int main(int argc, char **argv)
 
 	bool cursor_enabled = true;
 
-	while (!quit)
+	while (!quit && !sim.should_quit())
 	{
 		if (resize && std::chrono::duration<float>(std::chrono::high_resolution_clock::now() - last_resize).count() > 0.3f)
 		{

@@ -33,6 +33,11 @@ void Simulation::set_text_input(const std::vector<char> &text)
     	written += textinput.write(text.data() + written, text.size() - written);
 }
 
+bool Simulation::should_quit()
+{
+	return quit.load();
+}
+
 void Simulation::sim(win::AssetRoll *roll, win::Area<float> area, bool runbot, DifficultyLevel bot_difficulty, win::SimStateExchanger<Renderables> &simexchanger)
 {
 	SimulationHost host(quit, som_input, textinput, simexchanger);
