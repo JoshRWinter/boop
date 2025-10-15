@@ -42,7 +42,7 @@ void SoundManager::play_ball_paddle(float x)
 void SoundManager::play_yipee()
 {
 	if (!muted)
-		sounds.play("sound/yipee.ogg", 0, 1.0f, vol, vol, false, true);
+		sounds.play("sound/yipee.ogg", 0, 1.0f, vol * 0.7f, vol * 0.7f, false, true);
 }
 
 void SoundManager::play_wompwomp()
