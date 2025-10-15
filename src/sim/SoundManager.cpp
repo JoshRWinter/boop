@@ -39,14 +39,28 @@ void SoundManager::play_ball_paddle(float x)
 		sounds.play("sound/hit2.ogg", 0, 1.0f, l * vol, r * vol, false, true);
 }
 
-void SoundManager::play_chaching()
+void SoundManager::play_yipee()
 {
+	if (!muted)
+		sounds.play("sound/yipee.ogg", 0, 1.0f, vol, vol, false, true);
 }
 
 void SoundManager::play_wompwomp()
 {
 	if (!muted)
 		sounds.play("sound/wompwomp.ogg", 0, 1.0f, vol, vol, false, true);
+}
+
+void SoundManager::play_hurray()
+{
+	if (!muted)
+		sounds.play("sound/hurray.ogg", 0, 1.0f, vol, vol, false, true);
+}
+
+void SoundManager::play_yousuck()
+{
+	if (!muted)
+		sounds.play("sound/yousuck.ogg", 0, 1.0f, vol, vol, false, true);
 }
 
 void SoundManager::mute(bool m)

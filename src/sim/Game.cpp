@@ -86,15 +86,31 @@ void Game::tick(Renderables &renderables, const Input &input)
 	{
 		if (winstate == WinState::playing)
 		{
+			if (host_scored)
+			{
+				++host_score;
+				++host_score_inarow;
+				guest_score_inarow = 0;
+			}
+
+			if (guest_scored)
+			{
+				++guest_score;
+				++guest_score_inarow;
+				host_score_inarow = 0;
+			}
+
 			if (mode == GameMode::ten)
 			{
 				if (host_score == 10)
 				{
+					sounds->play_hurray();
 					wintimer = 300;
 					winstate = WinState::hostwin;
 				}
 				else if (guest_score == 10)
 				{
+					sounds->play_yousuck();
 					wintimer = 300;
 					winstate = WinState::guestwin;
 				}
@@ -103,15 +119,29 @@ void Game::tick(Renderables &renderables, const Input &input)
 			{
 				if (host_score_inarow == 2)
 				{
+					sounds->play_hurray();
 					wintimer = 300;
 					winstate = WinState::hostwin;
 				}
 				else if (guest_score_inarow == 2)
 				{
+					sounds->play_yousuck();
 					wintimer = 300;
 					winstate = WinState::guestwin;
 				}
 			}
+
+			// possibly play score sound-effect
+			if (winstate == WinState::playing)
+			{
+				if (host_scored)
+					sounds->play_yipee();
+				else if (guest_scored)
+					sounds->play_wompwomp();
+			}
+
+			host_scored = false;
+			guest_scored = false;
 		}
 
 		if (winstate != WinState::playing)
@@ -126,18 +156,23 @@ void Game::tick(Renderables &renderables, const Input &input)
 	// give the guest a chance to play some scoring sounds
 	if (!match.hosting())
 	{
+		const auto winstate_before = winstate;
 		winstate = networkdata.winstate;
 
-		if (sounds)
+		if (sounds && winstate_before == WinState::playing)
+		{
+			if (winstate == WinState::hostwin)
+				sounds->play_yousuck();
+			else if (winstate == WinState::guestwin)
+				sounds->play_hurray();
+		}
+
+		if (sounds && winstate == WinState::playing)
 		{
 			if (networkdata.host_score > host_score)
-			{
 				sounds->play_wompwomp();
-			}
 			else if (networkdata.guest_score > guest_score)
-			{
-				//sounds->play_yipee();
-			}
+				sounds->play_yipee();
 		}
 
 		host_score = networkdata.host_score;
@@ -265,20 +300,15 @@ void Game::process_ball(std::vector<Renderable> &renderables, std::vector<LightR
 			// check for collision with area boundaries
 			if (ball.x > area.right * 5.0f)
 			{
-				sounds->play_wompwomp();
+				guest_scored = true;
 				reset_serve(false);
-				++guest_score;
-				host_score_inarow = 0;
-				++guest_score_inarow;
 				hideball = true;
 				break;
 			}
 			else if (ball.x < area.left * 5.0f)
 			{
+				host_scored = true;
 				reset_serve(true);
-				++host_score;
-				++host_score_inarow;
-				guest_score_inarow = 0;
 				hideball = true;
 				break;
 			}

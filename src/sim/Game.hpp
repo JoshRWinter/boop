@@ -101,6 +101,7 @@ private:
 	Paddle host;
 	Paddle guest;
 	int host_score = 0, guest_score = 0;
+	bool host_scored = false, guest_scored = false;
 	int host_score_inarow = 0;
 	int guest_score_inarow = 0;
 	win::Area<float> area;

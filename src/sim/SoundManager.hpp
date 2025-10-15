@@ -17,8 +17,10 @@ public:
 	void play_menu_click();
 	void play_ball_bounce(float x);
 	void play_ball_paddle(float x);
-	void play_chaching();
+	void play_yipee();
 	void play_wompwomp();
+	void play_hurray();
+	void play_yousuck();
 
 	void mute(bool m);
 
