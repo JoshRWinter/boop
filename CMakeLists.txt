@@ -41,6 +41,8 @@ set(sources
 	src/render/gl/GLConstants.hpp
 	src/render/gl/GLRendererBackend.hpp
 	src/render/gl/GLRendererBackend.cpp
+	src/render/gl/GLBackgroundRenderer.hpp
+	src/render/gl/GLBackgroundRenderer.cpp
 	src/render/gl/GLCommonRenderer.hpp
 	src/render/gl/GLCommonRenderer.cpp
 	src/render/gl/GLPostProcessingRenderer.hpp

@@ -442,18 +442,6 @@ void Menu::map_renderables(Renderables &renderables, const Button &button, float
 
 void Menu::map_theme(Renderables &renderables, const win::Area<float> &area, const Input &input, Color color)
 {
-	renderables.renderables.emplace_back(
-		0,
-		Texture::background,
-		area.left,
-		area.bottom,
-		area.right - area.left,
-		area.top - area.bottom,
-		0.0f,
-		0.0f,
-		win::Color<float>(1.0f, 1.0f, 1.0f, 1.0f),
-		win::Color<float>(0.0f, 0.0f, 0.0f, 0.0f));
-
 	renderables.light_renderables.emplace_back(0, input.x, input.y, get_color(color), 200.0f);
 }
 

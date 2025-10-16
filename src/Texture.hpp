@@ -2,9 +2,12 @@
 
 enum class Texture
 {
-	background,
 	ball,
-	paddle
+	paddle,
+
+	end_of_atlas_items,
+
+	background
 };
 
 enum class MenuTexture

@@ -1,3 +1,5 @@
+shader/gl/background.vert
+shader/gl/background.frag
 shader/gl/common.vert
 shader/gl/common.frag
 shader/gl/menu.vert
@@ -19,7 +21,7 @@ sound/yousuck.ogg
 sound/click.ogg
 
 svg2tga {
-    texture/background.svg 1920 1080 exclude
+    texture/background.svg 1920 1080
     texture/ball.svg 29 29 exclude
     texture/paddle.svg 72 240 exclude
 

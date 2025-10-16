@@ -17,6 +17,7 @@ GLRendererBackend::GLRendererBackend(win::AssetRoll &roll, const win::Dimensions
 	, menufont_smaller(text_renderer.create_font(0.25f, roll["font/Comicy.ttf"]))
 	, menufont_small(text_renderer.create_font(0.5f, roll["font/Comicy.ttf"]))
 	, menufont_big(text_renderer.create_font(1.0f, roll["font/Comicy.ttf"]))
+	, background_renderer(roll, screenres, area)
 	, common_renderer(roll, glm::ortho(area.left, area.right, area.bottom, area.top), screenres, area)
 	, menu_renderer(roll, text_renderer, menufont_smaller, menufont_small, menufont_big, glm::ortho(area.left, area.right, area.bottom, area.top))
 	, post_renderer(roll, screenres)
@@ -67,6 +68,8 @@ GLRendererBackend::GLRendererBackend(win::AssetRoll &roll, const win::Dimensions
 
 void GLRendererBackend::render(const std::vector<Renderable> &renderables, const std::vector<LightRenderable> &light_renderables, const std::vector<MenuRenderable> &menu_renderables, const std::vector<TextRenderable> &text_renderables, float fps)
 {
+	background_renderer.draw(light_renderables);
+
 	common_renderer.draw(renderables, light_renderables);
 
 	glColorMaski(1, GL_FALSE, GL_FALSE, GL_FALSE, GL_FALSE);
@@ -105,7 +108,7 @@ void GLRendererBackend::set_resolution(const win::Dimensions<int> &dims, const w
 	glBindTexture(GL_TEXTURE_2D, fb_history.get());
 	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB16, dims.width, dims.height, 0, GL_RGB, GL_UNSIGNED_SHORT, NULL);
 
-	common_renderer.set_resolution(dims);
+	background_renderer.set_res_area(dims, area);
 	post_renderer.set_resolution(dims);
 }
 

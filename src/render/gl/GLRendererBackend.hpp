@@ -6,6 +6,7 @@
 #include "GLCommonRenderer.hpp"
 #include "GLMenuRenderer.hpp"
 #include "GLPostProcessingRenderer.hpp"
+#include "GLBackgroundRenderer.hpp"
 
 class GLRendererBackend : public RendererBackend
 {
@@ -22,6 +23,7 @@ private:
 	win::GLTextRenderer text_renderer;
 	win::GLFont menufont_tiny, menufont_smaller, menufont_small, menufont_big;
 
+	GLBackgroundRenderer background_renderer;
 	GLCommonRenderer common_renderer;
 	GLMenuRenderer menu_renderer;
 	GLPostProcessingRenderer post_renderer;

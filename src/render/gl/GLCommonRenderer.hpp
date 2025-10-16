@@ -17,14 +17,9 @@ public:
 	virtual ~GLCommonRenderer()	= default;
 
 	void draw(const std::vector<Renderable> &renderables, const std::vector<LightRenderable> &lights);
-	void set_resolution(const win::Dimensions<int> &res);
 
 private:
-	void world_to_screen(float x, float y, int &xi, int &yi);
 	static void generate_vertex_data(const win::Atlas &atlas, std::vector<float> &posdata, std::vector<unsigned short> &texcoord);
-
-	win::Dimensions<int> screenres;
-	win::Area<float> area;
 
 	win::GLFramebuffer render;
 	win::GLTexture render_att1;
@@ -34,10 +29,6 @@ private:
 
 	win::GLAtlas atlas;
 	win::GLProgram program;
-	GLint uniform_light;
-	GLint uniform_lightcolor;
-	GLint uniform_lightpower;
-	GLint uniform_luminance;
 	GLint uniform_transform;
 	GLint uniform_color;
 	GLint uniform_history_color;

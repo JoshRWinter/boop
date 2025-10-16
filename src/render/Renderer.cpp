@@ -40,7 +40,6 @@ void Renderer::render(const Renderables &prev, const Renderables &current, float
 				lerp(old->w, r.w, lerp_t),
 				lerp(old->h, r.h, lerp_t),
 				lerp(old->rot, r.rot, lerp_t),
-				lerp(old->emissiveness, r.emissiveness, lerp_t),
 				lerp(old->color, r.color, lerp_t),
 				lerp(old->history_color, r.history_color, lerp_t));
 		}
