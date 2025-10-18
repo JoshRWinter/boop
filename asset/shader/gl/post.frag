@@ -72,7 +72,8 @@ void main()
             blur += left * blurweights[i];
             blur += right * blurweights[i];
         }
-        frag = blur;
+
+        frag = vec4(blur.rgb, 1.0);
     }
     else
     {
