@@ -385,7 +385,7 @@ void Game::process_ball(std::vector<Renderable> &renderables, std::vector<LightR
 	if (winstate == WinState::playing && !hideball)
 	{
 		// position ball tail
-		const float trail_distance = 0.09f;
+		const float trail_distance = 0.04f;
 		for (int i = 0; i < BallTailItem::tails; ++i)
 		{
 			float dist = trail_distance + (trail_distance * i);

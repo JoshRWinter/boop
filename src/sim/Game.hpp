@@ -34,7 +34,7 @@ struct Ball
 
 struct BallTailItem
 {
-	static constexpr int tails = 4;
+	static constexpr int tails = 12;
 	unsigned renderable_id = -1;
 	float x = 0.0f, y = 0.0f;
 };
