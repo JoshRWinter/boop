@@ -20,7 +20,7 @@ GLRendererBackend::GLRendererBackend(win::AssetRoll &roll, const win::Dimensions
 	, background_renderer(roll, screenres, area)
 	, common_renderer(roll, glm::ortho(area.left, area.right, area.bottom, area.top), screenres, area)
 	, menu_renderer(roll, text_renderer, menufont_smaller, menufont_small, menufont_big, glm::ortho(area.left, area.right, area.bottom, area.top))
-	, post_renderer(roll, screenres)
+	, post_renderer(roll)
 {
 	/*
 	glEnable(GL_DEBUG_OUTPUT);
@@ -39,26 +39,45 @@ GLRendererBackend::GLRendererBackend(win::AssetRoll &roll, const win::Dimensions
 	glEnable(GL_BLEND);
 	glBlendFunc(GL_ONE, GL_ONE_MINUS_SRC_ALPHA);
 
+	glBindFramebuffer(GL_FRAMEBUFFER, scratch.get());
+	glActiveTexture(GLConstants::SCRATCH_COLOR_ATTACHMENT_TEXTURE_UNIT);
+	glBindTexture(GL_TEXTURE_2D, fb_scratch.get());
+	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB16, screenres.width, screenres.height, 0, GL_RGB, GL_UNSIGNED_BYTE, NULL);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+	glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, fb_scratch.get(), 0);
+
+	{
+		const GLenum buf[] = { GL_COLOR_ATTACHMENT0 };
+		glDrawBuffers(1, buf);
+	}
+
 	glBindFramebuffer(GL_FRAMEBUFFER, fb.get());
 
 	glActiveTexture(GLConstants::MAIN_COLOR_ATTACHMENT_TEXTURE_UNIT);
 	glBindTexture(GL_TEXTURE_2D, fb_main.get());
-	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB16, screenres.width, screenres.height, 0, GL_RGB, GL_UNSIGNED_SHORT, NULL);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB16, screenres.width, screenres.height, 0, GL_RGB, GL_UNSIGNED_BYTE, NULL);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
 	glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, fb_main.get(), 0);
 
 	glActiveTexture(GLConstants::HISTORY_COLOR_ATTACHMENT_TEXTURE_UNIT);
 	glBindTexture(GL_TEXTURE_2D, fb_history.get());
-	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB16, screenres.width, screenres.height, 0, GL_RGB, GL_UNSIGNED_SHORT, NULL);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB16, screenres.width, screenres.height, 0, GL_RGB, GL_UNSIGNED_BYTE, NULL);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
 	glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT1, GL_TEXTURE_2D, fb_history.get(), 0);
 
-	const GLenum buf[] = { GL_COLOR_ATTACHMENT0, GL_COLOR_ATTACHMENT1 };
-	glDrawBuffers(2, buf);
+	{
+		const GLenum buf[] = { GL_COLOR_ATTACHMENT0, GL_COLOR_ATTACHMENT1 };
+		glDrawBuffers(2, buf);
+	}
 
 	const GLfloat clearcolor[] = { 0.0f, 0.0f, 0.0f, 0.0f };
 	glClearBufferfv(GL_COLOR, 1, clearcolor);
@@ -74,6 +93,7 @@ void GLRendererBackend::render(const std::vector<Renderable> &renderables, const
 
 	glColorMaski(1, GL_FALSE, GL_FALSE, GL_FALSE, GL_FALSE);
 	menu_renderer.draw(menu_renderables, text_renderables);
+	glColorMaski(1, GL_TRUE, GL_TRUE, GL_TRUE, GL_TRUE);
 
 	/*
 #ifndef NDEBUG
@@ -81,8 +101,7 @@ void GLRendererBackend::render(const std::vector<Renderable> &renderables, const
 #endif
 */
 
-	glColorMaski(1, GL_TRUE, GL_TRUE, GL_TRUE, GL_TRUE);
-	post_renderer.draw(fb.get(), fps);
+	post_renderer.draw(fb.get(), scratch.get(), fps);
 
 	win::gl_check_error();
 }
@@ -98,18 +117,19 @@ void GLRendererBackend::set_resolution(const win::Dimensions<int> &dims, const w
 	menufont_small = text_renderer.create_font(0.5f, roll["font/Comicy.ttf"]);
 	menufont_big = text_renderer.create_font(1.0f, roll["font/Comicy.ttf"]);
 
-	glBindFramebuffer(GL_FRAMEBUFFER, fb.get());
-
 	glActiveTexture(GLConstants::MAIN_COLOR_ATTACHMENT_TEXTURE_UNIT);
 	glBindTexture(GL_TEXTURE_2D, fb_main.get());
-	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB16, dims.width, dims.height, 0, GL_RGB, GL_UNSIGNED_SHORT, NULL);
+	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB16, dims.width, dims.height, 0, GL_RGB, GL_UNSIGNED_BYTE, NULL);
 
 	glActiveTexture(GLConstants::HISTORY_COLOR_ATTACHMENT_TEXTURE_UNIT);
 	glBindTexture(GL_TEXTURE_2D, fb_history.get());
-	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB16, dims.width, dims.height, 0, GL_RGB, GL_UNSIGNED_SHORT, NULL);
+	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB16, dims.width, dims.height, 0, GL_RGB, GL_UNSIGNED_BYTE, NULL);
+
+	glActiveTexture(GLConstants::SCRATCH_COLOR_ATTACHMENT_TEXTURE_UNIT);
+	glBindTexture(GL_TEXTURE_2D, fb_scratch.get());
+	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB16, dims.width, dims.height, 0, GL_RGB, GL_UNSIGNED_BYTE, NULL);
 
 	background_renderer.set_res_area(dims, area);
-	post_renderer.set_resolution(dims);
 }
 
 void GLRendererBackend::drawfps()

@@ -31,8 +31,9 @@ GLBackgroundRenderer::GLBackgroundRenderer(win::AssetRoll &roll, const win::Dime
 
 	glBindVertexArray(vao.get());
 
+	glPixelStorei(GL_PACK_ALIGNMENT, 1);
 	glActiveTexture(GLConstants::BACKGROUND_TEXTURE_UNIT);
-	glBindTexture(GL_TEXTURE_2D_ARRAY, texture.get());
+	glBindTexture(GL_TEXTURE_2D, texture.get());
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);

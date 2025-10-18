@@ -30,4 +30,7 @@ private:
 
 	win::GLFramebuffer fb;
 	win::GLTexture fb_main, fb_history;
+
+	win::GLFramebuffer scratch;
+	win::GLTexture fb_scratch;
 };

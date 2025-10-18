@@ -12,10 +12,9 @@ class GLPostProcessingRenderer
 	WIN_NO_COPY_MOVE(GLPostProcessingRenderer);
 
 public:
-	GLPostProcessingRenderer(win::AssetRoll &roll, const win::Dimensions<int> &screenres);
+	explicit GLPostProcessingRenderer(win::AssetRoll &roll);
 
-	void draw(GLuint fb, float fps);
-	void set_resolution(const win::Dimensions<int> &res);
+	void draw(GLuint mainfb, GLuint scratchfb, float fps);
 
 private:
 	win::GLVertexArray vao;
@@ -28,8 +27,6 @@ private:
 
 	struct
 	{
-		win::GLFramebuffer fbo;
-		win::GLTexture tex;
 		win::GLProgram program;
 		GLint uniform_main_texture;
 		GLint uniform_history_texture;

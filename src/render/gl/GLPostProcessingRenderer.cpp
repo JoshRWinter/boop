@@ -12,7 +12,7 @@ static GLint get_uniform(const win::GLProgram &program, const char *name)
 	return loc;
 }
 
-GLPostProcessingRenderer::GLPostProcessingRenderer(win::AssetRoll &roll, const win::Dimensions<int> &screenres)
+GLPostProcessingRenderer::GLPostProcessingRenderer(win::AssetRoll &roll)
 {
 	post.program = win::GLProgram(win::load_gl_shaders(roll["shader/gl/post.vert"], roll["shader/gl/post.frag"]));
 	glUseProgram(post.program.get());
@@ -20,18 +20,6 @@ GLPostProcessingRenderer::GLPostProcessingRenderer(win::AssetRoll &roll, const w
 	post.uniform_history_texture = get_uniform(post.program, "history_texture");
 	post.uniform_blur_horizontal = get_uniform(post.program, "horizontal");
 	glUniform1i(post.uniform_main_texture, GLConstants::MAIN_COLOR_ATTACHMENT_TEXTURE_UNIT - GL_TEXTURE0);
-	glBindFramebuffer(GL_FRAMEBUFFER, post.fbo.get());
-	glActiveTexture(GLConstants::BLUR_COLOR_ATTACHMENT_TEXTURE_UNIT);
-	glBindTexture(GL_TEXTURE_2D, post.tex.get());
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
-	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB16, screenres.width, screenres.height, 0, GL_RGB, GL_UNSIGNED_SHORT, NULL);
-	glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, post.tex.get(), 0);
-	const GLenum buffers[] { GL_COLOR_ATTACHMENT0 };
-	glDrawBuffers(1, buffers);
-
-	glBindFramebuffer(GL_FRAMEBUFFER, 0);
 
 	histfade.program = win::GLProgram(win::load_gl_shaders(roll["shader/gl/histfade.vert"], roll["shader/gl/histfade.frag"]));
 	histfade.uniform_fade = glGetUniformLocation(histfade.program.get(), "fade");
@@ -39,7 +27,7 @@ GLPostProcessingRenderer::GLPostProcessingRenderer(win::AssetRoll &roll, const w
 	win::gl_check_error();
 }
 
-void GLPostProcessingRenderer::draw(GLuint fb, float fps)
+void GLPostProcessingRenderer::draw(GLuint mainfb, GLuint scratchfb, float fps)
 {
 	glBindVertexArray(vao.get());
 
@@ -52,27 +40,19 @@ void GLPostProcessingRenderer::draw(GLuint fb, float fps)
 	glUseProgram(post.program.get());
 
 	// horizontal blur
-	glBindFramebuffer(GL_FRAMEBUFFER, post.fbo.get());
+	glBindFramebuffer(GL_FRAMEBUFFER, scratchfb);
 	glUniform1i(post.uniform_history_texture, GLConstants::HISTORY_COLOR_ATTACHMENT_TEXTURE_UNIT - GL_TEXTURE0);
 	glUniform1i(post.uniform_blur_horizontal, 1);
 	glDrawArrays(GL_TRIANGLES, 0, 3);
 
 	// vertical blur and other post processing
 	glBindFramebuffer(GL_FRAMEBUFFER, 0);
-	glUniform1i(post.uniform_history_texture, GLConstants::BLUR_COLOR_ATTACHMENT_TEXTURE_UNIT - GL_TEXTURE0);
+	glUniform1i(post.uniform_history_texture, GLConstants::SCRATCH_COLOR_ATTACHMENT_TEXTURE_UNIT - GL_TEXTURE0);
 	glUniform1i(post.uniform_blur_horizontal, 0);
 
 	glDrawArrays(GL_TRIANGLES, 0, 3);
 
-	glBindFramebuffer(GL_FRAMEBUFFER, fb);
+	glBindFramebuffer(GL_FRAMEBUFFER, mainfb);
 
 	win::gl_check_error();
-}
-
-void GLPostProcessingRenderer::set_resolution(const win::Dimensions<int> &res)
-{
-	glBindFramebuffer(GL_FRAMEBUFFER, post.fbo.get());
-	glActiveTexture(GLConstants::BLUR_COLOR_ATTACHMENT_TEXTURE_UNIT);
-	glBindTexture(GL_TEXTURE_2D, post.tex.get());
-	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB16, res.width, res.height, 0, GL_RGB, GL_UNSIGNED_SHORT, NULL);
 }
