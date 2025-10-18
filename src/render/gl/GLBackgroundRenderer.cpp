@@ -22,12 +22,11 @@ GLBackgroundRenderer::GLBackgroundRenderer(win::AssetRoll &roll, const win::Dime
 	program = win::GLProgram(load_gl_shaders(roll["shader/gl/background.vert"], roll["shader/gl/background.frag"]));
 	glUseProgram(program.get());
 
+	uniform_light = get_uniform(program, "horizontal");
 	uniform_light = get_uniform(program, "light");
 	uniform_lightcolor = get_uniform(program, "lightcolor");
 	uniform_lightpower = get_uniform(program, "lightpower");
-	const auto uniform_sampler = get_uniform(program, "tex");
-
-	glUniform1i(uniform_sampler, GLConstants::BACKGROUND_TEXTURE_UNIT - GL_TEXTURE0);
+	uniform_sampler = get_uniform(program, "tex");
 
 	glBindVertexArray(vao.get());
 
@@ -52,7 +51,7 @@ void GLBackgroundRenderer::set_res_area(const win::Dimensions<int> &res, const w
 	this->area = area;
 }
 
-void GLBackgroundRenderer::draw(const std::vector<LightRenderable> &lights)
+void GLBackgroundRenderer::draw(const std::vector<LightRenderable> &lights, GLuint fbmain, GLuint fbscratch)
 {
 	glUseProgram(program.get());
 	glBindVertexArray(vao.get());
@@ -72,7 +71,17 @@ void GLBackgroundRenderer::draw(const std::vector<LightRenderable> &lights)
 		glUniform1f(uniform_lightpower, (res.width / 10.0f) * lights[0].power);
 	}
 
+	glBindFramebuffer(GL_FRAMEBUFFER, fbscratch);
+	glUniform1i(uniform_horizontal, 1);
+	glUniform1i(uniform_sampler, GLConstants::BACKGROUND_TEXTURE_UNIT - GL_TEXTURE0);
 	glDrawArrays(GL_TRIANGLES, 0, 3);
+
+	glBindFramebuffer(GL_FRAMEBUFFER, fbmain);
+	glUniform1i(uniform_horizontal, 0);
+	glUniform1i(uniform_sampler, GLConstants::SCRATCH_COLOR_ATTACHMENT_TEXTURE_UNIT - GL_TEXTURE0);
+	glDrawArrays(GL_TRIANGLES, 0, 3);
+
+	win::gl_check_error();
 }
 
 void GLBackgroundRenderer::world_to_screen(float x, float y, int &xi, int &yi)
