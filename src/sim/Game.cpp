@@ -440,7 +440,7 @@ void Game::process_ball(std::vector<Renderable> &renderables, std::vector<LightR
 			ball.x + (Ball::width / 2.0f),
 			ball.y + (Ball::height / 2.0f),
 			ball_color,
-			220);
+			500);
 	}
 }
 

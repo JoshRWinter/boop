@@ -442,7 +442,7 @@ void Menu::map_renderables(Renderables &renderables, const Button &button, float
 
 void Menu::map_theme(Renderables &renderables, const win::Area<float> &area, const Input &input, Color color)
 {
-	renderables.light_renderables.emplace_back(0, input.x, input.y, get_color(color), 200.0f);
+	renderables.light_renderables.emplace_back(0, input.x, input.y, get_color(color), 500.0f);
 }
 
 void Menu::map_renderables(Renderables &renderables, const ColorSelect &color, bool selected)
