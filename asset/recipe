@@ -20,6 +20,8 @@ sound/hurray.ogg
 sound/yousuck.ogg
 sound/click.ogg
 
+texture/texture.tga z
+
 svg2tga {
     texture/background.svg 1920 1080
     texture/ball.svg 29 29 exclude

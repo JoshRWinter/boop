@@ -87,19 +87,18 @@ GLRendererBackend::GLRendererBackend(win::AssetRoll &roll, const win::Dimensions
 
 void GLRendererBackend::render(const std::vector<Renderable> &renderables, const std::vector<LightRenderable> &light_renderables, const std::vector<MenuRenderable> &menu_renderables, const std::vector<TextRenderable> &text_renderables, float fps)
 {
-	background_renderer.draw(light_renderables, fb.get(), scratch.get());
+	background_renderer.draw(light_renderables);
 
 	common_renderer.draw(renderables, light_renderables);
 
 	glColorMaski(1, GL_FALSE, GL_FALSE, GL_FALSE, GL_FALSE);
 	menu_renderer.draw(menu_renderables, text_renderables);
-	glColorMaski(1, GL_TRUE, GL_TRUE, GL_TRUE, GL_TRUE);
 
-	/*
 #ifndef NDEBUG
 	drawfps();
 #endif
-*/
+
+	glColorMaski(1, GL_TRUE, GL_TRUE, GL_TRUE, GL_TRUE);
 
 	post_renderer.draw(fb.get(), scratch.get(), fps);
 
