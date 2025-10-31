@@ -1,6 +1,8 @@
 #pragma once
 
 #include <vector>
+#include <memory>
+#include <chrono>
 
 #include <win/Win.hpp>
 #include <win/AssetRoll.hpp>
@@ -21,6 +23,9 @@ public:
 
 private:
 	void world_to_screen(float x, float y, int &xi, int &yi);
+	static std::unique_ptr<unsigned char[]> load_tex(win::Stream &&stream, int &w, int &h);
+
+	const std::chrono::time_point<std::chrono::high_resolution_clock> start = std::chrono::high_resolution_clock::now();
 
 	win::Dimensions<int> res;
 	win::Area<float> area;
@@ -29,6 +34,8 @@ private:
 	int uniform_light;
 	int uniform_lightcolor;
 	int uniform_lightpower;
+	int uniform_ftexcoord1_offset;
+	int uniform_ftexcoord2_offset;
 
 	win::GLVertexArray vao;
 

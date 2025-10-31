@@ -23,7 +23,10 @@ sound/click.ogg
 texture/texture.tga z
 
 svg2tga {
-    texture/background.svg 1920 1080
+    texture/background0.svg 1920 1080
+    texture/background1.svg 1920 1080
+    texture/background2.svg 1920 1080
+
     texture/ball.svg 29 29 exclude
     texture/paddle.svg 72 240 exclude
 
