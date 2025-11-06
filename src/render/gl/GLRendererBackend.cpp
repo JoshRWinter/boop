@@ -92,7 +92,7 @@ void GLRendererBackend::render(const std::vector<Renderable> &renderables, const
 	common_renderer.draw(renderables, light_renderables);
 
 	glColorMaski(1, GL_FALSE, GL_FALSE, GL_FALSE, GL_FALSE);
-	menu_renderer.draw(menu_renderables, text_renderables);
+	menu_renderer.draw(menu_renderables, text_renderables, fb.get(), scratch.get());
 
 #ifndef NDEBUG
 	drawfps();

@@ -27,11 +27,11 @@ class Menu
 	static constexpr float button_width = 3.5f;
 	static constexpr float button_height = 0.79166f;
 
-	inline static auto textcolor = win::Color<float>(0.6f, 0.6f, 0.6f, 1.0f);
+	inline static auto textcolor = win::Color<float>(0.6f, 0.6f, 0.6f, 0.8f);
 
-	inline static auto color = win::Color<float>(0.075f, 0.075f, 0.075f, 1.0f);
-	inline static auto hover = win::Color<float>(0.4f, 0.05f, 0.05f, 1.0f);
-	inline static auto clicked = win::Color<float>(0.3f, 0.02f, 0.02f, 1.0f);
+	inline static auto color = win::Color<float>(0.075f, 0.075f, 0.075f, 0.2f);
+	inline static auto hover = win::Color<float>(0.4f, 0.05f, 0.05f, 0.5f);
+	inline static auto clicked = win::Color<float>(0.3f, 0.02f, 0.02f, 0.6f);
 
 public:
 	struct Button
@@ -52,7 +52,7 @@ public:
 			, y(y)
 			, w(w)
 			, h(h)
-			, color(color)
+			, color(win::Color<float>(color.red, color.green, color.blue, 0.5f))
 		{}
 
 		float x, y, w, h;

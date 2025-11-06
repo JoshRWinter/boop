@@ -27,6 +27,8 @@ GLMenuRenderer::GLMenuRenderer(win::AssetRoll &roll, win::GLTextRenderer &text_r
 	glUseProgram(program.get());
 	uniform_transform = get_uniform(program, "transform");
 	uniform_color = get_uniform(program, "color");
+	uniform_horizontal = get_uniform(program, "horizontal");
+	uniform_blurtex = get_uniform(program, "blur");
 	glUniform1i(get_uniform(program, "tex"), GLConstants::MENU_ATLAS_TEXTURE_UNIT - GL_TEXTURE0);
 
 	glBindVertexArray(vao.get());
@@ -48,23 +50,45 @@ GLMenuRenderer::GLMenuRenderer(win::AssetRoll &roll, win::GLTextRenderer &text_r
 	win::gl_check_error();
 }
 
-void GLMenuRenderer::draw(const std::vector<MenuRenderable> &menu_renderables, const std::vector<TextRenderable> &text_renderables)
+void GLMenuRenderer::draw(const std::vector<MenuRenderable> &menu_renderables, const std::vector<TextRenderable> &text_renderables, GLuint main, GLuint fb_scratch)
 {
-	glUseProgram(program.get());
-	glBindVertexArray(vao.get());
-
-	static const auto ident = glm::identity<glm::mat4>();
-
-	for (const auto &r : menu_renderables)
+	if (!menu_renderables.empty())
 	{
-		const auto translate = glm::translate(ident, glm::vec3(r.x + (r.w / 2.0f), r.y + (r.h / 2.0f), 0.0f));
-		const auto scale = glm::scale(ident, glm::vec3(r.w, r.h, 1.0f));
-		const auto transform = projection * translate * scale;
+		glUseProgram(program.get());
+		glBindVertexArray(vao.get());
 
-		glUniform4f(uniform_color, r.color.red, r.color.green, r.color.blue, r.color.alpha);
-		glUniformMatrix4fv(uniform_transform, 1, GL_FALSE, glm::value_ptr(transform));
+		static const auto ident = glm::identity<glm::mat4>();
 
-		glDrawArrays(GL_TRIANGLES, (int)r.texture * 6, 6);
+		glBindFramebuffer(GL_FRAMEBUFFER, fb_scratch);
+		glUniform1i(uniform_horizontal, 1);
+		glUniform1i(uniform_blurtex, GLConstants::MAIN_COLOR_ATTACHMENT_TEXTURE_UNIT - GL_TEXTURE0);
+
+		for (const auto &r : menu_renderables)
+		{
+			const auto translate = glm::translate(ident, glm::vec3(r.x + (r.w / 2.0f), r.y + (r.h / 2.0f), 0.0f));
+			const auto scale = glm::scale(ident, glm::vec3(r.w, r.h, 1.0f));
+			const auto transform = projection * translate * scale;
+
+			glUniformMatrix4fv(uniform_transform, 1, GL_FALSE, glm::value_ptr(transform));
+
+			glDrawArrays(GL_TRIANGLES, (int)r.texture * 6, 6);
+		}
+
+		glBindFramebuffer(GL_FRAMEBUFFER, main);
+		glUniform1i(uniform_horizontal, 0);
+		glUniform1i(uniform_blurtex, GLConstants::SCRATCH_COLOR_ATTACHMENT_TEXTURE_UNIT - GL_TEXTURE0);
+
+		for (const auto &r : menu_renderables)
+		{
+			const auto translate = glm::translate(ident, glm::vec3(r.x + (r.w / 2.0f), r.y + (r.h / 2.0f), 0.0f));
+			const auto scale = glm::scale(ident, glm::vec3(r.w, r.h, 1.0f));
+			const auto transform = projection * translate * scale;
+
+			glUniform4f(uniform_color, r.color.red, r.color.green, r.color.blue, r.color.alpha);
+			glUniformMatrix4fv(uniform_transform, 1, GL_FALSE, glm::value_ptr(transform));
+
+			glDrawArrays(GL_TRIANGLES, (int)r.texture * 6, 6);
+		}
 	}
 
 	for (const auto &r : text_renderables)
