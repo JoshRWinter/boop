@@ -26,12 +26,14 @@ svg2tga {
     texture/background0.svg 1920 1080
     texture/background1.svg 1920 1080
     texture/background2.svg 1920 1080
+}
 
-    texture/ball.svg 29 29 exclude
-    texture/paddle.svg 72 240 exclude
+svg2tga exclude {
+    texture/ball.svg 29 29
+    texture/paddle.svg 72 240
 
-    texture/button.svg 420 95 exclude
-    texture/colorselect.svg 90 90 exclude
+    texture/button.svg 420 95
+    texture/colorselect.svg 90 90
 }
 
 atlas {
