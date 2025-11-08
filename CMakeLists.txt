@@ -51,6 +51,11 @@ set(sources
 	src/render/gl/GLMenuRenderer.cpp
 )
 
+if (ROLLDATA)
+	file(REAL_PATH ${ROLLDATA} path BASE_DIRECTORY ${CMAKE_BINARY_DIR})
+	add_compile_definitions(ROLLDATA=\"${path}\")
+endif()
+
 if(WIN32 AND (CMAKE_BUILD_TYPE STREQUAL "Release" OR CMAKE_BUILD_TYPE STREQUAL "RelWithDebInfo"))
 	add_executable(${executable} WIN32 ${sources})
 else()

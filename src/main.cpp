@@ -8,13 +8,24 @@
 #include "render/Renderer.hpp"
 #include "sim/Simulation.hpp"
 
+#ifdef ROLLDATA
+const static unsigned char rolldata[] =
+{
+	#include ROLLDATA
+};
+#endif
+
 #if defined WINPLAT_WINDOWS && NDEBUG
 int WinMain(HINSTANCE hinstance, HINSTANCE prev, PSTR cmd, int show)
 #else
 int main(int argc, char **argv)
 #endif
 {
+#ifdef ROLLDATA
+	win::AssetRoll roll(rolldata, sizeof(rolldata));
+#else
 	win::AssetRoll roll("boop.roll");
+#endif
 
 	// display setup
 	win::DisplayOptions display_options;
