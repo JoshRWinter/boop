@@ -163,7 +163,7 @@ int main(int argc, char **argv)
 			Renderables *prev, *current;
 			const auto lerp = simexchanger.get_simstates(&prev, &current, display.refresh_rate());
 
-#ifndef WINPLAT_LINUX
+			/*
 			if (current->menu_renderables.empty() && cursor_enabled)
 			{
 				display.cursor(false);
@@ -174,19 +174,7 @@ int main(int argc, char **argv)
 				display.cursor(true);
 				cursor_enabled = true;
 			}
-#endif
-
-			{
-				static float last_lerp = lerp;
-
-				float l = lerp;
-				while (l < last_lerp)
-					l += 1.0f;
-
-				//fprintf(stderr, "%.4f (%.4f)\n", l - last_lerp, lerp);
-
-				last_lerp = l;
-			}
+			*/
 
 			renderer.render(*prev, *current, lerp, input.y, display.refresh_rate());
 			display.swap();
