@@ -37,6 +37,6 @@ svg2tga exclude {
 }
 
 atlas {
-    texture/atlas.txt texture/atlas
-    texture/menuatlas.txt texture/menuatlas
+    texture/atlas texture/atlas.txt 
+    texture/menuatlas texture/menuatlas.txt 
 }
