@@ -44,7 +44,7 @@ GLBackgroundRenderer::GLBackgroundRenderer(win::AssetRoll &roll, const win::Dime
 	glBindTexture(GL_TEXTURE_2D_ARRAY, background.get());
 	glTexParameteri(GL_TEXTURE_2D_ARRAY, GL_TEXTURE_WRAP_S, GL_MIRRORED_REPEAT);
 	glTexParameteri(GL_TEXTURE_2D_ARRAY, GL_TEXTURE_WRAP_T, GL_MIRRORED_REPEAT);
-	glTexParameteri(GL_TEXTURE_2D_ARRAY, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+	glTexParameteri(GL_TEXTURE_2D_ARRAY, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
 	glTexParameteri(GL_TEXTURE_2D_ARRAY, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 
 	{
@@ -64,6 +64,7 @@ GLBackgroundRenderer::GLBackgroundRenderer(win::AssetRoll &roll, const win::Dime
 			auto data = load_tex(roll[t], w, h);
 
 			glTexSubImage3D(GL_TEXTURE_2D_ARRAY, 0, 0, 0, i, w, h, 1, GL_BGRA, GL_UNSIGNED_BYTE, data.get());
+			glGenerateMipmap(GL_TEXTURE_2D_ARRAY);
 
 			++i;
 		}
