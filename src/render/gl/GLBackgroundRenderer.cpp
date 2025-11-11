@@ -31,6 +31,7 @@ GLBackgroundRenderer::GLBackgroundRenderer(win::AssetRoll &roll, const win::Dime
 	uniform_lightpower = get_uniform(program, "lightpower");
 	uniform_ftexcoord1_offset = get_uniform(program, "ftexcoord1_offset");
 	uniform_ftexcoord2_offset = get_uniform(program, "ftexcoord2_offset");
+	uniform_stretch = get_uniform(program, "stretch");
 
 	glUniform1i(uniform_background_sampler, GLConstants::BACKGROUND_TEXTURE_UNIT - GL_TEXTURE0);
 	glUniform1i(uniform_texture_sampler, GLConstants::TEXTURE_TEXTURE_UNIT - GL_TEXTURE0);
@@ -115,6 +116,12 @@ void GLBackgroundRenderer::draw(const std::vector<LightRenderable> &lights)
 	const float seconds = std::chrono::duration<float>(std::chrono::high_resolution_clock::now() - start).count();
 	glUniform2f(uniform_ftexcoord1_offset, -seconds * 0.002f, seconds * 0.005f);
 	glUniform2f(uniform_ftexcoord2_offset, std::cosf(seconds / 8.0f) * 0.02f, std::sinf(seconds / 8.0f) * 0.02f);
+
+	{
+		//figure out background stretch
+		const auto stretch = (area.right - 8.0f) / 8.0;
+		glUniform1f(uniform_stretch, stretch);
+	}
 
 	glDrawArrays(GL_TRIANGLES, 0, 3);
 

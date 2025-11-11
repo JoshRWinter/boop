@@ -109,6 +109,12 @@ void GLMenuRenderer::draw(const std::vector<MenuRenderable> &menu_renderables, c
 	win::gl_check_error();
 }
 
+void GLMenuRenderer::set_res_area(const win::Dimensions<int> &res, const win::Area<float> &area)
+{
+	glUseProgram(program.get());
+	projection = glm::ortho(area.left, area.right, area.bottom, area.top);
+}
+
 void GLMenuRenderer::generate_vertex_data(const win::Atlas &atlas, std::vector<float> &posdata, std::vector<unsigned short> &texcoord)
 {
 	const auto toshort = [](const float f) { return (unsigned short)std::roundf(f * 65535.0f); };

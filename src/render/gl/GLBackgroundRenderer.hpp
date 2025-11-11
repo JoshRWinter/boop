@@ -36,6 +36,7 @@ private:
 	int uniform_lightpower;
 	int uniform_ftexcoord1_offset;
 	int uniform_ftexcoord2_offset;
+	int uniform_stretch;
 
 	win::GLVertexArray vao;
 

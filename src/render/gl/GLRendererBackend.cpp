@@ -126,6 +126,8 @@ void GLRendererBackend::set_resolution(const win::Dimensions<int> &dims, const w
 	glBindTexture(GL_TEXTURE_2D, fb_scratch.get());
 	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB16, dims.width, dims.height, 0, GL_RGB, GL_UNSIGNED_BYTE, NULL);
 
+	common_renderer.set_res_area(dims, area);
+	menu_renderer.set_res_area(dims, area);
 	background_renderer.set_res_area(dims, area);
 }
 

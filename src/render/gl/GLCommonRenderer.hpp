@@ -14,9 +14,9 @@ class GLCommonRenderer
 
 public:
 	GLCommonRenderer(win::AssetRoll &roll, const glm::mat4 &projection, const win::Dimensions<int> &screenres, const win::Area<float> &area);
-	virtual ~GLCommonRenderer()	= default;
 
 	void draw(const std::vector<Renderable> &renderables, const std::vector<LightRenderable> &lights);
+	void set_res_area(const win::Dimensions<int> &res, const win::Area<float> &area);
 
 private:
 	static void generate_vertex_data(const win::Atlas &atlas, std::vector<float> &posdata, std::vector<unsigned short> &texcoord);

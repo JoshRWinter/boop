@@ -9,11 +9,14 @@ out vec2 ftexcoord2;
 
 uniform vec2 ftexcoord1_offset;
 uniform vec2 ftexcoord2_offset;
+uniform float stretch;
 
 void main()
 {
     float s = tcoords[(gl_VertexID * 2) + 0];
     float t = tcoords[(gl_VertexID * 2) + 1];
+
+    s = s + (s > 1 ? stretch : -stretch);
 
     ftexcoord0 = vec2(s, t);
     ftexcoord1 = vec2(s + ftexcoord1_offset.s, t + ftexcoord1_offset.t);

@@ -136,22 +136,13 @@ int main(int argc, char **argv)
 		{
 			resize = false;
 
-			const int w = display.width();
-			const int h = display.height();
-			const int corrected_h = fullscreen ? h : std::round(w / (16 / 9.0));
+			screenres.width = display.width();
+			screenres.height = display.height();
 
-			if (h == corrected_h)
-			{
-				screenres.width = display.width();
-				screenres.height = display.height();
-
-				const auto adjustment = (screenres.height / (float)screenres.width) * (area.right - area.left);
-				area.top = adjustment / 2.0f;
-				area.bottom = -adjustment / 2.0f;
-				renderer.set_resolution(screenres, area, roll);
-			}
-			else if (h != corrected_h)
-				display.resize(w, corrected_h);
+			const auto adjustment = (screenres.width / (float)screenres.height) * (area.top - area.bottom);
+			area.right = adjustment / 2.0f;
+			area.left = -adjustment / 2.0f;
+			renderer.set_resolution(screenres, area, roll);
 		}
 
 		display.process();
