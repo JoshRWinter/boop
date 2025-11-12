@@ -107,11 +107,15 @@ void GLBackgroundRenderer::draw(const std::vector<LightRenderable> &lights)
 	}
 	else
 	{
+		const float a = 1920 * 1080;
+		const float b = res.width * res.height;
+		const float c = b / a;
+
 		int x, y;
 		world_to_screen(lights[0].x, lights[0].y, x, y);
 		glUniform2f(uniform_light, x, y);
 		glUniform3f(uniform_lightcolor, lights[0].color.red, lights[0].color.green, lights[0].color.blue);
-		glUniform1f(uniform_lightpower, (res.width / 10.0f) * lights[0].power);
+		glUniform1f(uniform_lightpower, c * 300 * lights[0].power);
 	}
 
 	const float seconds = std::chrono::duration<float>(std::chrono::high_resolution_clock::now() - start).count();
