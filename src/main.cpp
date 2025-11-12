@@ -104,6 +104,12 @@ int main(int argc, char **argv)
 		}
 	});
 
+	display.register_window_handler([&quit](win::WindowEvent e)
+	{
+		if (e == win::WindowEvent::close)
+			quit = true;
+	});
+
 	bool resize = false;
 	std::chrono::time_point<std::chrono::high_resolution_clock> last_resize;
 	display.register_resize_handler([&resize, &last_resize](int w, int h)
