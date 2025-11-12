@@ -181,11 +181,13 @@ void Game::tick(Renderables &renderables, const Input &input)
 
 	if ((winstate == WinState::hostwin && match.hosting()) || (winstate == WinState::guestwin && !match.hosting()))
 	{
-		renderables.text_renderables.emplace_back(0.0f, 2.0f, true, TextRenderable::Type::yuge, win::Color(0.5f, 0.1f, 0.1f, 1.0f), "YOU WIN");
+		const auto color = get_color(paddle_color);
+		renderables.text_renderables.emplace_back(0.0f, 2.0f, true, TextRenderable::Type::yuge, color, "YOU WIN");
 	}
 	else if ((winstate == WinState::hostwin && !match.hosting()) || (winstate == WinState::guestwin && match.hosting()))
 	{
-		renderables.text_renderables.emplace_back(0.0f, 2.0f, true, TextRenderable::Type::yuge, win::Color(0.5f, 0.1f, 0.1f, 1.0f), "YOU SUCK");
+		const auto color = match.hosting() ? get_color((Color)networkdata.guest_paddle_color) : get_color((Color)networkdata.host_paddle_color);
+		renderables.text_renderables.emplace_back(0.0f, 2.0f, true, TextRenderable::Type::yuge, color, "YOU SUCK");
 	}
 
 	process_ball(renderables.renderables, renderables.light_renderables);
