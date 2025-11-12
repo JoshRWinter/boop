@@ -52,12 +52,15 @@ int main(int argc, char **argv)
 	win::load_gl_functions();
 
 	win::Dimensions<int> screenres(display.width(), display.height());
-	win::Area<float> area(-8.0f, 8.0f, -4.5f, 4.5f);
+
+	const float rightside = (screenres.width / (float)screenres.height) * 4.5f;
+	win::Area<float> renderarea(-rightside, rightside, -4.5f, 4.5f);
+	win::Area<float> gamearea(-8.0f, 8.0f, -4.5f, 4.5f);
 
 	win::SimStateExchanger<Renderables> simexchanger(60);
 
-	Simulation sim(&roll, area, false, DifficultyLevel::easy, simexchanger);
-	Renderer renderer(roll, screenres, area);
+	Simulation sim(&roll, gamearea, false, DifficultyLevel::easy, simexchanger);
+	Renderer renderer(roll, screenres, renderarea);
 
 	Input input;
 	bool input_available = false;
@@ -127,10 +130,10 @@ int main(int argc, char **argv)
 		}
 	});
 
-	display.register_mouse_handler([&input, &input_available, &area, &screenres](int x, int y)
+	display.register_mouse_handler([&input, &input_available, &renderarea, &screenres](int x, int y)
 	{
-		input.x = ((x / (float)screenres.width) * (area.right - area.left)) + area.left;
-		input.y = -(((y / (float)screenres.height) * (area.top - area.bottom)) + area.bottom);
+		input.x = ((x / (float)screenres.width) * (renderarea.right - renderarea.left)) + renderarea.left;
+		input.y = -(((y / (float)screenres.height) * (renderarea.top - renderarea.bottom)) + renderarea.bottom);
 		input_available = true;
 	});
 
@@ -145,10 +148,10 @@ int main(int argc, char **argv)
 			screenres.width = display.width();
 			screenres.height = display.height();
 
-			const auto adjustment = (screenres.width / (float)screenres.height) * (area.top - area.bottom);
-			area.right = adjustment / 2.0f;
-			area.left = -adjustment / 2.0f;
-			renderer.set_resolution(screenres, area, roll);
+			const auto adjustment = (screenres.width / (float)screenres.height) * (renderarea.top - renderarea.bottom);
+			renderarea.right = adjustment / 2.0f;
+			renderarea.left = -adjustment / 2.0f;
+			renderer.set_resolution(screenres, renderarea, roll);
 		}
 
 		display.process();
