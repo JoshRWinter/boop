@@ -281,12 +281,16 @@ LRESULT CALLBACK Win32Display::wndproc(HWND hwnd, UINT msg, WPARAM wp, LPARAM lp
 
 			display.update_refresh_rate();
 
-			if (display.window_prop_cache.w != w || display.window_prop_cache.h != h)
+			if (w != 0 || h != 0)
 			{
-				display.window_prop_cache.w = w;
-				display.window_prop_cache.h = h;
 
-				display.resize_handler(w, h);
+				if (display.window_prop_cache.w != w || display.window_prop_cache.h != h)
+				{
+					display.window_prop_cache.w = w;
+					display.window_prop_cache.h = h;
+
+					display.resize_handler(w, h);
+				}
 			}
 
 			return 0;
