@@ -306,6 +306,9 @@ Win32Display::Win32Display(const DisplayOptions &options)
 
 	const char *const window_class = "win_window_class";
 
+	HICON icon = LoadIcon(GetModuleHandle(NULL), "IDI_ICON1");
+	icon = icon != NULL ? icon : LoadIcon(NULL, IDI_APPLICATION);
+
 	WNDCLASSEX wc;
 	wc.cbSize = sizeof(wc);
 	wc.style = CS_OWNDC;
@@ -313,12 +316,12 @@ Win32Display::Win32Display(const DisplayOptions &options)
 	wc.cbClsExtra = 0;
 	wc.cbWndExtra = 0;
 	wc.hInstance = GetModuleHandle(NULL);
-	wc.hIcon = LoadIcon(NULL, IDI_APPLICATION);
 	wc.hCursor = LoadCursor(NULL, IDC_ARROW);
 	wc.hbrBackground = (HBRUSH)(COLOR_WINDOW + 1);
 	wc.lpszMenuName = NULL;
 	wc.lpszClassName = window_class;
-	wc.hIconSm = LoadIcon(NULL, IDI_APPLICATION);
+	wc.hIcon = icon;
+	wc.hIconSm = icon;
 
 	if(!RegisterClassEx(&wc))
 		win::bug("Could not register window class");
