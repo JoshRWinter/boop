@@ -11,6 +11,7 @@
    sodipodi:docname="icon.svg"
    xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
    xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
+   xmlns:xlink="http://www.w3.org/1999/xlink"
    xmlns="http://www.w3.org/2000/svg"
    xmlns:svg="http://www.w3.org/2000/svg">
   <sodipodi:namedview
@@ -23,9 +24,9 @@
      inkscape:pagecheckerboard="0"
      inkscape:deskcolor="#505050"
      inkscape:document-units="mm"
-     inkscape:zoom="3.5847924"
-     inkscape:cx="72.249652"
-     inkscape:cy="150.63634"
+     inkscape:zoom="2.534831"
+     inkscape:cx="204.94463"
+     inkscape:cy="64.698594"
      inkscape:window-width="2560"
      inkscape:window-height="1413"
      inkscape:window-x="0"
@@ -33,14 +34,37 @@
      inkscape:window-maximized="0"
      inkscape:current-layer="layer1" />
   <defs
-     id="defs1" />
+     id="defs1">
+    <linearGradient
+       id="linearGradient13"
+       inkscape:collect="always">
+      <stop
+         style="stop-color:#2a2a2a;stop-opacity:1;"
+         offset="0.92129636"
+         id="stop13" />
+      <stop
+         style="stop-color:#646464;stop-opacity:0;"
+         offset="1"
+         id="stop14" />
+    </linearGradient>
+    <radialGradient
+       inkscape:collect="always"
+       xlink:href="#linearGradient13"
+       id="radialGradient14"
+       cx="95.211235"
+       cy="102.0015"
+       fx="95.211235"
+       fy="102.0015"
+       r="37.845474"
+       gradientUnits="userSpaceOnUse" />
+  </defs>
   <g
      inkscape:label="Layer 1"
      inkscape:groupmode="layer"
      id="layer1"
      transform="translate(-57.365761,-64.156029)">
     <circle
-       style="fill:#141414;fill-opacity:1;fill-rule:evenodd;stroke-width:5.71756"
+       style="fill:url(#radialGradient14);fill-opacity:1;fill-rule:evenodd;stroke:none;stroke-width:5.71756;stroke-opacity:1"
        id="path13"
        cx="95.211235"
        cy="102.0015"
@@ -123,7 +147,7 @@
     </g>
     <g
        id="g7"
-       transform="matrix(0.84302086,0,0,0.84302086,14.946178,16.012109)">
+       transform="matrix(0.81102507,0,0,0.81102507,17.992536,19.275727)">
       <path
          style="fill:#33cccc;fill-opacity:1;fill-rule:evenodd;stroke-width:2.46"
          id="path2"
