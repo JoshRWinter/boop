@@ -1,12 +1,12 @@
 #pragma once
 
-#include <string>
 #include <memory>
+#include <string>
 
-#include <win/Win.hpp>
-#include <win/Utility.hpp>
-#include <win/UdpServer.hpp>
 #include <win/UdpClient.hpp>
+#include <win/UdpServer.hpp>
+#include <win/Utility.hpp>
+#include <win/Win.hpp>
 
 #include "Simulation.hpp"
 #include "WinState.hpp"
@@ -35,7 +35,7 @@ public:
 		cant_listen
 	};
 
-	static constexpr int PORT = 28857;
+	static constexpr int PORT = 28'857;
 	static constexpr int DISCONNECT_SECONDS = 10;
 
 	explicit NetworkMatch(const win::Area<float> &area);
@@ -46,13 +46,32 @@ public:
 	bool join(const char *ip);
 	bool hosting() const;
 	ErrorReason errored() const;
+	static const char *error_reason(ErrorReason error);
 
 	// called by host
 	bool host_get_data(int &guest_paddle_color, float &guest_paddle_y);
-	void host_send_data(WinState winstate, int guest_paddle_color, float host_paddle_y, float paddle_height, float ball_x, float ball_y, float ball_xv, float ball_yv, int host_score, int guest_score);
+	void host_send_data(WinState winstate,
+						int guest_paddle_color,
+						float host_paddle_y,
+						float paddle_height,
+						float ball_x,
+						float ball_y,
+						float ball_xv,
+						float ball_yv,
+						int host_score,
+						int guest_score);
 
 	// called by guest
-	bool guest_get_data(WinState &winstate, int &host_paddle_color, float &host_paddle_y, float &paddle_height, float &ball_x, float &ball_y, float &ball_xv, float &ball_yv, int &host_score, int &guest_score);
+	bool guest_get_data(WinState &winstate,
+						int &host_paddle_color,
+						float &host_paddle_y,
+						float &paddle_height,
+						float &ball_x,
+						float &ball_y,
+						float &ball_xv,
+						float &ball_yv,
+						int &host_score,
+						int &guest_score);
 	void guest_send_data(int guest_paddle_color, float guest_paddle_y);
 
 private:

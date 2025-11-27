@@ -1,7 +1,7 @@
 #pragma once
 
-#include <vector>
 #include <chrono>
+#include <vector>
 
 #include <win/Utility.hpp>
 
@@ -14,7 +14,9 @@ struct LightRenderable
 		, x(x)
 		, y(y)
 		, color(color)
-		, power(power) {}
+		, power(power)
+	{
+	}
 
 	unsigned id;
 	float x, y;
@@ -24,8 +26,26 @@ struct LightRenderable
 
 struct Renderable
 {
-	Renderable(unsigned id, Texture texture, float x, float y, float w, float h, float rot, const win::Color<float> &color, const win::Color<float> &history_color)
-		: id(id), texture(texture), x(x), y(y), w(w), h(h), rot(rot), color(color), history_color(history_color) {}
+	Renderable(unsigned id,
+			   Texture texture,
+			   float x,
+			   float y,
+			   float w,
+			   float h,
+			   float rot,
+			   const win::Color<float> &color,
+			   const win::Color<float> &history_color)
+		: id(id)
+		, texture(texture)
+		, x(x)
+		, y(y)
+		, w(w)
+		, h(h)
+		, rot(rot)
+		, color(color)
+		, history_color(history_color)
+	{
+	}
 
 	unsigned id;
 	Texture texture;
@@ -37,7 +57,12 @@ struct Renderable
 
 struct TextRenderable
 {
-	enum class Type { teeny, smol, yuge };
+	enum class Type
+	{
+		teeny,
+		smol,
+		yuge
+	};
 
 	TextRenderable(float x, float y, bool centered, Type texttype, const win::Color<float> &color, const char *text)
 		: x(x)
@@ -49,7 +74,8 @@ struct TextRenderable
 		int i;
 		for (i = 0; i < sizeof(this->text) - 1; ++i)
 		{
-			if (text[i] == 0) break;
+			if (text[i] == 0)
+				break;
 			this->text[i] = text[i];
 		}
 		this->text[i] = 0;
@@ -59,7 +85,7 @@ struct TextRenderable
 	bool centered;
 	Type texttype;
 	win::Color<float> color;
-	char text[50];
+	char text[60];
 };
 
 struct MenuRenderable
@@ -71,7 +97,8 @@ struct MenuRenderable
 		, w(w)
 		, h(h)
 		, color(color)
-	{}
+	{
+	}
 
 	MenuTexture texture;
 	float x, y;

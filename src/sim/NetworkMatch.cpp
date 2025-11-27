@@ -26,8 +26,8 @@ void NetworkMatch::reset()
 
 void NetworkMatch::start_bot(DifficultyLevel bot_difficulty)
 {
-    if (state != MatchState::disconnected && state != MatchState::listening)
-    	win::bug("Trying to start bot but in state " + std::to_string((int)state) + " instead");
+	if (state != MatchState::disconnected && state != MatchState::listening)
+		win::bug("Trying to start bot but in state " + std::to_string((int)state) + " instead");
 
 	botsim.reset(new Simulation(NULL, area, true, bot_difficulty, botsimexchanger));
 	state = MatchState::listening;
@@ -111,6 +111,22 @@ NetworkMatch::ErrorReason NetworkMatch::errored() const
 	return state == MatchState::errored ? error : ErrorReason::none;
 }
 
+const char *NetworkMatch::error_reason(ErrorReason error)
+{
+	switch (error)
+	{
+		case NetworkMatch::ErrorReason::bad_address:
+			return "Bad address";
+		case NetworkMatch::ErrorReason::cant_listen:
+			return "Can't listen";
+		case NetworkMatch::ErrorReason::lost_connection:
+			return "Lost connection";
+		case NetworkMatch::ErrorReason::unknown:
+		default:
+			return "Unknown";
+	}
+}
+
 bool NetworkMatch::host_get_data(int &guest_paddle_color, float &guest_paddle_y)
 {
 	if (state != MatchState::hosting && state != MatchState::listening)
@@ -158,7 +174,16 @@ bool NetworkMatch::host_get_data(int &guest_paddle_color, float &guest_paddle_y)
 	return true;
 }
 
-void NetworkMatch::host_send_data(WinState winstate, int host_paddle_color, float host_paddle_y, float paddle_height, float ball_x, float ball_y, float ball_xv, float ball_yv, int host_score, int guest_score)
+void NetworkMatch::host_send_data(WinState winstate,
+								  int host_paddle_color,
+								  float host_paddle_y,
+								  float paddle_height,
+								  float ball_x,
+								  float ball_y,
+								  float ball_xv,
+								  float ball_yv,
+								  int host_score,
+								  int guest_score)
 {
 	if (state != MatchState::hosting && state != MatchState::listening)
 		win::bug("Trying to host but in state " + std::to_string((int)state) + " instead");
@@ -196,7 +221,16 @@ void NetworkMatch::host_send_data(WinState winstate, int host_paddle_color, floa
 	server.send(payload, sizeof(payload), guestid);
 }
 
-bool NetworkMatch::guest_get_data(WinState &winstate, int &host_paddle_color, float &host_paddle_y, float &paddle_height, float &ball_x, float &ball_y, float &ball_xv, float &ball_yv, int &host_score, int &guest_score)
+bool NetworkMatch::guest_get_data(WinState &winstate,
+								  int &host_paddle_color,
+								  float &host_paddle_y,
+								  float &paddle_height,
+								  float &ball_x,
+								  float &ball_y,
+								  float &ball_xv,
+								  float &ball_yv,
+								  int &host_score,
+								  int &guest_score)
 {
 	if (state != MatchState::joined && state != MatchState::joining)
 		win::bug("Trying to be joined but in state " + std::to_string((int)state) + " instead");

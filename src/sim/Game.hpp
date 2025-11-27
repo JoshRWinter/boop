@@ -1,22 +1,23 @@
 #pragma once
 
-#include <random>
 #include <optional>
+#include <random>
 
-#include <win/Win.hpp>
-#include <win/Utility.hpp>
 #include <win/AssetRoll.hpp>
+#include <win/Utility.hpp>
+#include <win/Win.hpp>
 
-#include "SoundManager.hpp"
 #include "../Colors.hpp"
-#include "../render/Renderable.hpp"
 #include "../Input.hpp"
-#include "NetworkMatch.hpp"
-#include "SimulationHost.hpp"
-#include "Difficulty.hpp"
+#include "../render/Renderable.hpp"
 #include "Bot.hpp"
-#include "WinState.hpp"
+#include "Difficulty.hpp"
 #include "GameMode.hpp"
+#include "menu/MainMenu.hpp"
+#include "menu/MenuService.hpp"
+#include "NetworkMatch.hpp"
+#include "SoundManager.hpp"
+#include "WinState.hpp"
 
 struct Ball
 {
@@ -24,7 +25,11 @@ struct Ball
 	static constexpr float height = 0.20833f;
 	static constexpr float squishiness = width * 0.3f;
 
-	Ball(unsigned renderable_id, unsigned light_renderable_id) : renderable_id(renderable_id), light_renderable_id(light_renderable_id) {}
+	Ball(unsigned renderable_id, unsigned light_renderable_id)
+		: renderable_id(renderable_id)
+		, light_renderable_id(light_renderable_id)
+	{
+	}
 
 	unsigned renderable_id;
 	unsigned light_renderable_id;
@@ -41,9 +46,12 @@ struct BallTailItem
 
 struct Paddle
 {
-    static constexpr float width = 0.6f;
+	static constexpr float width = 0.6f;
 
-    explicit Paddle(unsigned renderable_id) : renderable_id(renderable_id) {}
+	explicit Paddle(unsigned renderable_id)
+		: renderable_id(renderable_id)
+	{
+	}
 
 	unsigned renderable_id;
 	float x = 0.0f, y = 0.0f, h = 0.0f;
@@ -67,7 +75,7 @@ class Game
 public:
 	Game(win::AssetRoll *roll, const win::Area<float> &area, bool runbot, DifficultyLevel bot_difficulty);
 
-	void play(SimulationHost &host);
+	bool play(Renderables &renderables, const Input &input, const std::vector<char> &text_input);
 
 private:
 	void tick(Renderables &renderables, const Input &input);
@@ -108,6 +116,9 @@ private:
 	NetworkMatch match;
 	NetworkData networkdata;
 	std::optional<SoundManager> sounds;
+	std::optional<MenuService> menu;
+	MainMenu *mainmenu;
+	bool exit = false;
 
 	std::vector<win::Pair<float>> bounces;
 };

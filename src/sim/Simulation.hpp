@@ -1,18 +1,18 @@
 #pragma once
 
-#include <thread>
 #include <atomic>
+#include <thread>
 #include <vector>
 
-#include <win/Win.hpp>
-#include <win/Utility.hpp>
+#include <win/AssetRoll.hpp>
 #include <win/ConcurrentRingBuffer.hpp>
 #include <win/SimStateExchanger.hpp>
-#include <win/AssetRoll.hpp>
+#include <win/Utility.hpp>
+#include <win/Win.hpp>
 
-#include "../SyncObjectManager.hpp"
-#include "../render/Renderable.hpp"
 #include "../Input.hpp"
+#include "../render/Renderable.hpp"
+#include "../SyncObjectManager.hpp"
 #include "Difficulty.hpp"
 
 class Simulation
@@ -20,7 +20,11 @@ class Simulation
 	WIN_NO_COPY_MOVE(Simulation);
 
 public:
-	Simulation(win::AssetRoll *roll, const win::Area<float> &area, bool runbot, DifficultyLevel bot_difficulty, win::SimStateExchanger<Renderables> &simexchanger);
+	Simulation(win::AssetRoll *roll,
+			   const win::Area<float> &area,
+			   bool runbot,
+			   DifficultyLevel bot_difficulty,
+			   win::SimStateExchanger<Renderables> &simexchanger);
 	~Simulation();
 
 	void set_input(const Input &input);
@@ -30,8 +34,7 @@ public:
 private:
 	void sim(win::AssetRoll *roll, win::Area<float> area, bool runbot, DifficultyLevel bot_difficulty, win::SimStateExchanger<Renderables> &simexchanger);
 
-	SyncObjectManager<Renderables, 4> som_renderables;
-	SyncObjectManager<Input, 3> som_input;
+	SyncObjectManager<Input, 4> exch_input;
 	win::ConcurrentRingBuffer<char, 20> textinput;
 	Renderables *cached = NULL;
 
