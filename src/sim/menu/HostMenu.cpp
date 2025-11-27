@@ -35,5 +35,10 @@ HostMenu::HostMenu(NetworkMatch &match, std::function<void()> result)
 				quit = true;
 			}
 		}
+
+		char s[20];
+		snprintf(s, sizeof(s), "UDP Port %d", NetworkMatch::PORT);
+
+		renderables.text_renderables.emplace_back(0.0f, 1.25f, true, TextRenderable::Type::teeny, win::Color(1.0f, 1.0f, 1.0f, 1.0f), s);
 	};
 }
