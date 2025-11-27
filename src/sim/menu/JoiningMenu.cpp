@@ -12,6 +12,7 @@ JoiningMenu::JoiningMenu(NetworkMatch &match, const char *ip, std::function<void
 						 (const char *)NULL,
 						 [this]
 						 {
+							 this->match.reset();
 							 quit = true;
 						 });
 

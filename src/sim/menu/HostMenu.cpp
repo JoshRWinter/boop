@@ -11,6 +11,7 @@ HostMenu::HostMenu(NetworkMatch &match, std::function<void()> result)
 						 (const char *)NULL,
 						 [this]
 						 {
+							 this->match.reset();
 							 quit = true;
 						 });
 
