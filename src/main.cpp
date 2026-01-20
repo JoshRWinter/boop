@@ -1,7 +1,7 @@
 #include <cmath>
 
-#include <win/Display.hpp>
 #include <win/AssetRoll.hpp>
+#include <win/Display.hpp>
 #include <win/gl/GL.hpp>
 #include <win/SimStateExchanger.hpp>
 
@@ -9,9 +9,8 @@
 #include "sim/Simulation.hpp"
 
 #ifdef ROLLDATA
-const static unsigned char rolldata[] =
-{
-	#include ROLLDATA
+const static unsigned char rolldata[] = {
+#include ROLLDATA
 };
 #endif
 
@@ -46,7 +45,7 @@ int main(int argc, char **argv)
 
 	win::Display display(display_options);
 	display.vsync(true);
-	//display.cursor(false);
+	// display.cursor(false);
 	bool fullscreen = display_options.fullscreen;
 
 	win::load_gl_functions();
@@ -69,91 +68,79 @@ int main(int argc, char **argv)
 	bool text_available = false;
 
 	bool quit = false;
-	display.register_button_handler([
-		&quit,
-		&input_available,
-		&input,
-		&text_buffer,
-		&text_available,
-		&display,
-		&fullscreen
-	](win::Button button, bool press)
-	{
-		switch (button)
+	display.register_button_handler(
+		[&quit, &input_available, &input, &text_buffer, &text_available, &display, &fullscreen](win::Button button, bool press)
 		{
-			case win::Button::esc:
-				if (press)
-					quit = true;
-				break;
-			case win::Button::mouse_left:
-				input.click = press;
-				input_available = true;
-				break;
-			case win::Button::backspace:
-				if (press)
-				{
-					text_buffer.push_back('\b');
-					text_available = true;
-				}
-				break;
-			case win::Button::f11:
-				if (press)
-				{
-					fullscreen = !fullscreen;
-					display.set_fullscreen(fullscreen);
-				}
-				break;
-			default: break;
-		}
-	});
+			switch (button)
+			{
+				case win::Button::esc:
+					if (press)
+						quit = true;
+					break;
+				case win::Button::mouse_left:
+					input.click = press;
+					input_available = true;
+					break;
+				case win::Button::backspace:
+					if (press)
+					{
+						text_buffer.push_back('\b');
+						text_available = true;
+					}
+					break;
+				case win::Button::f11:
+					if (press)
+					{
+						fullscreen = !fullscreen;
+						display.set_fullscreen(fullscreen);
+					}
+					break;
+				default:
+					break;
+			}
+		});
 
-	display.register_window_handler([&quit](win::WindowEvent e)
-	{
-		if (e == win::WindowEvent::close)
-			quit = true;
-	});
-
-	bool resize = false;
-	std::chrono::time_point<std::chrono::high_resolution_clock> last_resize;
-	display.register_resize_handler([&resize, &last_resize](int w, int h)
-	{
-		resize = true;
-		last_resize = std::chrono::high_resolution_clock::now();
-	});
-
-	display.register_character_handler([&text_buffer, &text_available](int c)
-	{
-		if (c >= ' ' && c <= '~')
+	display.register_window_handler(
+		[&quit](win::WindowEvent e)
 		{
-			text_buffer.push_back(c);
-			text_available = true;
-		}
-	});
+			if (e == win::WindowEvent::close)
+				quit = true;
+		});
 
-	display.register_mouse_handler([&input, &input_available, &renderarea, &screenres](int x, int y)
-	{
-		input.x = ((x / (float)screenres.width) * (renderarea.right - renderarea.left)) + renderarea.left;
-		input.y = -(((y / (float)screenres.height) * (renderarea.top - renderarea.bottom)) + renderarea.bottom);
-		input_available = true;
-	});
-
-	bool cursor_enabled = true;
-
-	while (!quit && !sim.should_quit())
-	{
-		if (resize && std::chrono::duration<float>(std::chrono::high_resolution_clock::now() - last_resize).count() > 0.3f)
+	display.register_resize_handler(
+		[&roll, &display, &screenres, &renderarea, &renderer](int w, int h)
 		{
-			resize = false;
-
-			screenres.width = display.width();
-			screenres.height = display.height();
+			screenres.width = w;
+			screenres.height = h;
 
 			const auto adjustment = (screenres.width / (float)screenres.height) * (renderarea.top - renderarea.bottom);
 			renderarea.right = adjustment / 2.0f;
 			renderarea.left = -adjustment / 2.0f;
 			renderer.set_resolution(screenres, renderarea, roll);
-		}
+		});
 
+	display.register_character_handler(
+		[&text_buffer, &text_available](int c)
+		{
+			if (c >= ' ' && c <= '~')
+			{
+				text_buffer.push_back(c);
+				text_available = true;
+			}
+		});
+
+	display.register_mouse_handler(
+		[&input, &input_available, &renderarea, &screenres](int x, int y)
+		{
+			input.x = ((x / (float)screenres.width) * (renderarea.right - renderarea.left)) + renderarea.left;
+			input.y = -(((y / (float)screenres.height) * (renderarea.top - renderarea.bottom)) + renderarea.bottom);
+			input_available = true;
+		});
+
+	bool cursor_enabled = true;
+
+	while (!quit && !sim.should_quit())
+	{
 		display.process();
 
 		if (input_available)
