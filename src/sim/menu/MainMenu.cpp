@@ -131,7 +131,7 @@ MainMenu::MainMenu(MenuService &menus, NetworkMatch &match, std::function<void(C
 		renderables.text_renderables.emplace_back(0.0f, 2.5f, true, TextRenderable::Type::yuge, get_color(current), "BOOP");
 
 		if (input.x > 7.8f && input.x < 8.0f && input.y > -4.5f && input.y < -4.2f)
-			renderables.text_renderables.emplace_back(7.15f, -4.45f, true, TextRenderable::Type::teeny, win::Color(0.4f, 0.4f, 0.4f, 1.0f), "Look away");
+			renderables.text_renderables.emplace_back(6.75f, -4.45f, true, TextRenderable::Type::teeny, win::Color(0.4f, 0.4f, 0.4f, 1.0f), "Look behind you");
 		else
 			renderables.text_renderables.emplace_back(7.8f, -4.45f, false, TextRenderable::Type::teeny, win::Color(0.4f, 0.4f, 0.4f, 1.0f), "?");
 	};
