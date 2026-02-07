@@ -465,6 +465,10 @@ Renderable Game::process_player_paddle(const Input &input)
 		guest.h = networkdata.paddle_height;
 		guest.y = bot.run(ball.x, ball.y, ball.xv, ball.yv, guest.h, difficulty, match_time);
 
+		// make sure the bot never has the same color as the player
+		while (paddle_color == (Color)networkdata.host_paddle_color)
+			paddle_color = (Color)std::uniform_int_distribution<int>(0, (int)Color::last)(rand);
+
 		networkdata.guest_paddle_y = guest.y + (guest.h / 2.0f);
 		networkdata.guest_paddle_color = (int)paddle_color;
 
