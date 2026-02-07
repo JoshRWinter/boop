@@ -211,9 +211,14 @@ void Game::tick(Renderables &renderables, const Input &input)
 
 	char scoretext[10];
 	snprintf(scoretext, sizeof(scoretext), "%d", guest_score);
-	renderables.text_renderables.emplace_back(-4.0f, 3.0f, true, TextRenderable::Type::smol, win::Color<float>(0.6f, 0.6f, 0.6f, 1.0f), scoretext);
+	auto color = get_color((Color)networkdata.guest_paddle_color);
+	color.alpha = 0.6f;
+	renderables.text_renderables.emplace_back(-4.0f, 3.0f, true, TextRenderable::Type::smol, color, scoretext);
+
 	snprintf(scoretext, sizeof(scoretext), "%d", host_score);
-	renderables.text_renderables.emplace_back(4.0f, 3.0f, true, TextRenderable::Type::smol, win::Color<float>(0.6f, 0.6f, 0.6f, 1.0f), scoretext);
+	color = get_color((Color)networkdata.host_paddle_color);
+	color.alpha = 0.6f;
+	renderables.text_renderables.emplace_back(4.0f, 3.0f, true, TextRenderable::Type::smol, color, scoretext);
 
 	// send out network data
 
