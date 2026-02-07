@@ -3,7 +3,7 @@ project(boop)
 add_subdirectory(win)
 set(CMAKE_CXX_STANDARD 17)
 
-set(executable boop)
+set(executable Boop)
 
 set(sources
 	src/main.cpp
