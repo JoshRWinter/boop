@@ -48,7 +48,7 @@ int main(int argc, char **argv)
 	// display.cursor(false);
 	bool fullscreen = display_options.fullscreen;
 
-	win::load_gl_functions();
+	win::gl_load_functions();
 
 	win::Dimensions<int> screenres(display.width(), display.height());
 

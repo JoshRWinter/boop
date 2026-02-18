@@ -21,7 +21,7 @@ GLMenuRenderer::GLMenuRenderer(win::AssetRoll &roll, win::GLTextRenderer &text_r
 	, menufont_teeny(menufont_teeny)
 	, menufont_small(menufont_small)
 	, menufont_big(menufont_big)
-	, program(win::load_gl_shaders(roll["shader/gl/menu.vert"], roll["shader/gl/menu.frag"]))
+	, program(win::gl_load_shaders(roll["shader/gl/menu.vert"], roll["shader/gl/menu.frag"]))
 	, atlas(roll["texture/menuatlas"], win::GLAtlas::Mode::linear, GLConstants::MENU_ATLAS_TEXTURE_UNIT)
 {
 	glUseProgram(program.get());

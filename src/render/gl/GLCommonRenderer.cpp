@@ -21,7 +21,7 @@ static GLint get_uniform(win::GLProgram &program, const char *name)
 GLCommonRenderer::GLCommonRenderer(win::AssetRoll &roll, const glm::mat4 &projection, const win::Dimensions<int> &screenres, const win::Area<float> &area)
 	: projection(projection)
 	, atlas(roll["texture/atlas"], win::GLAtlas::Mode::linear, GLConstants::ATLAS_TEXTURE_UNIT)
-	, program(win::load_gl_shaders(roll["shader/gl/common.vert"], roll["shader/gl/common.frag"]))
+	, program(win::gl_load_shaders(roll["shader/gl/common.vert"], roll["shader/gl/common.frag"]))
 {
 	glUseProgram(program.get());
 	uniform_transform = get_uniform(program, "transform");

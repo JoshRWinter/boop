@@ -21,7 +21,7 @@ GLBackgroundRenderer::GLBackgroundRenderer(win::AssetRoll &roll, const win::Dime
 	: res(res)
 	, area(area)
 {
-	program = win::GLProgram(load_gl_shaders(roll["shader/gl/background.vert"], roll["shader/gl/background.frag"]));
+	program = win::GLProgram(win::gl_load_shaders(roll["shader/gl/background.vert"], roll["shader/gl/background.frag"]));
 	glUseProgram(program.get());
 
 	const auto uniform_background_sampler = get_uniform(program, "background");

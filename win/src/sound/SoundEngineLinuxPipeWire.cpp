@@ -78,9 +78,6 @@ SoundEngineLinuxPipeWire::SoundEngineLinuxPipeWire(AssetRoll &roll, const char *
 	spa_pod_builder_init(&builder, pod, sizeof(pod));
 	const spa_pod *params = spa_format_audio_raw_build(&builder, SPA_PARAM_EnumFormat, &info);
 
-	const char *stuff;
-	const auto shit = pw_stream_get_state(stream, &stuff);
-
 	if (pw_stream_connect(stream, PW_DIRECTION_OUTPUT, PW_ID_ANY, (pw_stream_flags)(PW_STREAM_FLAG_AUTOCONNECT | PW_STREAM_FLAG_MAP_BUFFERS | PW_STREAM_FLAG_RT_PROCESS), &params, 1) != 0)
 		win::bug("PipeWire: Couldn't connect stream");
 
