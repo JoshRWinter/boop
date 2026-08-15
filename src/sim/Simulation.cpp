@@ -76,7 +76,7 @@ void Simulation::sim(win::AssetRoll *roll,
 		std::vector<char> text_input;
 
 		{
-			char buf[std::remove_reference_t<decltype(textinput)>::length];
+			char buf[20];
 			const auto read = textinput.read(buf, sizeof(buf));
 
 			for (int i = 0; i < read; ++i)

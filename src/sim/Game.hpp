@@ -91,7 +91,7 @@ private:
 
 	unsigned next_renderable_id = 1;
 	std::mt19937 rand;
-	bool showmenu;
+	bool showmenu = true;
 	bool runbot;
 	int match_time = 0;
 	unsigned background_renderable_id;

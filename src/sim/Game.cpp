@@ -6,7 +6,6 @@
 
 Game::Game(win::AssetRoll *roll, const win::Area<float> &area, bool runbot, DifficultyLevel bot_difficulty)
 	: rand(time(NULL))
-	, showmenu(true)
 	, runbot(runbot)
 	, background_renderable_id(next_renderable_id++)
 	, bot(area, Ball::height, Ball::squishiness, (area.left + 0.3f) + (Paddle::width / 2.0f))

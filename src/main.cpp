@@ -161,18 +161,18 @@ int main(int argc, char **argv)
 			Renderables *prev, *current;
 			const auto lerp = simexchanger.get_simstates(&prev, &current, display.refresh_rate());
 
-			/*
 			if (current->menu_renderables.empty() && cursor_enabled)
 			{
-				display.cursor(false);
+				display.show_pointer(false);
+				display.lock_pointer(true);
 				cursor_enabled = false;
 			}
 			else if (!current->menu_renderables.empty() && !cursor_enabled)
 			{
-				display.cursor(true);
+				display.show_pointer(true);
+				display.lock_pointer(false);
 				cursor_enabled = true;
 			}
-			*/
 
 			renderer.render(*prev, *current, lerp, input.y, display.refresh_rate());
 			display.swap();
