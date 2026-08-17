@@ -1,3 +1,7 @@
+#include <win/Win.hpp>
+
+#ifdef WINPLAT_LINUX
+
 #include <cstring>
 
 #include <linux/input.h>
@@ -648,3 +652,5 @@ void win::WaylandDisplay::init_button_map()
     button_map.at(KEY_N) = win::Button::n;
     button_map.at(KEY_M) = win::Button::m;
 }
+
+#endif
