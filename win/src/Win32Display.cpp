@@ -481,7 +481,7 @@ Win32Display::Win32Display(const DisplayOptions &options)
     if (!RegisterRawInputDevices(&rid, 1, sizeof(RAWINPUTDEVICE)))
         win::bug("Win32Display: Couldn't register raw input devices");
 
-    raw_input.resize(8);
+    raw_input.resize(16);
 }
 
 Win32Display::~Win32Display()
@@ -501,13 +501,13 @@ void Win32Display::process()
 
     MSG msg;
 
-    process_raw_mouse();
-
     while (PeekMessage(&msg, window, 0, WM_INPUT - 1, PM_REMOVE) || PeekMessage(&msg, window, WM_INPUT + 1, 0xFFFF, PM_REMOVE))
     {
         TranslateMessage(&msg);
         DispatchMessage(&msg);
     }
+
+    process_raw_mouse();
 }
 
 void Win32Display::swap()
