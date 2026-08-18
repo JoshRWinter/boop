@@ -59,7 +59,8 @@ public:
 						float ball_xv,
 						float ball_yv,
 						int host_score,
-						int guest_score);
+						int guest_score,
+						bool paused);
 
 	// called by guest
 	bool guest_get_data(WinState &winstate,
@@ -71,7 +72,8 @@ public:
 						float &ball_xv,
 						float &ball_yv,
 						int &host_score,
-						int &guest_score);
+						int &guest_score,
+						bool &paused);
 	void guest_send_data(int guest_paddle_color, float guest_paddle_y);
 
 private:

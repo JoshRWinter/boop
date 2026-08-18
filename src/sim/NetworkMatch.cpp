@@ -92,7 +92,8 @@ bool NetworkMatch::join(const char *ip)
 	int dummy1;
 	float dummy2;
 	WinState dummy3;
-	if (guest_get_data(dummy3, dummy1, dummy2, dummy2, dummy2, dummy2, dummy2, dummy2, dummy1, dummy1))
+	bool dummy4;
+	if (guest_get_data(dummy3, dummy1, dummy2, dummy2, dummy2, dummy2, dummy2, dummy2, dummy1, dummy1, dummy4))
 	{
 		state = MatchState::joined;
 		return true;
@@ -183,7 +184,8 @@ void NetworkMatch::host_send_data(WinState winstate,
 								  float ball_xv,
 								  float ball_yv,
 								  int host_score,
-								  int guest_score)
+								  int guest_score,
+								  bool paused)
 {
 	if (state != MatchState::hosting && state != MatchState::listening)
 		win::bug("Trying to host but in state " + std::to_string((int)state) + " instead");
@@ -216,6 +218,8 @@ void NetworkMatch::host_send_data(WinState winstate,
 	c = host_paddle_color;
 	memcpy(payload + 30, &c, sizeof(c));
 	c = (unsigned char)winstate;
+	if (paused)
+		c |= 128;
 	memcpy(payload + 31, &c, sizeof(c));
 
 	server.send(payload, sizeof(payload), guestid);
@@ -230,7 +234,8 @@ bool NetworkMatch::guest_get_data(WinState &winstate,
 								  float &ball_xv,
 								  float &ball_yv,
 								  int &host_score,
-								  int &guest_score)
+								  int &guest_score,
+								  bool &paused)
 {
 	if (state != MatchState::joined && state != MatchState::joining)
 		win::bug("Trying to be joined but in state " + std::to_string((int)state) + " instead");
@@ -303,6 +308,8 @@ bool NetworkMatch::guest_get_data(WinState &winstate,
 	host_paddle_color = c;
 
 	memcpy(&c, payload + 31, sizeof(c));
+	paused = (c & 128) != 0;
+	c &= 127;
 	winstate = (WinState)c;
 
 	last_receive_time = std::chrono::steady_clock::now();

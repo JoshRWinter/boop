@@ -80,7 +80,8 @@ void Game::tick(Renderables &renderables, const Input &input)
 							 networkdata.ball_xv,
 							 networkdata.ball_yv,
 							 networkdata.host_score,
-							 networkdata.guest_score);
+							 networkdata.guest_score,
+							 networkdata.paused);
 
 	const auto reason = match.errored();
 	if (reason != NetworkMatch::ErrorReason::none)
@@ -88,8 +89,30 @@ void Game::tick(Renderables &renderables, const Input &input)
 		reset();
 		match.reset();
 		mainmenu->error = NetworkMatch::error_reason(reason);
+		paused = false;
 		showmenu = true;
 		return;
+	}
+
+	// pause state
+
+	if (match.hosting())
+	{
+		if (input.space)
+		{
+			spacehold = true;
+		}
+		else if (!input.space && spacehold)
+		{
+			paused = !paused;
+			spacehold = false;
+		}
+	}
+
+	if ((match.hosting() && paused) || (!match.hosting() && networkdata.paused))
+	{
+		renderables.text_renderables.emplace_back(0.0f, 0.0f, true, TextRenderable::Type::yuge, win::Color(1.0f, 1.0f, 1.0f, 0.7f), "FREEZE!");
+		renderables.menu_renderables.emplace_back(MenuTexture::colorselect, 0.0f, 100.0f, 1.0f, 1.0f, win::Color(0.0f, 0.0f, 0.0f, 0.0f)); // trick the game into showing the cursor
 	}
 
 	// win-state logic
@@ -203,6 +226,7 @@ void Game::tick(Renderables &renderables, const Input &input)
 	}
 
 	process_ball(renderables.renderables, renderables.light_renderables);
+
 	renderables.renderables.emplace_back(process_player_paddle(input));
 	renderables.renderables.emplace_back(process_opponent_paddle());
 
@@ -226,6 +250,7 @@ void Game::tick(Renderables &renderables, const Input &input)
 		networkdata.winstate = winstate;
 		networkdata.host_score = host_score;
 		networkdata.guest_score = guest_score;
+		networkdata.paused = paused;
 	}
 
 	if (match.hosting())
@@ -238,7 +263,8 @@ void Game::tick(Renderables &renderables, const Input &input)
 							 networkdata.ball_xv,
 							 networkdata.ball_yv,
 							 networkdata.host_score,
-							 networkdata.guest_score);
+							 networkdata.guest_score,
+							 networkdata.paused);
 	else
 		match.guest_send_data(networkdata.guest_paddle_color, networkdata.guest_paddle_y);
 
@@ -286,7 +312,7 @@ void Game::process_ball(std::vector<Renderable> &renderables, std::vector<LightR
 	{
 		for (int i = 0; i < 5; ++i)
 		{
-			if (winstate == WinState::playing)
+			if (winstate == WinState::playing && !paused)
 			{
 				const float slowdown = match_time > 20 ? 1.0f : match_time / 20.0f;
 				ball.x += ball.xv * slowdown * 0.2f;

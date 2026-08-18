@@ -70,6 +70,7 @@ class Game
 		float ball_x = 0.0f, ball_y = 0.0f;
 		float ball_xv = 0.0f, ball_yv = 0.0f;
 		int host_score = 0, guest_score = 0;
+		bool paused = false;
 	};
 
 public:
@@ -91,6 +92,8 @@ private:
 
 	unsigned next_renderable_id = 1;
 	std::mt19937 rand;
+	bool spacehold = false;
+	bool paused = false;
 	bool showmenu = true;
 	bool runbot;
 	int match_time = 0;

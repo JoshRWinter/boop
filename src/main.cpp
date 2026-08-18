@@ -95,6 +95,10 @@ int main(int argc, char **argv)
 						display.set_fullscreen(fullscreen);
 					}
 					break;
+				case win::Button::space:
+					input.space = press;
+					input_available = true;
+					break;
 				default:
 					break;
 			}
