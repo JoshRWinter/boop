@@ -66,8 +66,6 @@ bool Game::play(Renderables &renderables, const Input &input, const std::vector<
 
 void Game::tick(Renderables &renderables, const Input &input)
 {
-	++match_time;
-
 	if (match.hosting())
 		match.host_get_data(networkdata.guest_paddle_color, networkdata.guest_paddle_y);
 	else
@@ -93,6 +91,9 @@ void Game::tick(Renderables &renderables, const Input &input)
 		showmenu = true;
 		return;
 	}
+
+	if ((match.hosting() && !paused) || (!match.hosting() && !networkdata.paused))
+		++match_time;
 
 	// pause state
 
